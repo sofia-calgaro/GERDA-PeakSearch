@@ -6,6 +6,7 @@
 // ***************************************************************
 
 
+//#include "GausPol1.h"
 #include "DataAnalysis.h"
 #include <TMath.h>
 
@@ -13,7 +14,7 @@ bool find_max(int a, int b); // returns 'true' only if b > a
 int find_sigma_FWHM(int energy, double *sigma_E0, double *FWHM); // calculates the energetic resolution and FWHM for a given energy value
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-DataAnalysis::DataAnalysis(const std::string& name)
+GausPol1::GausPol1(const std::string& name)
     : BCModel(name)
 {
 
@@ -25,7 +26,7 @@ DataAnalysis::DataAnalysis(const std::string& name)
 
             int E0 = GetDataSet()->GetDataPoint(5201).GetValue(0);
             int x1 = GetDataSet()->GetDataPoint(5202).GetValue(0);
-            int x2 = GetDataSet()->GetDataPoint(5203).GetValue(0); 
+            int x2 = GetDataSet()->GetDataPoint(5203).GetValue(0);
                             
             double sigma_E0, FWHM;
             int output = find_sigma_FWHM(*E0, &sigma_E0, &FWHM);
@@ -60,19 +61,23 @@ DataAnalysis::DataAnalysis(const std::string& name)
 
             // Let's add parameters/priors for a Gaussian+pol0 function:
             // 1) Signal yield (index 0)
-            AddParameter("height", 0, 80, "", "[events]");
+            AddParameter("height", 0, 10e4, "", "[events]");
             GetParameters().Back().SetPriorConstant();
 
             // 2) Constant (index 1)
-            AddParameter("p0", 0, 80, "p0", "[events]");
+            AddParameter("p0", 0, 10e4, "p0", "[events]");
+            GetParameters().Back().SetPriorConstant();
+            
+            // 3) Slope (index 2)
+            AddParameter("p1", -1, 0, "p1", "[events/keV]");
             GetParameters().Back().SetPriorConstant();
 }
 
 // ----------------------------------------------------------------------------------------------------- DESTRUCTOR
-DataAnalysis::~DataAnalysis() { }
+GausPol1::~GausPol1() { }
 
 // ----------------------------------------------------------------------------------------------------- MY MODEL
-double DataAnalysis::LogLikelihood(const std::vector<double>& pars)
+double GausPol1::LogLikelihood(const std::vector<double>& pars)
 {
 
             double LP = 0.;
@@ -90,7 +95,7 @@ double DataAnalysis::LogLikelihood(const std::vector<double>& pars)
 		    
                     int y_obs =  GetDataSet()->GetDataPoint(i).GetValue(0); // observed value ( 0 = 1st column )
 
-                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1]; // expected value
+                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1] + pars[2]*(i-E0); // expected value
 
                     LP += BCMath::LogPoisson(y_obs, y_exp); // log of conditional probability, p(data|pars)         
             }

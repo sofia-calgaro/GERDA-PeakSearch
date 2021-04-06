@@ -9,14 +9,16 @@
 
 #include <BAT/BCModel.h>
 #include <BAT/BCMath.h>
+#include <BAT/BCMTF.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCDataPoint.h>
+
+#include <TFile.h>
 
 #include <string>
 #include <vector>
 
-// This is a DataAnalysis header file.
-// Model source code is located in file DataAnalysis/DataAnalysis.cxx
-
-// ---------------------------------------------------------
+// ---------------------------------------------------------------------- Gaus + pol0
 class DataAnalysis : public BCModel
 {
 
@@ -39,4 +41,22 @@ public:
 
 };
 
+// ---------------------------------------------------------------------- Gaus + pol1
+class GausPol1 : public BCModel
+{
+
+public:
+
+    // Constructor
+    GausPol1(const std::string& name);
+
+    // Destructor
+    ~GausPol1();
+
+    // Overload LogLikelihood to implement model
+    double LogLikelihood(const std::vector<double>& pars);
+
+};
+
+// ----------------------------------------------------------------------
 #endif

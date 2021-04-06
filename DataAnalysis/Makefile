@@ -17,7 +17,7 @@
 # List of all class (model) sources used in the program,
 # separated by spaces. A backslash indicates continuation
 # on the next line
-CXXSRCS = DataAnalysis.cxx
+CXXSRCS = DataAnalysis.cxx GausPol1.cxx
 
 # List of all program sources used in the program,
 # separated by spaces. A backslash indicates continuation

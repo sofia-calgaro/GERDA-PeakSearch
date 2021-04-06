@@ -21,7 +21,7 @@ int find_sigma_FWHM(int energy, double *sigma_E0, double *FWHM); // calculates t
 int main()
 {
     // Creazione di un vettore a partire da un TObject del file ROOT (per ora non mi serve)
-    //TFile *file = new TFile("/home/sofia/gerda_data/IC_20210406.root","READ");
+    //TFile *file = new TFile("IC_20210406.root","READ");
     //const std::vector<unsigned int> *bin_content;
     //file->GetObject("energy_LAr", bin_content);
     
@@ -29,7 +29,7 @@ int main()
     		
     // create a new dataset to pass then to the model
     BCDataSet data_set;
-    data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/bin_content.txt", 1); // 1 column
+    data_set.ReadDataFromFileTxt("bin_content.txt", 1); // 1 column
     
     // NB: un modo rapido per passare valori da usare nelle funzioni di DataAnalysis.cxx/GausPol1.cxx è quello
     // di aggiungere i valori in questione alla fine dei 5200 valori del contenuto dei bin dello spettro energetico

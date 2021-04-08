@@ -1,6 +1,3 @@
-#ifndef __BAT__DATAANALYSIS__H
-#define __BAT__DATAANALYSIS__H
-
 #include <BAT/BCModel.h>
 #include <BAT/BCMath.h>
 #include <BAT/BCMTF.h>
@@ -13,7 +10,12 @@
 #include <string>
 #include <vector>
 
-// ---------------------------------------------------------------------- Gaus + pol0
+
+
+// ---------------------------------------------------------------------------------------------- Gaus + pol0
+#ifndef __BAT__DATAANALYSIS__H
+#define __BAT__DATAANALYSIS__H
+
 class DataAnalysis : public BCModel
 {
 
@@ -35,15 +37,21 @@ public:
     // void CalculateObservables(const std::vector<double> & pars);
 
 };
+#endif
 
-// ---------------------------------------------------------------------- Gaus + pol1
+
+
+// ---------------------------------------------------------------------------------------------- Gaus + pol1
+#ifndef __BAT__GAUSPOL1__H
+#define __BAT__GAUSPOL1__H
+
 class GausPol1 : public BCModel
 {
 
 public:
 
     // Constructor
-    GausPol1(const std::string& name);
+    GausPol1(const std::string& name, const std::vector<unsigned int> *bin_content, int E0);
 
     // Destructor
     ~GausPol1();
@@ -52,6 +60,4 @@ public:
     double LogLikelihood(const std::vector<double>& pars);
 
 };
-
-// ----------------------------------------------------------------------
 #endif

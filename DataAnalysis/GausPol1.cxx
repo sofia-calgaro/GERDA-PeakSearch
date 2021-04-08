@@ -1,63 +1,56 @@
-// ***************************************************************
-// This file was created using the bat-project script
-// for project DataAnalysis.
-// bat-project is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://mpp.mpg.de/bat
-// ***************************************************************
-
-
-//#include "GausPol1.h"
 #include "DataAnalysis.h"
 #include <TMath.h>
 
+
+
 bool find_max(int a, int b); // returns 'true' only if b > a
-int find_sigma_FWHM(int energy, double *sigma_E0, double *FWHM); // calculates the energetic resolution and FWHM for a given energy value
+double find_sigma(int energy); // calculates the energetic resolution for a given energy value
+double find_FWHM(int energy); // calculates the FWHM for a given energy value
+
+
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-GausPol1::GausPol1(const std::string& name)
+GausPol1::GausPol1(const std::string& name, const std::vector<unsigned int> *bin_content, int E0)
     : BCModel(name)
 {
 
-/*
-            // Get the vector containing the experimental data
-            std::vector<int> vettore;
-            int output2 = vector_from_data(&vettore);
-            if ( output2 == 1 ) { std::cout << "There is a problem" << std::endl; } 
-
-            int E0 = GetDataSet()->GetDataPoint(5201).GetValue(0);
-            int x1 = GetDataSet()->GetDataPoint(5202).GetValue(0);
-            int x2 = GetDataSet()->GetDataPoint(5203).GetValue(0);
+	    int x1 = E0-12;
+            int x2 = E0+12;
                             
-            double sigma_E0, FWHM;
-            int output = find_sigma_FWHM(*E0, &sigma_E0, &FWHM);
-            if ( output == 1 ) { std::cout << "There is a problem" << std::endl; }
-                         
-            int x1_stop = std::round( *E0 - 1.5*FWHM );
-            int x2_start = std::round( *E0 + 1.5*FWHM );
-                    
+            double FWHM = find_FWHM(E0);
+            
+            // Let's define the range [x1_sig;x2_sig] in which the signal contribution (S) is calculated
+            int x1_sig = std::round( E0 - 1.5*FWHM );
+            int x2_sig = std::round( E0 + 1.5*FWHM );
+            
+            // Calculate the average BKG outside [x1_sig;x2_sig]   
             int B_i = 0;
                     
-            for ( int i=x1+1; i<=x1_stop; i++ ) { B_i += vettore.at(i); }
+            for ( int i=x1+1; i<=x1_sig; i++ ) { B_i += bin_content->at(i); }
             
-            for ( int i=x2_start+1; i<=x2; i++ ) { B_i += vettore.at(i); }
+            for ( int i=x2_sig+1; i<=x2; i++ ) { B_i += bin_content->at(i); }
                     
-            int N_bkg = ( x1_stop - x1 ) + ( x2 - x2_start );
+            int N_bkg = ( x1_sig - x1 ) + ( x2 - x2_sig );
             int B_avg = std::round( B_i / N_bkg );
                     
+            // Calculate the overall bin content in [x1:sig;x2_sig]        
             int S_i = 0;
-            for ( int i=x1_stop+1; i<=x2_start; i++ ) { S_i += vettore.at(i); }
+            for ( int i=x1_sig+1; i<=x2_sig; i++ ) { S_i += bin_content->at(i); }
                     
-            int N_sig = x2_start-x1_stop;
-                    
+            int N_sig = x2_sig-x1_sig;
+            
+            // Calculate the amount of BKG in [x1:sig;x2_sig]        
             int B_sig = N_sig*B_avg;
-                    
+            
+            // Calculate the signal in [x1:sig;x2_sig]      
             int S = std::round ( S_i-B_sig );                
                     
+            // Find the maximum value that the signal height can assume        
             int max1 = std::round( S + 5*sqrt(B_sig) + 5*sqrt(S) );
             int max2 = std::round( 8*sqrt(B_sig) );
             int max3 = 10;
             int max = std::max({max1, max2, max3},find_max);
-        */
+        
 
             // Let's add parameters/priors for a Gaussian+pol0 function:
             // 1) Signal yield (index 0)
@@ -83,12 +76,10 @@ double GausPol1::LogLikelihood(const std::vector<double>& pars)
             double LP = 0.;
             
             int E0 = GetDataSet()->GetDataPoint(5201).GetValue(0);
-            int x1 = GetDataSet()->GetDataPoint(5202).GetValue(0);
-            int x2 = GetDataSet()->GetDataPoint(5203).GetValue(0);
+            int x1 = E0-12;
+            int x2 = E0+12;
 
-            double sigma_E0, FWHM;
-            int output = find_sigma_FWHM(E0, &sigma_E0, &FWHM);
-            if ( output == 1 ) { std::cout << "There is a problem" << std::endl; }
+            double sigma_E0 = find_sigma(E0);
 
             // Loop over 24 elements
             for ( int i=x1; i<x2-1; i++ ) {

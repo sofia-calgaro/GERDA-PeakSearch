@@ -1,9 +1,3 @@
-// ***************************************************************
-// This file was created using the bat-project script.
-// bat-project is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://mpp.mpg.de/bat
-// ***************************************************************
-
 #ifndef __BAT__DATAANALYSIS__H
 #define __BAT__DATAANALYSIS__H
 
@@ -14,6 +8,7 @@
 #include <BAT/BCDataPoint.h>
 
 #include <TFile.h>
+#include <TMath.h>
 
 #include <string>
 #include <vector>
@@ -25,7 +20,7 @@ class DataAnalysis : public BCModel
 public:
 
     // Constructor
-    DataAnalysis(const std::string& name);
+    DataAnalysis(const std::string& name, const std::vector<unsigned int> *bin_content, int E0);
 
     // Destructor
     ~DataAnalysis();

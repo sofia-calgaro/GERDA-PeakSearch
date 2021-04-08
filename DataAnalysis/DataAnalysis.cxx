@@ -1,50 +1,34 @@
-// ***************************************************************
-// This file was created using the bat-project script
-// for project DataAnalysis.
-// bat-project is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://mpp.mpg.de/bat
-// ***************************************************************
-
-
 #include "DataAnalysis.h"
 #include <TMath.h>
 
 bool find_max(int a, int b); // returns 'true' only if b > a
-int find_sigma_FWHM(int energy, double *sigma_E0, double *FWHM); // calculates the energetic resolution and FWHM for a given energy value
+double find_sigma(int energy); // calculates the energetic resolution for a given energy value
+double find_FWHM(int energy); // calculates the FWHM for a given energy value
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-DataAnalysis::DataAnalysis(const std::string& name)
+DataAnalysis::DataAnalysis(const std::string& name, const std::vector<unsigned int> *bin_content, int E0)
     : BCModel(name)
 {
 
-/*
-            // Get the vector containing the experimental data
-            std::vector<int> vettore;
-            int output2 = vector_from_data(&vettore);
-            if ( output2 == 1 ) { std::cout << "There is a problem" << std::endl; } 
-
-            int E0 = GetDataSet()->GetDataPoint(5201).GetValue(0);
-            int x1 = GetDataSet()->GetDataPoint(5202).GetValue(0);
-            int x2 = GetDataSet()->GetDataPoint(5203).GetValue(0); 
+            int x1 = E0-12;
+            int x2 = E0+12;
                             
-            double sigma_E0, FWHM;
-            int output = find_sigma_FWHM(*E0, &sigma_E0, &FWHM);
-            if ( output == 1 ) { std::cout << "There is a problem" << std::endl; }
-                         
-            int x1_stop = std::round( *E0 - 1.5*FWHM );
-            int x2_start = std::round( *E0 + 1.5*FWHM );
-                    
+            double FWHM = find_FWHM(E0);
+           
+            int x1_stop = std::round( E0 - 1.5*FWHM );
+            int x2_start = std::round( E0 + 1.5*FWHM );
+                   
             int B_i = 0;
                     
-            for ( int i=x1+1; i<=x1_stop; i++ ) { B_i += vettore.at(i); }
+            for ( int i=x1+1; i<=x1_stop; i++ ) { B_i += bin_content->at(i); }
             
-            for ( int i=x2_start+1; i<=x2; i++ ) { B_i += vettore.at(i); }
+            for ( int i=x2_start+1; i<=x2; i++ ) { B_i += bin_content->at(i); }
                     
             int N_bkg = ( x1_stop - x1 ) + ( x2 - x2_start );
             int B_avg = std::round( B_i / N_bkg );
                     
             int S_i = 0;
-            for ( int i=x1_stop+1; i<=x2_start; i++ ) { S_i += vettore.at(i); }
+            for ( int i=x1_stop+1; i<=x2_start; i++ ) { S_i += bin_content->at(i); }
                     
             int N_sig = x2_start-x1_stop;
                     
@@ -56,11 +40,11 @@ DataAnalysis::DataAnalysis(const std::string& name)
             int max2 = std::round( 8*sqrt(B_sig) );
             int max3 = 10;
             int max = std::max({max1, max2, max3},find_max);
-        */
+        
 
             // Let's add parameters/priors for a Gaussian+pol0 function:
             // 1) Signal yield (index 0)
-            AddParameter("height", 0, 80, "", "[events]");
+            AddParameter("height", 0, max, "", "[events]");
             GetParameters().Back().SetPriorConstant();
 
             // 2) Constant (index 1)
@@ -78,12 +62,10 @@ double DataAnalysis::LogLikelihood(const std::vector<double>& pars)
             double LP = 0.;
             
             int E0 = GetDataSet()->GetDataPoint(5201).GetValue(0);
-            int x1 = GetDataSet()->GetDataPoint(5202).GetValue(0);
-            int x2 = GetDataSet()->GetDataPoint(5203).GetValue(0);
+            int x1 = E0-12;
+            int x2 = E0+12;
 
-            double sigma_E0, FWHM;
-            int output = find_sigma_FWHM(E0, &sigma_E0, &FWHM);
-            if ( output == 1 ) { std::cout << "There is a problem" << std::endl; }
+            double sigma_E0 = find_sigma(E0);
 
             // Loop over 24 elements
             for ( int i=x1; i<x2-1; i++ ) {

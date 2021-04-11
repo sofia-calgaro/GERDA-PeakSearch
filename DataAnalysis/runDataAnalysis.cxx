@@ -13,25 +13,26 @@
 
 int main()
 {
-    TFile *file = new TFile("/home/sofia/gerda_data/IC_20210406.root","READ");
-    const std::vector<unsigned int> *bin_content;
-    file->GetObject("energy_LAr", bin_content);
+    TFile *file = new TFile("IC_20210406.root","READ");
+    TH1D *h = (TH1D*) file->Get("histo_energy_LArVetoed");
+    std::vector< int> bin_content;
+    for ( int i=1; i<=5200; i++ ) { bin_content.push_back( h->GetBinContent(i) ); }
     
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
     		
     // create a new dataset to pass then to the model
     BCDataSet data_set;
-    data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/bin_content.txt", 1);
+    data_set.ReadDataFromFileTxt("bin_content.txt", 1);
     
     // create a new data point: E0
-    int E0 = 352;
+    int E0 = 351;
     BCDataPoint* CentralEnergy = new BCDataPoint(1);
     CentralEnergy->SetValue(0,E0);
     data_set.AddDataPoint(*CentralEnergy);	
     
     int x1 = E0 - 12;
     int x2 = E0 + 12;		
-    	
+
     	
     /*================================================================================================= FUTURE IDEA
     
@@ -47,8 +48,8 @@ int main()
     =================================================================================================== */
     
     
-    GausPol0 m("GausPol0", bin_content, E0);
-    //GausPol1 m("GausPol1", bin_content, E0); // uncomment this if you want to use it (and comment the other one)
+    //GausPol0 m("GausPol0", bin_content, E0);
+    GausPol1 m("GausPol1", bin_content, E0); // uncomment this if you want to use it (and comment the other one)
      
     // Associate the data set with the model
     m.SetDataSet(&data_set);
@@ -91,8 +92,8 @@ int main()
 	    
 	    double sigma_E0 = FindSigma(E0);
 	    
-	    double y_exp =  params.at(0) * TMath::Gaus(i, E0, sigma_E0, false) + params.at(1);
-	    //double y_exp =  params.at(0) * TMath::Gaus(i, E0, sigma_E0, false) + params.at(1) + params.at(2)*(i-E0); // uncomment this if you use the GausPol1 model (and comment the other one)
+	    //double y_exp =  params.at(0) * TMath::Gaus(i, E0, sigma_E0, false) + params.at(1);
+	    double y_exp =  params.at(0) * TMath::Gaus(i, E0, sigma_E0, false) + params.at(1) + params.at(2)*(i-E0); // uncomment this if you use the GausPol1 model (and comment the other one)
 	    
 	    chi2 += pow( y_obs-y_exp, 2) / y_exp; // Pearson chi2 for Poisson distributed data
     }

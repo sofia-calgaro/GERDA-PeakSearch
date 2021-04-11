@@ -4,18 +4,18 @@
 
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-GausPol0::GausPol0(const std::string& name, const std::vector<unsigned int> *bin_content, int E0)
+GausPol0::GausPol0(const std::string& name, std::vector<int> bin_content, int E0)
     : BCModel(name)
 {
- 	   int max = FindMaximumSignalHeight( E0, bin_content);
+ 	    int *output = FindMaximumSignalHeight( E0, bin_content);
+ 	    double *output_pol0 = FindRangeOfBKGParameters_Pol0( E0, bin_content, output);
 	
             // 1) Signal yield (index 0)
-            //AddParameter("height", 0, max, "", "[events]");
-            AddParameter("height", 0, 80, "", "[events]");
+            AddParameter("height", 0, output[3], "", "[events]");
             GetParameters().Back().SetPriorConstant();
 
             // 2) Constant (index 1)
-            AddParameter("p0", 0, 80, "p0", "[events]");
+            AddParameter("p0", output_pol0[0]-10*output_pol0[1], output_pol0[0]+10*output_pol0[1], "p0", "[events]");
             GetParameters().Back().SetPriorConstant();
 }
 

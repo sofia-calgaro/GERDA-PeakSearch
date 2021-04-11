@@ -6,6 +6,8 @@
 
 #include <TFile.h>
 #include <TMath.h>
+#include <TF1.h>
+#include <TH1D.h>
 
 #include <string>
 #include <vector>
@@ -24,8 +26,14 @@
     double FindFWHM(int energy); 
     
     // Calculates the maximum of the signal height paramter
-    int FindMaximumSignalHeight(int energy, const std::vector<unsigned int> *bin_signal); 
+    int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal); 
     
-    // Find the new edges x1_new, x2_new in case a gamma peak is present in proximity of the fit window
+    // Find the range in which the BKG-Pol0 parameters of the models vary
+    double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, int *output);
+    
+    // Find the range in which the BKG-Pol1 parameters of the models vary
+    double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, int *output);
+    
+    // Find the new edges x1_new, x2_new in case a gamma peak is present in proximity of the fit window (E' ANCORA DA IMPLEMENTARE)
     //int FindNewEdges(int i_min, int i_max, int *x1_new, int *x2_new);
     

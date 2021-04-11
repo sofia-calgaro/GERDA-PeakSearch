@@ -102,7 +102,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=energy-12; i<energy+12; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
 
-   // Minuit fit: f0 = pol0 
+   // ROOT fit: f0 = pol0 
    if ( output[2] < 3*sqrt(output[1]) ) { 
 	   	
 	   TF1 *f0 = new TF1("f0","[0]", energy-20, energy+20);
@@ -121,7 +121,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   return output_fit_pol0; 
    }
    
-   // Minuit fit: f0 = pol0 + gaus
+   // ROOT fit: f0 = pol0 + gaus
    else {
    	   
    	   TF1 *f0 = new TF1("f0","[0] + TMath::Gaus(x, [2], [3], false)", energy-20, energy+20);
@@ -163,7 +163,7 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=energy-12; i<energy+12; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
 
-   // Minuit fit: f0 = pol1
+   // ROOT fit: f1 = pol1
    if ( output[2] < 3*sqrt(output[1]) ) { 
 	
    	   TF1 *f1 = new TF1("f1","[0]+[1]*x", energy-20, energy+20);
@@ -184,7 +184,7 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 	   return output_fit_pol1; 
    }
    
-   // Minuit fit: f0 = pol1 + gaus
+   // ROOT fit: f1 = pol1 + gaus
    else {
    	   
    	   char function[50];

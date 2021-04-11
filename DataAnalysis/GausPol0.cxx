@@ -1,34 +1,29 @@
-#include "GausPol1.h"
+#include "GausPol0.h"
 #include "Operations.h"
-#include <TMath.h>
 
 
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-GausPol1::GausPol1(const std::string& name, const std::vector<unsigned int> *bin_content, int E0)
+GausPol0::GausPol0(const std::string& name, const std::vector<unsigned int> *bin_content, int E0)
     : BCModel(name)
 {
-
-	    int max = FindMaximumSignalHeight( E0, bin_content);        
-
+ 	   int max = FindMaximumSignalHeight( E0, bin_content);
+	
             // 1) Signal yield (index 0)
-            AddParameter("height", 0, 10e4, "", "[events]");
+            //AddParameter("height", 0, max, "", "[events]");
+            AddParameter("height", 0, 80, "", "[events]");
             GetParameters().Back().SetPriorConstant();
 
             // 2) Constant (index 1)
-            AddParameter("p0", 0, 10e4, "p0", "[events]");
-            GetParameters().Back().SetPriorConstant();
-            
-            // 3) Slope (index 2)
-            AddParameter("p1", -1, 0, "p1", "[events/keV]");
+            AddParameter("p0", 0, 80, "p0", "[events]");
             GetParameters().Back().SetPriorConstant();
 }
 
 // ----------------------------------------------------------------------------------------------------- DESTRUCTOR
-GausPol1::~GausPol1() { }
+GausPol0::~GausPol0() { }
 
 // ----------------------------------------------------------------------------------------------------- MY MODEL
-double GausPol1::LogLikelihood(const std::vector<double>& pars)
+double GausPol0::LogLikelihood(const std::vector<double>& pars)
 {
 
             double LP = 0.;
@@ -44,10 +39,10 @@ double GausPol1::LogLikelihood(const std::vector<double>& pars)
 		    
                     int y_obs =  GetDataSet()->GetDataPoint(i).GetValue(0); // observed value ( 0 = 1st column )
 
-                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1] + pars[2]*(i-E0); // expected value
+                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1]; // expected value
 
                     LP += BCMath::LogPoisson(y_obs, y_exp); // log of conditional probability, p(data|pars)         
             }
 
             return LP;
- }	    
+}

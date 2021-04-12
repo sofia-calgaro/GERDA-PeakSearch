@@ -34,6 +34,9 @@
     // Find the range in which the BKG-Pol1 parameters of the models vary
     double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, int *output);
     
+    // See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model)
+    double PosteriorInspection_Pol0(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo);
+    
     // Find the new edges x1_new, x2_new in case a gamma peak is present in proximity of the fit window (E' ANCORA DA IMPLEMENTARE)
     //int FindNewEdges(int i_min, int i_max, int *x1_new, int *x2_new);
     

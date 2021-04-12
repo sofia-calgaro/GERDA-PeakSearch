@@ -106,7 +106,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   	
 	   TF1 *f0 = new TF1("f0","[0]", energy-20, energy+20);
 	   
-	   int S_avg;
+	   int S_avg = 0;
 	   for (int i=energy-10; i<energy+10; i++) { S_avg += bin_content.at(i); }
 	   S_avg = std::round(S_avg/20);
 	   f0->SetParameter(0, S_avg);
@@ -125,7 +125,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
    	   
    	   TF1 *f0 = new TF1("f0","[0] + TMath::Gaus(x, [2], [3], false)", energy-20, energy+20);
    	   
-	   int S_avg;
+	   int S_avg = 0;
 	   for (int i=energy-10; i<energy+10; i++) { S_avg += bin_content.at(i); }
 	   S_avg = std::round(S_avg/20);
 	   f0->SetParameter(0, S_avg);
@@ -167,18 +167,19 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 	
    	   TF1 *f1 = new TF1("f1","[0]+[1]*x", energy-20, energy+20);
    	   
-   	   int S_avg;
-	   for (int i=energy-10; i<energy+10; i++) { S_avg += bin_content.at(i); }
-	   S_avg = std::round(S_avg/20);
-	   f1->SetParameter(0, S_avg);
+   	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
+   	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
+   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20) ) / ( (energy-20) - (energy+20) + 0.0 ); // 0.0 is needed since we are dividing an int by an int, but we want a double
+   	   f1->SetParameter(0, q);
+	   f1->SetParameter(1, m);
 	   
-	   h_energy->Fit("f1","RQNO");
+	   h_energy->Fit("f1","R");
 	   
 	   double *output_fit_pol1 = new double[4];
 	   output_fit_pol1[0] = f1->GetParameter(0); // constant
 	   output_fit_pol1[1] = f1->GetParError(0);
 	   output_fit_pol1[2] = f1->GetParameter(1); // slope
-	   output_fit_pol1[3] = f1->GetParError(2);
+	   output_fit_pol1[3] = f1->GetParError(1);
 	   
 	   return output_fit_pol1; 
    }
@@ -186,22 +187,23 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    // ROOT fit: f1 = pol1 + gaus
    else {
    	   
-   	   char function[50];
-   	   sprintf(function,"[0]+[1]*(x-%i)+TMath::Gaus(x, [2], [3], false)",energy);
+   	   char function[100];
+   	   sprintf(function,"[0]+[1]*(x-%i)+[2]*TMath::Gaus(x, [3], [4], false)",energy);
    	   TF1 *f1 = new TF1("f1",function, energy-20, energy+20);
    	   
-   	   int S_avg;
-	   for (int i=energy-10; i<energy+10; i++) { S_avg += bin_content.at(i); }
-	   S_avg = std::round(S_avg/20);
-	   f1->SetParameter(0, S_avg);
+   	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
+   	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
+   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20) ) / ( (energy-20) - (energy+20) + 0.0 ); // 0.0 is needed since we are dividing an int by an int, but we want a double
+   	   f1->SetParameter(0, q);
+	   f1->SetParameter(1, m);	   
 	   
-   	   f1->SetParLimits(2, 0, output[3]);
+   	   f1->SetParameter(2, output[3]);
 	   f1->FixParameter(3, energy);
 	   
 	   double sigma_E0 = FindSigma(energy);
 	   f1->FixParameter(4, sigma_E0);   
 	   
-	   h_energy->Fit("f1","RQNO");
+	   h_energy->Fit("f1","R");
 	   
 	   double *output_fit_pol1 = new double[10];
 	   output_fit_pol1[0] = f1->GetParameter(0); // constant
@@ -218,6 +220,32 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 	   return output_fit_pol1;    
    }
 
+}
+
+
+
+
+// See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model)
+//-----------------------------------------------------------------------------------------------------------------------
+double PosteriorInspection_Pol0(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo) {
+
+    double *output_pol0 = FindRangeOfBKGParameters_Pol0( energy, bin_content, output);
+    
+    TH1D *h0 = (TH1D*)marginalized_histo.GetHistogram();
+    
+    int Nbins = h0->GetNbinsX();
+    double int_tot = h0->Integral(0, Nbins);
+    
+    double int_range = h0->Integral(output_pol0[0]-10*output_pol0[1], output_pol0[0]+10*output_pol0[1]);
+    
+    double area_perc = ( int_range / int_tot ) * 100;
+    std::cout << "\n\t int_tot = " << int_tot << "\tint_range = " << int_range << std::endl;
+        
+    //TFile *f = new TFile("h0.root","RECREATE");
+    //h0->Write();
+    //f->Write();
+ 
+    return area_perc;
 }
 
 

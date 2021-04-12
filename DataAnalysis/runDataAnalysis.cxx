@@ -50,10 +50,11 @@ int main()
     
     2) Definire i vari modelli da considerare e selezionarne solo uno in seguito tramite statement if, tipo:
     
-            if (x2<120) { pol2 (no picchi) || pol2+gaus_s (picco segnale) || pol2+gaus_s+gaus_g (picco segnale+gamma) }
-            if (x2>120 && x<1000) { pol1 || pol1+gaus_s || pol1+gaus_s+gaus_g } 
+            if (x2<120) { pol2+gaus_s (picco segnale) || pol2+gaus_s+gaus_g (picco segnale+gamma) }
+            if (x2>120 && x<1000) { pol1+gaus_s || pol1+gaus_s+gaus_g } 
     		
     =================================================================================================== */
+    
     
     GausPol0 m("GausPol0", bin_content, E0);
     //GausPol1 m("GausPol1", bin_content, E0); // uncomment this if you want to use it (and comment the other one)

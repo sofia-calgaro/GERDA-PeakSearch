@@ -89,9 +89,9 @@ int main()
     // to fix the bands for each posterior at 68.3%, 95.4%, 99.7%4
     m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
     
+    // to find the percentage of area subtended in [par0-10*sigma;par0+10*sigma] for example
     BCH1D h_trial = m.GetMarginalized(0);
     int *output = FindMaximumSignalHeight( E0, bin_content);
-    
     double area_perc = PosteriorInspection_Pol0( E0, bin_content, output, h_trial);
     std::cout << "\n\t Underlying area in [par0-10*sigma;par0+10*sigma] = " << area_perc << "\n" << std::endl;
  

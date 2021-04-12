@@ -46,7 +46,7 @@ int main()
           cambiare eventualmente x1 e x2), tipo:
  
 	    double *x1_new, *x2_new;
-	    int return_0 = FindNewEdges(x1, x2, &x1_new, &x2_new); // dove funzione è la serie di if
+	    int return_0 = FindNewEdges(x1, x2, &x1_new, &x2_new); // dove "FindNewEdges" è la funzione con tutti gli if
     
     2) Definire i vari modelli da considerare e selezionarne solo uno in seguito tramite statement if, tipo:
     
@@ -54,7 +54,6 @@ int main()
             if (x2>120 && x<1000) { pol1+gaus_s || pol1+gaus_s+gaus_g } 
     		
     =================================================================================================== */
-    
     
     GausPol0 m("GausPol0", bin_content, E0);
     //GausPol1 m("GausPol1", bin_content, E0); // uncomment this if you want to use it (and comment the other one)

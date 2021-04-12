@@ -1,6 +1,5 @@
 // **********************************************************************************************************************
-// This file contains different functions that are called in the main source file of the analysis
-// ("runDataAnalysis.cxx").
+// This file contains different functions that are called in the main source file ("runDataAnalysis.cxx").
 // To use these functions you must include this file with ' #include "Operaions.h" '.
 // **********************************************************************************************************************
 #include "Operations.h"

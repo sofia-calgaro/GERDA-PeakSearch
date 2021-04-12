@@ -10,7 +10,7 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 {
 
 	    int *output = FindMaximumSignalHeight( E0, bin_content);
- 	    double *output_pol0 = FindRangeOfBKGParameters_Pol1( E0, bin_content, output);
+ 	    double *output_pol1 = FindRangeOfBKGParameters_Pol1( E0, bin_content, output);
 	
             // 1) Signal yield (index 0)
             //AddParameter("height", 0, max, "", "[events]");
@@ -18,11 +18,11 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 	    GetParameters().Back().SetPriorConstant();
 
             // 2) Constant (index 1)
-            AddParameter("p0", output_pol0[0]-10*output_pol0[1], output_pol0[0]+10*output_pol0[1], "p0", "[events]");
+            AddParameter("p0", output_pol1[0]-10*output_pol1[1], output_pol1[0]+10*output_pol1[1], "p0", "[events]");
             GetParameters().Back().SetPriorConstant();
             
             // 3) Slope (index 2)
-            AddParameter("p1", output_pol0[2]-10*output_pol0[3], output_pol0[2]+10*output_pol0[3], "p1", "[events/keV]");
+            AddParameter("p1", output_pol1[2]-10*output_pol1[3], output_pol1[2]+10*output_pol1[3], "p1", "[events/keV]");
             GetParameters().Back().SetPriorConstant();
 }
 

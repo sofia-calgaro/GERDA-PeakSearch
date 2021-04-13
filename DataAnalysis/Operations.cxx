@@ -99,7 +99,7 @@ int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal) {
 double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, int *output) {
 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
-   for (int i=energy-12; i<energy+12; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
 
    // ROOT fit: f0 = pol0 
    if ( output[2] < 3*sqrt(output[1]) ) { 
@@ -107,7 +107,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   TF1 *f0 = new TF1("f0","[0]", energy-20, energy+20);
 	   
 	   int S_avg = 0;
-	   for (int i=energy-10; i<energy+10; i++) { S_avg += bin_content.at(i); }
+	   for (int i=energy-20; i<energy+20; i++) { S_avg += bin_content.at(i); }
 	   S_avg = std::round(S_avg/20);
 	   f0->SetParameter(0, S_avg);
 	   
@@ -126,7 +126,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
    	   TF1 *f0 = new TF1("f0","[0] + TMath::Gaus(x, [2], [3], false)", energy-20, energy+20);
    	   
 	   int S_avg = 0;
-	   for (int i=energy-10; i<energy+10; i++) { S_avg += bin_content.at(i); }
+	   for (int i=energy-20; i<energy+20; i++) { S_avg += bin_content.at(i); }
 	   S_avg = std::round(S_avg/20);
 	   f0->SetParameter(0, S_avg);
 	   
@@ -160,12 +160,14 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, int *output) {
 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
-   for (int i=energy-12; i<energy+12; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
 
    // ROOT fit: f1 = pol1
    if ( output[2] < 3*sqrt(output[1]) ) { 
-	
-   	   TF1 *f1 = new TF1("f1","[0]+[1]*x", energy-20, energy+20);
+	 
+	   char function[100];
+   	   sprintf(function,"[0] + [1]*(x-%i)", energy);
+   	   TF1 *f1 = new TF1("f1", function, energy-20, energy+20);
    	   
    	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
    	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
@@ -188,7 +190,7 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    else {
    	   
    	   char function[100];
-   	   sprintf(function,"[0]+[1]*(x-%i)+[2]*TMath::Gaus(x, [3], [4], false)",energy);
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], false)", energy);
    	   TF1 *f1 = new TF1("f1",function, energy-20, energy+20);
    	   
    	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
@@ -225,7 +227,111 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 
 
 
-// See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model)
+//-----------------------------------------------------------------------------------------------------------------------
+// Find the range in which the BKG-Pol2 parameters of the models vary
+double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, int *output) {
+
+   TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
+   for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+
+   // ROOT fit: f2 = pol2
+   if ( output[2] < 3*sqrt(output[1]) ) { 
+	
+	   char function[100];
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i)", energy, energy, energy);
+   	   TF1 *f2 = new TF1("f2", function, energy-20, energy+20);
+   	   
+   	   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
+   	   double a_x = energy - 20;
+   	   double a_y = bin_content.at(energy-20);
+   	   double b_x = energy;
+   	   double b_y = bin_content.at(energy);
+   	   double c_x = energy + 20;
+   	   double c_y = bin_content.at(energy+20);
+   	   
+   	   double k = pow ( b_x/c_x, 2);
+   	   double q = pow ( a_x/c_x, 2);
+   	   double z = ( b_y - k*c_y ) / ( b_x - k*c_x );
+   	   
+   	   double p_0 = ( a_y - z*(1-q*c_x) - q*c_y ) / ( 1 - (1-k)/(b_x-k*c_x) - q*(1-c_x*(1-k)/(b_x-k*c_x)) );
+   	   double p_1 = ( b_y - p_0*(1-k) - k*c_y ) / ( b_x - k*c_x );
+   	   double p_2 = ( c_y - p_0 - p_1*c_x ) / pow( c_x, 2);
+   	   
+   	   f2->SetParameter(0, p_0);
+	   f2->SetParameter(1, p_1);
+	   f2->SetParameter(2, p_2);
+	   
+	   h_energy->Fit("f2","R");
+	   
+	   double *output_fit_pol2 = new double[6];
+	   output_fit_pol2[0] = f2->GetParameter(0); // constant
+	   output_fit_pol2[1] = f2->GetParError(0);
+	   output_fit_pol2[2] = f2->GetParameter(1); // slope
+	   output_fit_pol2[3] = f2->GetParError(1);
+	   output_fit_pol2[4] = f2->GetParameter(2); // quadratic term
+	   output_fit_pol2[5] = f2->GetParError(3);
+	   
+	   return output_fit_pol2; 
+   }
+   
+   // ROOT fit: f2 = pol2 + gaus
+   else {
+   	   
+   	   char function[100];
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], false)", energy, energy, energy);
+   	   TF1 *f2 = new TF1("f2",function, energy-20, energy+20);
+   	   
+   	   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
+   	   double a_x = energy - 20;
+   	   double a_y = bin_content.at(energy-20);
+   	   double b_x = energy;
+   	   double b_y = bin_content.at(energy);
+   	   double c_x = energy + 20;
+   	   double c_y = bin_content.at(energy+20);
+   	   
+   	   double k = pow ( b_x/c_x, 2);
+   	   double q = pow ( a_x/c_x, 2);
+   	   double z = ( b_y - k*c_y ) / ( b_x - k*c_x );
+   	   
+   	   double p_0 = ( a_y - z*(1-q*c_x) - q*c_y ) / ( 1 - (1-k)/(b_x-k*c_x) - q*(1-c_x*(1-k)/(b_x-k*c_x)) );
+   	   double p_1 = ( b_y - p_0*(1-k) - k*c_y ) / ( b_x - k*c_x );
+   	   double p_2 = ( c_y - p_0 - p_1*c_x ) / pow( c_x, 2);
+   	   
+   	   f2->SetParameter(0, p_0);
+	   f2->SetParameter(1, p_1);
+	   f2->SetParameter(2, p_2);	   
+	   
+   	   f2->SetParameter(3, output[3]);
+	   f2->FixParameter(4, energy);
+	   
+	   double sigma_E0 = FindSigma(energy);
+	   f2->FixParameter(5, sigma_E0);   
+	   
+	   h_energy->Fit("f2","R");
+	   
+	   double *output_fit_pol2 = new double[12];
+	   output_fit_pol2[0] = f2->GetParameter(0); // constant
+	   output_fit_pol2[1] = f2->GetParError(0);
+	   output_fit_pol2[2] = f2->GetParameter(1); // slope
+	   output_fit_pol2[3] = f2->GetParError(1);
+	   output_fit_pol2[4] = f2->GetParameter(2); // quadratic term
+	   output_fit_pol2[5] = f2->GetParError(2);
+	   output_fit_pol2[6] = f2->GetParameter(3); // height
+	   output_fit_pol2[7] = f2->GetParError(3);
+	   output_fit_pol2[8] = f2->GetParameter(4); // E0
+	   output_fit_pol2[9] = f2->GetParError(4);
+	   output_fit_pol2[10] = f2->GetParameter(5); // sigma
+	   output_fit_pol2[11] = f2->GetParError(5);
+	   
+	   return output_fit_pol2;    
+   }
+
+}
+
+
+
+
+// See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model) --> cercare su BAT una funzione analoga
 //-----------------------------------------------------------------------------------------------------------------------
 double PosteriorInspection_Pol0(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo) {
 
@@ -240,13 +346,15 @@ double PosteriorInspection_Pol0(int energy, std::vector<int> bin_content, int *o
     
     double area_perc = ( int_range / int_tot ) * 100;
     std::cout << "\n\t int_tot = " << int_tot << "\tint_range = " << int_range << std::endl;
-        
+    
+    // Command to visualize the histogram of the par0 of pol0 model
     //TFile *f = new TFile("h0.root","RECREATE");
     //h0->Write();
     //f->Write();
  
     return area_perc;
 }
+
 
 
 

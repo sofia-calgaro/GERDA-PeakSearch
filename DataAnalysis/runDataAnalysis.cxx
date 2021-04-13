@@ -11,6 +11,7 @@
 // MODELS
 #include "GausPol0.h"
 #include "GausPol1.h"
+#include "GausPol2.h"
 
 // FUNCTIONS
 #include "Operations.h"
@@ -38,29 +39,13 @@ int main()
     
     int x1 = E0 - 12;
     int x2 = E0 + 12;		
-
-    	
-    /*================================================================================================= FUTURE IDEA
     
-    1) Fare qui la selezione sul modello da usare ( => for+if per vedere se ci sono picchi così da
-          cambiare eventualmente x1 e x2), tipo:
- 
-	    double *x1_new, *x2_new;
-	    int return_0 = FindNewEdges(x1, x2, &x1_new, &x2_new); // dove "FindNewEdges" è la funzione con tutti gli if
-    
-    2) Definire i vari modelli da considerare e selezionarne solo uno in seguito tramite statement if, tipo:
-    
-            if (x2<120) { pol2+gaus_s (picco segnale) || pol2+gaus_s+gaus_g (picco segnale+gamma) }
-            if (x2>120 && x<1000) { pol1+gaus_s || pol1+gaus_s+gaus_g } 
-    		
-    =================================================================================================== */
-    
-    GausPol0 m("GausPol0", bin_content, E0);
-    //GausPol1 m("GausPol1", bin_content, E0); // uncomment this if you want to use it (and comment the other one)
+    //GausPol0 m("GausPol0", bin_content, E0);
+    //GausPol1 m("GausPol1", bin_content, E0);
+    GausPol2 m("GausPol2", bin_content, E0);
      
     // Associate the data set with the model
     m.SetDataSet(&data_set);
-    
     
     //------------------------------------------------------------------------------------------------- ANALYSIS
     
@@ -80,20 +65,14 @@ int main()
     // run mode finding; by default using Minuit
     m.FindMode(m.GetBestFitParameters());
     
-    // Commands to get some information from a specific posterior
-    /*BCH1D h_params0 = m.GetMarginalizedHistogram(0);
-    double quantile_95 = h_params0.GetQuantile(0.95);
-    double local_mode = h_params0.GetLocalMode();
-    double global_mode = m.GetBestFitParameters().at(0);*/
-    
-    // to fix the bands for each posterior at 68.3%, 95.4%, 99.7%4
+    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%4
     m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
     
     // to find the percentage of area subtended in [par0-10*sigma;par0+10*sigma] for example
-    BCH1D h_trial = m.GetMarginalized(0);
-    int *output = FindMaximumSignalHeight( E0, bin_content);
-    double area_perc = PosteriorInspection_Pol0( E0, bin_content, output, h_trial);
-    std::cout << "\n\t Underlying area in [par0-10*sigma;par0+10*sigma] = " << area_perc << "\n" << std::endl;
+    //BCH1D h_trial = m.GetMarginalized(0);
+    //int *output = FindMaximumSignalHeight( E0, bin_content);
+    //double area_perc = PosteriorInspection_Pol0( E0, bin_content, output, h_trial);
+    //std::cout << "\n\t Underlying area in [par0-10*sigma;par0+10*sigma] = " << area_perc << "\n" << std::endl;
  
     // draw all marginalized distributions into a PDF file
     m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
@@ -104,34 +83,8 @@ int main()
     //m.PrintCorrelationMatrix(m.GetSafeName() + "_correlationMatrix.pdf");
     //m.PrintKnowledgeUpdatePlots(m.GetSafeName() + "_update.pdf");
   
-   
-    //------------------------------------------------------------------------------------------------- Goodness of Fit (prova)
-    double chi2=0;
-    const std::vector<double> params = m.GetBestFitParameters();
-    
-    for ( int i=x1; i<x2-1; i++ ) {
-		    
-	    int y_obs =  m.GetDataSet()->GetDataPoint(i).GetValue(0);
-	    
-	    double sigma_E0 = FindSigma(E0);
-	    
-	    double y_exp =  params.at(0) * TMath::Gaus(i, E0, sigma_E0, false) + params.at(1); // GausPol0
-	    //double y_exp =  params.at(0) * TMath::Gaus(i, E0, sigma_E0, false) + params.at(1) + params.at(2)*(i-E0); // GausPol1
-	    
-	    chi2 += pow( y_obs-y_exp, 2) / y_exp; // Pearson chi2 for Poisson distributed data
-    }
-    
-    int nu = ( x2 - x1 ) - params.size();
-    
-    double p_value = TMath::Prob( chi2, nu);
-
-
     m.PrintSummary();
-    
-    std::cout << "\n\t*******************************************************" << std::endl;
-    std::cout << "\n\t   CHI2 = " << chi2 << " ( DoF = " << nu << " )\t p-VALUE = " << p_value << std::endl;
-    std::cout << "\n\t*******************************************************\n" << std::endl;    
-
+  
     BCLog::OutSummary("Exiting");
     BCLog::CloseLog();
 

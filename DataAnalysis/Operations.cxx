@@ -117,6 +117,8 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   output_fit_pol0[0] = f0->GetParameter(0); // constant
 	   output_fit_pol0[1] = f0->GetParError(0);
 	   
+	   delete h_energy;
+	   delete f0;
 	   return output_fit_pol0; 
    }
    
@@ -148,6 +150,8 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   output_fit_pol0[6] = f0->GetParameter(3); // sigma
 	   output_fit_pol0[7] = f0->GetParError(3);
 	   
+	   delete h_energy;
+	   delete f0;
 	   return output_fit_pol0;
    }
 
@@ -183,6 +187,8 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 	   output_fit_pol1[2] = f1->GetParameter(1); // slope
 	   output_fit_pol1[3] = f1->GetParError(1);
 	   
+	   delete h_energy;
+	   delete f1;
 	   return output_fit_pol1; 
    }
    
@@ -219,6 +225,8 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 	   output_fit_pol1[8] = f1->GetParameter(4); // sigma
 	   output_fit_pol1[9] = f1->GetParError(4);
 	   
+	   delete h_energy;
+	   delete f1;
 	   return output_fit_pol1;    
    }
 
@@ -271,6 +279,8 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   output_fit_pol2[4] = f2->GetParameter(2); // quadratic term
 	   output_fit_pol2[5] = f2->GetParError(3);
 	   
+	   delete h_energy;
+	   delete f2;
 	   return output_fit_pol2; 
    }
    
@@ -323,6 +333,8 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   output_fit_pol2[10] = f2->GetParameter(5); // sigma
 	   output_fit_pol2[11] = f2->GetParError(5);
 	   
+	   delete h_energy;
+	   delete f2;
 	   return output_fit_pol2;    
    }
 
@@ -333,26 +345,35 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 
 // See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model) --> cercare su BAT una funzione analoga
 //-----------------------------------------------------------------------------------------------------------------------
-double PosteriorInspection_Pol0(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo) {
+double PosteriorInspection(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo) {
 
     double *output_pol0 = FindRangeOfBKGParameters_Pol0( energy, bin_content, output);
     
-    TH1D *h0 = (TH1D*)marginalized_histo.GetHistogram();
+    TH1D *h = (TH1D*)marginalized_histo.GetHistogram();
     
-    int Nbins = h0->GetNbinsX();
-    double int_tot = h0->Integral(0, Nbins);
+    int Nbins = h->GetNbinsX();    
     
-    double int_range = h0->Integral(output_pol0[0]-10*output_pol0[1], output_pol0[0]+10*output_pol0[1]);
+    // conversion from x (energies) to the corresponding number of bin for the lower and upper limit of p0 (BKG parameter)
+    int xmin_bin = h->GetXaxis()->FindBin(output_pol0[0]-10*output_pol0[1]);
+    int xmax_bin = h->GetXaxis()->FindBin(output_pol0[0]+10*output_pol0[1]);
     
-    double area_perc = ( int_range / int_tot ) * 100;
-    std::cout << "\n\t int_tot = " << int_tot << "\tint_range = " << int_range << std::endl;
+    double int_tot = 0;
+    for (int i=1; i<=Nbins; i++) { int_tot += h->GetBinContent(i); }
+    double int_range = 0;
+    for (int i=xmin_bin+1; i<=xmax_bin; i++) { int_range += h->GetBinContent(i); }    
+    
+    
+    double perc = ( int_range / int_tot ) * 100;
+    //std::cout << "\n\t int_range = " << int_range << "\t int_tot = " << int_tot << "\t range/tot = " << int_range/int_tot*100 << std::endl;
+    //std::cout << "\t x_min = " << output_pol0[0]-10*output_pol0[1] << "\tx_max = " << output_pol0[0]+10*output_pol0[1] << std::endl;
+    //std::cout << "\t xmin_bin = " << xmin_bin << "\txmax_bin = " << xmax_bin << std::endl;
     
     // Command to visualize the histogram of the par0 of pol0 model
-    //TFile *f = new TFile("h0.root","RECREATE");
-    //h0->Write();
-    //f->Write();
+    TFile *f = new TFile("h.root","RECREATE");
+    h->Write();
+    f->Write();
  
-    return area_perc;
+    return perc;
 }
 
 

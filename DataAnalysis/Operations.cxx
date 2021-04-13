@@ -362,13 +362,8 @@ double PosteriorInspection(int energy, std::vector<int> bin_content, int *output
     double int_range = 0;
     for (int i=xmin_bin+1; i<=xmax_bin; i++) { int_range += h->GetBinContent(i); }    
     
-    
     double perc = ( int_range / int_tot ) * 100;
-    //std::cout << "\n\t int_range = " << int_range << "\t int_tot = " << int_tot << "\t range/tot = " << int_range/int_tot*100 << std::endl;
-    //std::cout << "\t x_min = " << output_pol0[0]-10*output_pol0[1] << "\tx_max = " << output_pol0[0]+10*output_pol0[1] << std::endl;
-    //std::cout << "\t xmin_bin = " << xmin_bin << "\txmax_bin = " << xmax_bin << std::endl;
     
-    // Command to visualize the histogram of the par0 of pol0 model
     TFile *f = new TFile("h.root","RECREATE");
     h->Write();
     f->Write();

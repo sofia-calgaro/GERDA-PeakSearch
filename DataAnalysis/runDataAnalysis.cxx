@@ -40,9 +40,9 @@ int main()
     int x1 = E0 - 12;
     int x2 = E0 + 12;		
     
-    //GausPol0 m("GausPol0", bin_content, E0);
+    GausPol0 m("GausPol0", bin_content, E0);
     //GausPol1 m("GausPol1", bin_content, E0);
-    GausPol2 m("GausPol2", bin_content, E0);
+    //GausPol2 m("GausPol2", bin_content, E0);
      
     // Associate the data set with the model
     m.SetDataSet(&data_set);
@@ -65,14 +65,15 @@ int main()
     // run mode finding; by default using Minuit
     m.FindMode(m.GetBestFitParameters());
     
-    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%4
+    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%
     m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
     
-    // to find the percentage of area subtended in [par0-10*sigma;par0+10*sigma] for example
-    //BCH1D h_trial = m.GetMarginalized(0);
-    //int *output = FindMaximumSignalHeight( E0, bin_content);
-    //double area_perc = PosteriorInspection_Pol0( E0, bin_content, output, h_trial);
-    //std::cout << "\n\t Underlying area in [par0-10*sigma;par0+10*sigma] = " << area_perc << "\n" << std::endl;
+    // Background analysis: to find the percentage of area subtended
+    // in [par0-10*sigma;par0+10*sigma], for example, when m=GausPol0
+    BCH1D h_trial = m.GetMarginalized(1);
+    int *output = FindMaximumSignalHeight( E0, bin_content);
+    double perc = PosteriorInspection( E0, bin_content, output, h_trial);
+    std::cout << "\n\t Underlying area in [par0-10*err;par0+10*err] = " << perc << " %\n" << std::endl;
  
     // draw all marginalized distributions into a PDF file
     m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");

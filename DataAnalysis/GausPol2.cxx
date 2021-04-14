@@ -26,7 +26,6 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
             
             // 4) Quadratic term (index 3)
             AddParameter("p2", output_pol2[4]-10*output_pol2[5], output_pol2[4]+10*output_pol2[5], "p2", "[events/keV^2]");
-            //AddParameter("p2", 0, 80, "p2", "[events/keV^2]");
             GetParameters().Back().SetPriorConstant();
 }
 
@@ -50,7 +49,7 @@ double GausPol2::LogLikelihood(const std::vector<double>& pars)
 		    
                     int y_obs =  GetDataSet()->GetDataPoint(i).GetValue(0); // observed value ( 0 = 1st column )
 
-                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1] + pars[2]*(i-E0) + pars[3]*pow( (i-E0), 2 ); // expected value
+                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0); // expected value
 
                     LP += BCMath::LogPoisson(y_obs, y_exp); // log of conditional probability, p(data|pars)         
             }

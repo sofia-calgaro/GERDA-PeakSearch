@@ -37,7 +37,7 @@
     // Find the range in which the BKG-Pol2 parameters of the models vary
     double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, int *output);
     
-    // See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model) --> cercare su BAT una funzione analoga
+    // See if the ranges obtained by ROOT for the BKG parameters are good or not --> cercare su BAT una funzione analoga
     double PosteriorInspection(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo);
     
     // Find the new edges x1_new, x2_new in case a gamma peak is present in proximity of the fit window (E' ANCORA DA IMPLEMENTARE)

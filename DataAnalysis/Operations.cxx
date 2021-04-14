@@ -277,7 +277,7 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   output_fit_pol2[2] = f2->GetParameter(1); // slope
 	   output_fit_pol2[3] = f2->GetParError(1);
 	   output_fit_pol2[4] = f2->GetParameter(2); // quadratic term
-	   output_fit_pol2[5] = f2->GetParError(3);
+	   output_fit_pol2[5] = f2->GetParError(2);
 	   
 	   delete h_energy;
 	   delete f2;
@@ -343,19 +343,25 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 
 
 
-// See if the ranges obtained by ROOT for the BKG parameters are good or not (Pol0 model) --> cercare su BAT una funzione analoga
+// See if the ranges obtained by ROOT for the BKG parameters are good or not --> cercare su BAT una funzione analoga
 //-----------------------------------------------------------------------------------------------------------------------
 double PosteriorInspection(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo) {
 
-    double *output_pol0 = FindRangeOfBKGParameters_Pol0( energy, bin_content, output);
+    double *output_pol0 = FindRangeOfBKGParameters_Pol0( energy, bin_content, output); // Pol0
+    //double *output_pol1 = FindRangeOfBKGParameters_Pol1( energy, bin_content, output); // Pol1
+    //double *output_pol2 = FindRangeOfBKGParameters_Pol2( energy, bin_content, output); // Pol2
     
     TH1D *h = (TH1D*)marginalized_histo.GetHistogram();
     
     int Nbins = h->GetNbinsX();    
     
     // conversion from x (energies) to the corresponding number of bin for the lower and upper limit of p0 (BKG parameter)
-    int xmin_bin = h->GetXaxis()->FindBin(output_pol0[0]-10*output_pol0[1]);
+    int xmin_bin = h->GetXaxis()->FindBin(output_pol0[0]-10*output_pol0[1]); // Pol0
     int xmax_bin = h->GetXaxis()->FindBin(output_pol0[0]+10*output_pol0[1]);
+    //int xmin_bin = h->GetXaxis()->FindBin(output_pol1[0]-10*output_pol1[1]); // Pol1
+    //int xmax_bin = h->GetXaxis()->FindBin(output_pol1[0]+10*output_pol1[1]);
+    //int xmin_bin = h->GetXaxis()->FindBin(output_pol2[0]-10*output_pol2[1]); // Pol2
+    //int xmax_bin = h->GetXaxis()->FindBin(output_pol2[0]+10*output_pol2[1]);
     
     double int_tot = 0;
     for (int i=1; i<=Nbins; i++) { int_tot += h->GetBinContent(i); }
@@ -368,6 +374,7 @@ double PosteriorInspection(int energy, std::vector<int> bin_content, int *output
     h->Write();
     f->Write();
  
+    delete h;
     return perc;
 }
 

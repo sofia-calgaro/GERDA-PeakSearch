@@ -54,6 +54,8 @@ int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal) {
    // Let's define the range [x1_signal;x2_signal] in which the signal contribution (S) is calculated
    int x1_signal = std::round( energy - 1.5*FWHM );
    int x2_signal = std::round( energy + 1.5*FWHM );
+   std::cout << "\n\tx1_signal = " << x1_signal << std::endl;
+   std::cout << "\tx2_signal = " << x2_signal << std::endl;   
             
    // Calculate the average BKG outside [x1_signal;x2_signal]   
    int B_i = 0;
@@ -83,6 +85,10 @@ int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal) {
    int max3 = 10;
    int max = std::max({max1, max2, max3},FindMax);
    
+   std::cout << "\n\tB_i = " << B_i << "\tN_bkg = " << N_bkg << "\tB_avg = " << B_avg << std::endl;
+   std::cout << "\n\tS_i = " << S_i << "\tN_sig = " << N_sig << "\tB_sig = " << B_sig << "\tS = " << S << std::endl;
+   std::cout << "\n\tmax1 = " << max1 << "\tmax2 = " << max2 << "\tmax3 = " << max3 << "\t MAX = " << max << "\n" << std::endl;
+   
    int *output = new int[4];
    output[0] = B_avg;
    output[1] = B_sig;
@@ -111,7 +117,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   S_avg = std::round(S_avg/20);
 	   f0->SetParameter(0, S_avg);
 	   
-	   h_energy->Fit("f0","RQNO");
+	   h_energy->Fit("f0","R");
 	   
 	   double *output_fit_pol0 = new double[2];
 	   output_fit_pol0[0] = f0->GetParameter(0); // constant
@@ -125,7 +131,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
    // ROOT fit: f0 = pol0 + gaus
    else {
    	   
-   	   TF1 *f0 = new TF1("f0","[0] + TMath::Gaus(x, [2], [3], false)", energy-20, energy+20);
+   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", energy-20, energy+20);
    	   
 	   int S_avg = 0;
 	   for (int i=energy-20; i<energy+20; i++) { S_avg += bin_content.at(i); }
@@ -138,7 +144,7 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   double sigma_E0 = FindSigma(energy);
 	   f0->FixParameter(3, sigma_E0);   
 	   
-   	   h_energy->Fit("f0","RQNO");
+   	   h_energy->Fit("f0","R");
    
    	   double *output_fit_pol0 = new double[8];
 	   output_fit_pol0[0] = f0->GetParameter(0); // constant
@@ -196,16 +202,17 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    else {
    	   
    	   char function[100];
-   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], false)", energy);
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true)", energy);
    	   TF1 *f1 = new TF1("f1",function, energy-20, energy+20);
    	   
    	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
-   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20) ) / ( (energy-20) - (energy+20) + 0.0 ); // 0.0 is needed since we are dividing an int by an int, but we want a double
+   	   //double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
+   	   double q = ( bin_content.at(energy+20)*(energy-20) - bin_content.at(energy-20)*(energy+20) ) / 40.0 ;
+   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20) ) / 40.0 ; // 0.0 is needed since we are dividing an int by an int, but we want a double
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);	   
 	   
-   	   f1->SetParameter(2, output[3]);
+   	   f1->SetParLimits(2, 0, output[3]);
 	   f1->FixParameter(3, energy);
 	   
 	   double sigma_E0 = FindSigma(energy);
@@ -288,7 +295,7 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
    else {
    	   
    	   char function[100];
-   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], false)", energy, energy, energy);
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true)", energy, energy, energy);
    	   TF1 *f2 = new TF1("f2",function, energy-20, energy+20);
    	   
    	   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
@@ -338,44 +345,6 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   return output_fit_pol2;    
    }
 
-}
-
-
-
-
-// See if the ranges obtained by ROOT for the BKG parameters are good or not --> cercare su BAT una funzione analoga
-//-----------------------------------------------------------------------------------------------------------------------
-double PosteriorInspection(int energy, std::vector<int> bin_content, int *output, BCH1D marginalized_histo) {
-
-    double *output_pol0 = FindRangeOfBKGParameters_Pol0( energy, bin_content, output); // Pol0
-    //double *output_pol1 = FindRangeOfBKGParameters_Pol1( energy, bin_content, output); // Pol1
-    //double *output_pol2 = FindRangeOfBKGParameters_Pol2( energy, bin_content, output); // Pol2
-    
-    TH1D *h = (TH1D*)marginalized_histo.GetHistogram();
-    
-    int Nbins = h->GetNbinsX();    
-    
-    // conversion from x (energies) to the corresponding number of bin for the lower and upper limit of p0 (BKG parameter)
-    int xmin_bin = h->GetXaxis()->FindBin(output_pol0[0]-10*output_pol0[1]); // Pol0
-    int xmax_bin = h->GetXaxis()->FindBin(output_pol0[0]+10*output_pol0[1]);
-    //int xmin_bin = h->GetXaxis()->FindBin(output_pol1[0]-10*output_pol1[1]); // Pol1
-    //int xmax_bin = h->GetXaxis()->FindBin(output_pol1[0]+10*output_pol1[1]);
-    //int xmin_bin = h->GetXaxis()->FindBin(output_pol2[0]-10*output_pol2[1]); // Pol2
-    //int xmax_bin = h->GetXaxis()->FindBin(output_pol2[0]+10*output_pol2[1]);
-    
-    double int_tot = 0;
-    for (int i=1; i<=Nbins; i++) { int_tot += h->GetBinContent(i); }
-    double int_range = 0;
-    for (int i=xmin_bin+1; i<=xmax_bin; i++) { int_range += h->GetBinContent(i); }    
-    
-    double perc = ( int_range / int_tot ) * 100;
-    
-    TFile *f = new TFile("h.root","RECREATE");
-    h->Write();
-    f->Write();
- 
-    delete h;
-    return perc;
 }
 
 

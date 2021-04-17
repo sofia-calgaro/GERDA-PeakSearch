@@ -30,7 +30,7 @@ PRGSRCS = runDataAnalysis.cxx
 
 # compiler and flags
 CXX       = g++
-CXXFLAGS  = -g -O2 -Wall -fPIC -Wno-deprecated  -fopenmp
+CXXFLAGS  = -std=c++17 -g -O2 -Wall -fPIC -Wno-deprecated  -fopenmp
 LD        = /usr/bin/ld -m elf_x86_64
 LDFLAGS   = -g -O2   -fopenmp
 

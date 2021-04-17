@@ -39,7 +39,7 @@ double GausPol0::LogLikelihood(const std::vector<double>& pars)
 		    
                     int y_obs =  GetDataSet()->GetDataPoint(i).GetValue(0); // observed value ( 0 = 1st column )
 
-                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, false) + pars[1]; // expected value
+                    double y_exp =  pars[0] * TMath::Gaus(i, E0, sigma_E0, true) + pars[1]; // expected value
 
                     LP += BCMath::LogPoisson(y_obs, y_exp); // log of conditional probability, p(data|pars)         
             }

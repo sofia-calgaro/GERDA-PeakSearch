@@ -15,79 +15,230 @@
 
 // FUNCTIONS
 #include "Operations.h"
+#include "args_reader.hpp"
 
 
 
-int main()
-{
+int main(int argc, char *argv[])
+{  
+
+    std::vector<std::string> args(argc);
+    std::copy(argv, argv+argc, args.begin());
+  
+    std::vector<int> inpval(3,0); // input values: {E0, pol_degree}
+    bool found = fetch_arg(args, "--nums", inpval);
+    
+    if (found) {
+    std::cout << "\n*************************" << std::endl;
+    std::cout << " # values = " << inpval[0] << "\n E0 = " << inpval[1] << "\n Polynomial degree = " << inpval[2] << std::endl;
+    std::cout << "*************************\n" << std::endl;
+    }
+    
+    //---------------------------------------------------------------------------------------------------------------------- DATA LOADING   
+
+
     TFile *file = new TFile("/home/sofia/gerda_data/IC_20210406.root","READ");
     TH1D *h = (TH1D*) file->Get("histo_energy_LArVetoed");
     std::vector< int> bin_content;
     for ( int i=1; i<=5200; i++ ) { bin_content.push_back( h->GetBinContent(i) ); }
-    
-    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
-    		
+        		
     // create a new dataset to pass then to the model
     BCDataSet data_set;
     data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/bin_content.txt", 1);
     
     // create a new data point: E0
-    int E0 = 51;
+    int E0 = inpval[1];
     BCDataPoint* CentralEnergy = new BCDataPoint(1);
     CentralEnergy->SetValue(0,E0);
     data_set.AddDataPoint(*CentralEnergy);	
     
     int x1 = E0 - 12;
-    int x2 = E0 + 12;		
+    int x2 = E0 + 12;	
     
-    //GausPol0 m("GausPol0", bin_content, E0);
-    //GausPol1 m("GausPol1", bin_content, E0);
-    GausPol2 m("GausPol2", bin_content, E0);
-     
-    // Associate the data set with the model
-    m.SetDataSet(&data_set);
+    // open log file
+    int pol_degree = inpval[2];
+    char name_log[100];
+    sprintf(name_log,"/home/sofia/Analysis/DataAnalysis/Log_files/log_%i_GausPol%i.txt", E0, pol_degree);
+    BCLog::OpenLog(name_log, BCLog::detail, BCLog::detail);	
     
-    //------------------------------------------------------------------------------------------------- ANALYSIS
     
-    BCLog::OutSummary("Test model created");
+    //---------------------------------------------------------------------------------------------------------------------- ANALYSIS    
+    
+    
+    // Gaus + Pol0
+    if ( pol_degree==0 ) {
+    
+	    GausPol0 m("GausPol0", bin_content, E0);
+	    
+	    // Associate the data set with the model
+   	    m.SetDataSet(&data_set);
+	    
+	    BCLog::OutSummary("Test model created");
 
-    m.SetPrecision(BCEngineMCMC::kMedium);
+	    m.SetPrecision(BCEngineMCMC::kMedium);
 
-    // Normalize the posterior by integrating it over the full parameter space
-    // m.Normalize();
+	    // run MCMC, marginalizing posterior
+	    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
-    // Write Markov Chain to a ROOT file as a TTree
-    // m.WriteMarkovChain(m.GetSafeName() + "_mcmc.root", "RECREATE");
+	    // run mode finding; by default using Minuit
+	    m.FindMode(m.GetBestFitParameters());
+	    
+	    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%
+	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
+	 
+	    // draw all marginalized distributions into a PDF file
+	    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
+	  
+	    m.PrintSummary();
+	  
+	    BCLog::OutSummary("Exiting");
+	    BCLog::CloseLog();
+	    
+	    // data + fit
+	    TCanvas *c = new TCanvas("c", "c", 1700, 1000);
+	    h->Draw();
+	    h->GetXaxis()->SetRangeUser(x1, x2);
+	    
+	    const std::vector<double> params = m.GetBestFitParameters();
 
-    // run MCMC, marginalizing posterior
-    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
-
-    // run mode finding; by default using Minuit
-    m.FindMode(m.GetBestFitParameters());
+	    char function[500];
+	    sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1]", E0, FindSigma(E0));
+	    TF1 *f0 = new TF1("f0", function, x1, x2);
+	    f0->FixParameter(0, params.at(0));
+	    f0->FixParameter(1, params.at(1));
+		    
+	    f0->SetLineWidth(2);
+	    f0->SetLineColor(2);
+	    f0->Draw("same");
+		    
+	    h->SetTitle("Fit with gaus(x)+pol0(x)");
+	    c->Update();
+	    char name_image[100];
+	    sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%i_GausPol0.png", E0);
+	    c->Print(name_image);
+	    char name_rootfile[100];
+	    sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%i_GausPol0.root", E0);
+	    c->Print(name_rootfile);
+    }
     
-    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%
-    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
     
-    // Background analysis: to find the percentage of area subtended
-    // in [par0-10*sigma;par0+10*sigma], for example
-    BCH1D h_trial = m.GetMarginalized(1);
-    int *output = FindMaximumSignalHeight( E0, bin_content);
-    double perc = PosteriorInspection( E0, bin_content, output, h_trial);
-    std::cout << "\n\t Underlying area in [p0-10*err;p0+10*err] = " << perc << " %\n" << std::endl;
- 
-    // draw all marginalized distributions into a PDF file
-    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
     
-    // print summary plots
-    //m.PrintParameterPlot(m.GetSafeName() + "_parameters.pdf");
-    //m.PrintCorrelationPlot(m.GetSafeName() + "_correlation.pdf");
-    //m.PrintCorrelationMatrix(m.GetSafeName() + "_correlationMatrix.pdf");
-    //m.PrintKnowledgeUpdatePlots(m.GetSafeName() + "_update.pdf");
-  
-    m.PrintSummary();
-  
-    BCLog::OutSummary("Exiting");
-    BCLog::CloseLog();
+    // Gaus + Pol1
+    if ( pol_degree==1 ) {
+    
+   	    GausPol1 m("GausPol1", bin_content, E0);
+   	    
+   	    // Associate the data set with the model
+   	    m.SetDataSet(&data_set);
+    
+	    BCLog::OutSummary("Test model created");
+
+	    m.SetPrecision(BCEngineMCMC::kMedium);
+
+	    // run MCMC, marginalizing posterior
+	    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
+
+	    // run mode finding; by default using Minuit
+	    m.FindMode(m.GetBestFitParameters());
+	    
+	    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%
+	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
+	 
+	    // draw all marginalized distributions into a PDF file
+	    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
+	  
+	    m.PrintSummary();
+	  
+	    BCLog::OutSummary("Exiting");
+	    BCLog::CloseLog();
+	    
+	    // data + fit
+	    TCanvas *c = new TCanvas("c", "c", 1700, 1000);
+	    h->Draw();
+	    h->GetXaxis()->SetRangeUser(x1, x2);
+	    
+	    const std::vector<double> params = m.GetBestFitParameters();
+	    
+	    char function[500];
+	    sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1] + [2]*(x-%i)", E0, FindSigma(E0), E0);
+	    TF1 *f1 = new TF1("f1", function, x1, x2);
+	    f1->FixParameter(0, params.at(0));
+	    f1->FixParameter(1, params.at(1));
+	    f1->FixParameter(2, params.at(2));
+	    
+	    f1->SetLineWidth(2);
+	    f1->SetLineColor(2);
+	    f1->Draw("same");  
+	    
+	    h->SetTitle("Fit with gaus(x)+pol1(x)");
+	    c->Update();
+	    char name_image[100];
+	    sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%i_GausPol1.png", E0);
+	    c->Print(name_image);
+	    char name_rootfile[100];
+	    sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%i_GausPol1.root", E0);
+	    c->Print(name_rootfile);     
+    }
+    
+    
+    
+    // Gaus + Pol2
+    if ( pol_degree==2 ) {
+    
+  	    GausPol2 m("GausPol2", bin_content, E0);
+  	    
+  	    // Associate the data set with the model
+   	    m.SetDataSet(&data_set);
+    
+	    BCLog::OutSummary("Test model created");
+
+	    m.SetPrecision(BCEngineMCMC::kMedium);
+
+	    // run MCMC, marginalizing posterior
+	    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
+
+	    // run mode finding; by default using Minuit
+	    m.FindMode(m.GetBestFitParameters());
+	    
+	    // fix the bands for each posterior at 68.3%, 95.4%, 99.7%
+	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
+	 
+	    // draw all marginalized distributions into a PDF file
+	    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
+	  
+	    m.PrintSummary();
+	  
+	    BCLog::OutSummary("Exiting");
+	    BCLog::CloseLog();
+	    
+	    // data + fit
+	    TCanvas *c = new TCanvas("c", "c", 1700, 1000);
+	    h->Draw();
+	    h->GetXaxis()->SetRangeUser(x1, x2);
+	    
+	    const std::vector<double> params = m.GetBestFitParameters();
+	    
+	    char function[500];
+	    sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1] + [2]*(x-%i) + [3]*(x-%i)*(x-%i)", E0, FindSigma(E0), E0, E0, E0);
+	    TF1 *f2 = new TF1("f2", function, x1, x2);
+	    f2->FixParameter(0, params.at(0));
+	    f2->FixParameter(1, params.at(1));
+	    f2->FixParameter(2, params.at(2));
+	    f2->FixParameter(3, params.at(3));
+	    
+	    f2->SetLineWidth(2);
+	    f2->SetLineColor(2);
+	    f2->Draw("same");  
+	    
+	    h->SetTitle("Fit with gaus(x)+pol2(x)");
+	    c->Update();
+	    char name_image[100];
+	    sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%i_GausPol2.png", E0);
+	    c->Print(name_image);
+	    char name_rootfile[100];
+	    sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%i_GausPol2.root", E0);
+	    c->Print(name_rootfile);
+    }
 
     return 0;
 }

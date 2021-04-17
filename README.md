@@ -1,6 +1,6 @@
 ## gerda-BATanalysis
 
-* "_runDataAnalysis.cxx_": main program for the analysis; it takes two input values through "args_readeer.hpp", i.e. the central energy of the fit window and the polynomial degree (0, 1, 2). For example:
+* "_runDataAnalysis.cxx_": main program for the analysis; it takes two input values through "args_reader.hpp" equal to the central energy of the fit window and to the polynomial degree (0, 1, 2) for the background fit. For example:
 ```
 $ make
 $ ./runDataAnalysis --nums 2 {311, 1}

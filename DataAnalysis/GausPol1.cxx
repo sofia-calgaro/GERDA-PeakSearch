@@ -44,7 +44,7 @@ double GausPol1::LogLikelihood(const std::vector<double>& pars)
             double sigma_E0 = FindSigma(E0);
 
             // Loop over 24 elements
-            for ( int i=x1; i<x2-1; i++ ) {
+            for ( int i=x1; i<x2; i++ ) {
 		    
                     int y_obs =  GetDataSet()->GetDataPoint(i).GetValue(0); // observed value ( 0 = 1st column )
 

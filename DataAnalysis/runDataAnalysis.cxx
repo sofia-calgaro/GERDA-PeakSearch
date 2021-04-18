@@ -13,7 +13,7 @@
 #include "GausPol1.h"
 #include "GausPol2.h"
 
-// FUNCTIONS
+// OTHER
 #include "Operations.h"
 #include "args_reader.hpp"
 
@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
     bool found = fetch_arg(args, "--nums", inpval);
     
     if (found) {
-    std::cout << "\n*************************" << std::endl;
-    std::cout << " # values = " << inpval[0] << "\n E0 = " << inpval[1] << "\n Polynomial degree = " << inpval[2] << std::endl;
-    std::cout << "*************************\n" << std::endl;
+    std::cout << "\n *************************" << std::endl;
+    std::cout << "  # values = " << inpval[0] << "\n  E0 = " << inpval[1] << "\n  Polynomial degree = " << inpval[2] << std::endl;
+    std::cout << " *************************\n" << std::endl;
     }
     
     //---------------------------------------------------------------------------------------------------------------------- DATA LOADING   
@@ -67,8 +67,10 @@ int main(int argc, char *argv[])
     
     // Gaus + Pol0
     if ( pol_degree==0 ) {
-    
-	    GausPol0 m("GausPol0", bin_content, E0);
+    	
+    	    char name_model[100];
+    	    sprintf(name_model,"%i_GausPol0", E0);
+	    GausPol0 m(name_model, bin_content, E0);
 	    
 	    // Associate the data set with the model
    	    m.SetDataSet(&data_set);
@@ -87,7 +89,7 @@ int main(int argc, char *argv[])
 	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
 	 
 	    // draw all marginalized distributions into a PDF file
-	    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
+	    m.PrintAllMarginalized("/home/sofia/Analysis/DataAnalysis/MarginalizedPDF/" + m.GetSafeName() + "_plots.pdf");
 	  
 	    m.PrintSummary();
 	  
@@ -101,7 +103,7 @@ int main(int argc, char *argv[])
 	    
 	    const std::vector<double> params = m.GetBestFitParameters();
 
-	    char function[500];
+	    char function[100];
 	    sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1]", E0, FindSigma(E0));
 	    TF1 *f0 = new TF1("f0", function, x1, x2);
 	    f0->FixParameter(0, params.at(0));
@@ -126,7 +128,9 @@ int main(int argc, char *argv[])
     // Gaus + Pol1
     if ( pol_degree==1 ) {
     
-   	    GausPol1 m("GausPol1", bin_content, E0);
+   	    char name_model[100];
+    	    sprintf(name_model,"%i_GausPol1", E0);
+	    GausPol1 m(name_model, bin_content, E0);
    	    
    	    // Associate the data set with the model
    	    m.SetDataSet(&data_set);
@@ -145,7 +149,7 @@ int main(int argc, char *argv[])
 	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
 	 
 	    // draw all marginalized distributions into a PDF file
-	    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
+	    m.PrintAllMarginalized("/home/sofia/Analysis/DataAnalysis/MarginalizedPDF/" + m.GetSafeName() + "_plots.pdf", 2, 2);
 	  
 	    m.PrintSummary();
 	  
@@ -159,7 +163,7 @@ int main(int argc, char *argv[])
 	    
 	    const std::vector<double> params = m.GetBestFitParameters();
 	    
-	    char function[500];
+	    char function[100];
 	    sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1] + [2]*(x-%i)", E0, FindSigma(E0), E0);
 	    TF1 *f1 = new TF1("f1", function, x1, x2);
 	    f1->FixParameter(0, params.at(0));
@@ -185,7 +189,9 @@ int main(int argc, char *argv[])
     // Gaus + Pol2
     if ( pol_degree==2 ) {
     
-  	    GausPol2 m("GausPol2", bin_content, E0);
+  	    char name_model[100];
+    	    sprintf(name_model,"%i_GausPol2", E0);
+	    GausPol2 m(name_model, bin_content, E0);
   	    
   	    // Associate the data set with the model
    	    m.SetDataSet(&data_set);
@@ -204,7 +210,7 @@ int main(int argc, char *argv[])
 	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
 	 
 	    // draw all marginalized distributions into a PDF file
-	    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
+	    m.PrintAllMarginalized("/home/sofia/Analysis/DataAnalysis/MarginalizedPDF/" + m.GetSafeName() + "_plots.pdf", 2, 2);
 	  
 	    m.PrintSummary();
 	  
@@ -218,7 +224,7 @@ int main(int argc, char *argv[])
 	    
 	    const std::vector<double> params = m.GetBestFitParameters();
 	    
-	    char function[500];
+	    char function[100];
 	    sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1] + [2]*(x-%i) + [3]*(x-%i)*(x-%i)", E0, FindSigma(E0), E0, E0, E0);
 	    TF1 *f2 = new TF1("f2", function, x1, x2);
 	    f2->FixParameter(0, params.at(0));

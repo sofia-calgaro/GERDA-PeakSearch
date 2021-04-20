@@ -133,42 +133,4 @@ then
 	printf " x1 = $x1 -> xL = $xL\n x2 = $x2 -> xR = $xR"
 fi
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 printf "\n\n"
-# IDEA
-
-# una volta trovati x1,x2 nuovi posso printarli in un file da cui poi verranno letti in runDataAnalysis
-
-# come capire però se devo anche aggiungere un picco gaussiano? Posso usare il valore di output[0] e definire il modello da usare con un if
-# (serve anche creare GausGausPol0.cxx, GausGausPol1.cxx, GausGausPol2.cxx)

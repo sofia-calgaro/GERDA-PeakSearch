@@ -43,8 +43,8 @@ double FindFWHM(int energy) {
 
 
 //-----------------------------------------------------------------------------------------------------------------------
-// Calculates the maximum of the signal height paramter
-int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal) {
+// Calculates the maximum of the signal height parameter
+int *FindMaximumSignalHeight(int energy, std::vector<int> bin_content) {
 
    int x1 = energy - 12;
    int x2 = energy + 12;
@@ -53,48 +53,48 @@ int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal) {
    
    // Let's define the range [x1_signal;x2_signal] in which the signal contribution (S) is calculated
    int x1_signal = std::round( energy - 1.5*FWHM );
-   int x2_signal = std::round( energy + 1.5*FWHM );
-   std::cout << "\n\tx1_signal = " << x1_signal << std::endl;
-   std::cout << "\tx2_signal = " << x2_signal << std::endl;   
+   int x2_signal = std::round( energy + 1.5*FWHM ); 
             
    // Calculate the average BKG outside [x1_signal;x2_signal]   
    int B_i = 0;
                     
-   for ( int i=x1; i<x1_signal; i++ ) { B_i += bin_signal.at(i); }
+   for ( int i=x1; i<x1_signal; i++ ) { B_i += bin_content.at(i); }
            
-   for ( int i=x2_signal; i<x2; i++ ) { B_i += bin_signal.at(i); }
+   for ( int i=x2_signal; i<x2; i++ ) { B_i += bin_content.at(i); }
                     
    int N_bkg = ( x1_signal - x1 ) + ( x2 - x2_signal );
-   int B_avg = std::round( B_i / N_bkg );
+   double B_avg = B_i / (N_bkg+0.0);
                     
    // Calculate the overall bin content in [x1_signal;x2_signal]        
    int S_i = 0;
-   for ( int i=x1_signal; i<x2_signal; i++ ) { S_i += bin_signal.at(i); }
+   for ( int i=x1_signal; i<x2_signal; i++ ) { S_i += bin_content.at(i); }
                     
    int N_sig = x2_signal-x1_signal;
             
    // Calculate the amount of BKG in [x1_signal;x2_signal]        
-   int B_sig = N_sig*B_avg;
+   double B_S = N_sig*B_avg;
             
    // Calculate the signal in [x1_signal;x2_signal]      
-   int S = std::round ( S_i-B_sig );                
+   int S = std::round ( S_i-B_S );                
                     
    // Find the maximum value that the signal height can assume        
-   int max1 = std::round( S + 5*sqrt(B_sig) + 5*sqrt(S) );
-   int max2 = std::round( 8*sqrt(B_sig) );
+   int max1 = std::round( S + 5*sqrt(B_S) + 5*sqrt(S) );
+   int max2 = std::round( 8*sqrt(B_S) );
    int max3 = 10;
    int max = std::max({max1, max2, max3},FindMax);
    
+   std::cout << "\n\tx1_signal = " << x1_signal << std::endl;
+   std::cout << "\tx2_signal = " << x2_signal << std::endl;  
    std::cout << "\n\tB_i = " << B_i << "\tN_bkg = " << N_bkg << "\tB_avg = " << B_avg << std::endl;
-   std::cout << "\n\tS_i = " << S_i << "\tN_sig = " << N_sig << "\tB_sig = " << B_sig << "\tS = " << S << std::endl;
+   std::cout << "\n\tS_i = " << S_i << "\tN_sig = " << N_sig << "\tB_S = " << B_S << "\tS = " << S << std::endl;
    std::cout << "\n\tmax1 = " << max1 << "\tmax2 = " << max2 << "\tmax3 = " << max3 << "\t MAX = " << max << "\n" << std::endl;
    
    int *output = new int[4];
-   output[0] = B_avg;
-   output[1] = B_sig;
+   output[0] = std::round(B_avg);
+   output[1] = std::round(B_S);
    output[2] = S;
    output[3] = max;
-   
+      
    return output;
 }
 
@@ -346,15 +346,3 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
    }
 
 }
-
-
-
-
-//-----------------------------------------------------------------------------------------------------------------------
-// Find the new edges x1_new, x2_new in case a gamma peak is present in proximity of the fit window  (E' ANCORA DA IMPLEMENTARE)
-/*int FindNewEdges(int i_min, int i_max, int *x1_new, int *x2_new) {
-
- ... dopo aver controllato che gli if funzionino correttamente,
- inserire qui quanto fatto in HistoFitter.C ...
- 
-}*/

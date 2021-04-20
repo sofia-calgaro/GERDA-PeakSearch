@@ -37,14 +37,14 @@ int main(int argc, char *argv[])
     //---------------------------------------------------------------------------------------------------------------------- DATA LOADING   
 
 
-    TFile *file = new TFile("/home/sofia/gerda_data/IC_20210406.root","READ");
+    TFile *file = new TFile("IC_20210406.root","READ");
     TH1D *h = (TH1D*) file->Get("histo_energy_LArVetoed");
     std::vector< int> bin_content;
     for ( int i=1; i<=5200; i++ ) { bin_content.push_back( h->GetBinContent(i) ); }
         		
     // create a new dataset to pass then to the model
     BCDataSet data_set;
-    data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/bin_content.txt", 1);
+    data_set.ReadDataFromFileTxt("bin_content.txt", 1);
     
     // create a new data point: E0
     int E0 = inpval[1];
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     // open log file
     int pol_degree = inpval[2];
     char name_log[100];
-    sprintf(name_log,"/home/sofia/Analysis/DataAnalysis/Log_files/log_%i_GausPol%i.txt", E0, pol_degree);
+    sprintf(name_log,"log_%i_GausPol%i.txt", E0, pol_degree);
     BCLog::OpenLog(name_log, BCLog::detail, BCLog::detail);	
     
     
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
 	 
 	    // draw all marginalized distributions into a PDF file
-	    m.PrintAllMarginalized("/home/sofia/Analysis/DataAnalysis/MarginalizedPDF/" + m.GetSafeName() + "_plots.pdf");
+	    m.PrintAllMarginalized( m.GetSafeName() + "_plots.pdf", 2, 2);
 	  
 	    m.PrintSummary();
 	  
@@ -116,10 +116,10 @@ int main(int argc, char *argv[])
 	    h->SetTitle("Fit with gaus(x)+pol0(x)");
 	    c->Update();
 	    char name_image[100];
-	    sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%i_GausPol0.png", E0);
+	    sprintf(name_image, "fit_%i_GausPol0.png", E0);
 	    c->Print(name_image);
 	    char name_rootfile[100];
-	    sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%i_GausPol0.root", E0);
+	    sprintf(name_rootfile, "fit_%i_GausPol0.root", E0);
 	    c->Print(name_rootfile);
     }
     
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
 	 
 	    // draw all marginalized distributions into a PDF file
-	    m.PrintAllMarginalized("/home/sofia/Analysis/DataAnalysis/MarginalizedPDF/" + m.GetSafeName() + "_plots.pdf", 2, 2);
+	    m.PrintAllMarginalized( m.GetSafeName() + "_plots.pdf", 2, 2);
 	  
 	    m.PrintSummary();
 	  
@@ -177,10 +177,10 @@ int main(int argc, char *argv[])
 	    h->SetTitle("Fit with gaus(x)+pol1(x)");
 	    c->Update();
 	    char name_image[100];
-	    sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%i_GausPol1.png", E0);
+	    sprintf(name_image, "fit_%i_GausPol1.png", E0);
 	    c->Print(name_image);
 	    char name_rootfile[100];
-	    sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%i_GausPol1.root", E0);
+	    sprintf(name_rootfile, "fit_%i_GausPol1.root", E0);
 	    c->Print(name_rootfile);     
     }
     
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 	    m.GetBCH1DdrawingOptions().SetBandType(BCH1D::kCentralInterval);  
 	 
 	    // draw all marginalized distributions into a PDF file
-	    m.PrintAllMarginalized("/home/sofia/Analysis/DataAnalysis/MarginalizedPDF/" + m.GetSafeName() + "_plots.pdf", 2, 2);
+	    m.PrintAllMarginalized( m.GetSafeName() + "_plots.pdf", 2, 2);
 	  
 	    m.PrintSummary();
 	  
@@ -239,10 +239,10 @@ int main(int argc, char *argv[])
 	    h->SetTitle("Fit with gaus(x)+pol2(x)");
 	    c->Update();
 	    char name_image[100];
-	    sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%i_GausPol2.png", E0);
+	    sprintf(name_image, "fit_%i_GausPol2.png", E0);
 	    c->Print(name_image);
 	    char name_rootfile[100];
-	    sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%i_GausPol2.root", E0);
+	    sprintf(name_rootfile, "fit_%i_GausPol2.root", E0);
 	    c->Print(name_rootfile);
     }
 

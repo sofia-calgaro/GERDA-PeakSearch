@@ -83,11 +83,11 @@ int *FindMaximumSignalHeight(int energy, std::vector<int> bin_content) {
    int max3 = 10;
    int max = std::max({max1, max2, max3},FindMax);
    
-   std::cout << "\n\tx1_signal = " << x1_signal << std::endl;
-   std::cout << "\tx2_signal = " << x2_signal << std::endl;  
-   std::cout << "\n\tB_i = " << B_i << "\tN_bkg = " << N_bkg << "\tB_avg = " << B_avg << std::endl;
-   std::cout << "\n\tS_i = " << S_i << "\tN_sig = " << N_sig << "\tB_S = " << B_S << "\tS = " << S << std::endl;
-   std::cout << "\n\tmax1 = " << max1 << "\tmax2 = " << max2 << "\tmax3 = " << max3 << "\t MAX = " << max << "\n" << std::endl;
+   //std::cout << "\n\tx1_signal = " << x1_signal << std::endl;
+   //std::cout << "\tx2_signal = " << x2_signal << std::endl;  
+   //std::cout << "\n\tB_i = " << B_i << "\tN_bkg = " << N_bkg << "\tB_avg = " << B_avg << std::endl;
+   //std::cout << "\n\tS_i = " << S_i << "\tN_sig = " << N_sig << "\tB_S = " << B_S << "\tS = " << S << std::endl;
+   //std::cout << "\n\tmax1 = " << max1 << "\tmax2 = " << max2 << "\tmax3 = " << max3 << "\t MAX = " << max << "\n" << std::endl;
    
    int *output = new int[4];
    output[0] = std::round(B_avg);
@@ -146,15 +146,11 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
 	   
    	   h_energy->Fit("f0","R");
    
-   	   double *output_fit_pol0 = new double[8];
+   	   double *output_fit_pol0 = new double[4];
 	   output_fit_pol0[0] = f0->GetParameter(0); // constant
 	   output_fit_pol0[1] = f0->GetParError(0);
 	   output_fit_pol0[2] = f0->GetParameter(1); // height
 	   output_fit_pol0[3] = f0->GetParError(1);
-	   output_fit_pol0[4] = f0->GetParameter(2); // E0
-	   output_fit_pol0[5] = f0->GetParError(2);
-	   output_fit_pol0[6] = f0->GetParameter(3); // sigma
-	   output_fit_pol0[7] = f0->GetParError(3);
 	   
 	   delete h_energy;
 	   delete f0;
@@ -180,8 +176,8 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    	   TF1 *f1 = new TF1("f1", function, energy-20, energy+20);
    	   
    	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
-   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20) ) / ( (energy-20) - (energy+20) + 0.0 ); // 0.0 is needed since we are dividing an int by an int, but we want a double
+   	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20-1) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
+   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20-1) ) / ( (energy-20) - (energy+20) + 0.0 ); // 0.0 is needed since we are dividing an int by an int, but we want a double
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
 	   
@@ -207,8 +203,8 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    	   
    	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
    	   //double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
-   	   double q = ( bin_content.at(energy+20)*(energy-20) - bin_content.at(energy-20)*(energy+20) ) / 40.0 ;
-   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20) ) / 40.0 ; // 0.0 is needed since we are dividing an int by an int, but we want a double
+   	   double q = ( bin_content.at(energy+20-1)*(energy-20) - bin_content.at(energy-20)*(energy+20) ) / 40.0 ;
+   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20-1) ) / 40.0 ; // 0.0 is needed since we are dividing an int by an int, but we want a double
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);	   
 	   
@@ -220,17 +216,13 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
 	   
 	   h_energy->Fit("f1","R");
 	   
-	   double *output_fit_pol1 = new double[10];
+	   double *output_fit_pol1 = new double[6];
 	   output_fit_pol1[0] = f1->GetParameter(0); // constant
 	   output_fit_pol1[1] = f1->GetParError(0);
 	   output_fit_pol1[2] = f1->GetParameter(1); // slope
 	   output_fit_pol1[3] = f1->GetParError(1);
 	   output_fit_pol1[4] = f1->GetParameter(2); // height
 	   output_fit_pol1[5] = f1->GetParError(2);
-	   output_fit_pol1[6] = f1->GetParameter(3); // E0
-	   output_fit_pol1[7] = f1->GetParError(3);
-	   output_fit_pol1[8] = f1->GetParameter(4); // sigma
-	   output_fit_pol1[9] = f1->GetParError(4);
 	   
 	   delete h_energy;
 	   delete f1;
@@ -262,7 +254,7 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
    	   double b_x = energy;
    	   double b_y = bin_content.at(energy);
    	   double c_x = energy + 20;
-   	   double c_y = bin_content.at(energy+20);
+   	   double c_y = bin_content.at(energy+20-1);
    	   
    	   double k = pow ( b_x/c_x, 2);
    	   double q = pow ( a_x/c_x, 2);
@@ -304,7 +296,7 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
    	   double b_x = energy;
    	   double b_y = bin_content.at(energy);
    	   double c_x = energy + 20;
-   	   double c_y = bin_content.at(energy+20);
+   	   double c_y = bin_content.at(energy+20-1);
    	   
    	   double k = pow ( b_x/c_x, 2);
    	   double q = pow ( a_x/c_x, 2);
@@ -326,7 +318,7 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   
 	   h_energy->Fit("f2","R");
 	   
-	   double *output_fit_pol2 = new double[12];
+	   double *output_fit_pol2 = new double[8];
 	   output_fit_pol2[0] = f2->GetParameter(0); // constant
 	   output_fit_pol2[1] = f2->GetParError(0);
 	   output_fit_pol2[2] = f2->GetParameter(1); // slope
@@ -335,10 +327,6 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   output_fit_pol2[5] = f2->GetParError(2);
 	   output_fit_pol2[6] = f2->GetParameter(3); // height
 	   output_fit_pol2[7] = f2->GetParError(3);
-	   output_fit_pol2[8] = f2->GetParameter(4); // E0
-	   output_fit_pol2[9] = f2->GetParError(4);
-	   output_fit_pol2[10] = f2->GetParameter(5); // sigma
-	   output_fit_pol2[11] = f2->GetParError(5);
 	   
 	   delete h_energy;
 	   delete f2;

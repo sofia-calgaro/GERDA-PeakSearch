@@ -29,10 +29,19 @@
     int *FindMaximumSignalHeight(int energy, std::vector<int> bin_signal); 
     
     // Find the range in which the BKG-Pol0 parameters of the models vary
-    double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, int *output);
+    double *FindRange_Pol0(int energy, std::vector<int> bin_content, int *output);
     
     // Find the range in which the BKG-Pol1 parameters of the models vary
-    double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, int *output);
+    double *FindRange_Pol1(int energy, std::vector<int> bin_content, int *output);
     
     // Find the range in which the BKG-Pol2 parameters of the models vary
-    double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, int *output);
+    double *FindRange_Pol2(int energy, std::vector<int> bin_content, int *output);
+    
+    // Find the range in which the BKG-Pol0 parameters of the models vary (1 gamma peak)
+    double *FindRange_Gamma_Pol0(int energy, std::vector<int> bin_content, int *max_height, double EG, int *max_gammaYield);
+    
+    // Find the range in which the BKG-Pol1 parameters of the models vary (1 gamma peak)
+    double *FindRange_Gamma_Pol1(int energy, std::vector<int> bin_content, int *max_height, double EG, int *max_gammaYield);
+    
+    // Find the range in which the BKG-Pol2 parameters of the models vary (1 gamma peak)
+    double *FindRange_Gamma_Pol2(int energy, std::vector<int> bin_content, int *max_height, double EG, int *max_gammaYield);

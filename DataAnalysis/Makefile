@@ -20,7 +20,8 @@
 CXXSRCS = GausPol0.cxx \
 	  GausPol1.cxx \
 	  GausPol2.cxx \
-	  Operations.cxx
+	  Operations.cxx \
+	  DrawPlots.cxx
 	 
 
 # List of all program sources used in the program,

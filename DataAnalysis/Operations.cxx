@@ -1,12 +1,12 @@
 // **********************************************************************************************************************
-// This file contains different functions that are called in the main source file ("runDataAnalysis.cxx").
-// To use these functions you must include this file with ' #include "Operaions.h" '.
+// This file contains different functions that are called in the source files in order to calculate different quantities
+// and to perform a prefit for the BKG polynomial before the BAT analysis.
 // **********************************************************************************************************************
 #include "Operations.h"
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Returns 'true' only if b > a
 bool FindMax(int a, int b) {
    return (a < b);
@@ -14,7 +14,7 @@ bool FindMax(int a, int b) {
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Calculates the energetic resolution for a given energy value 
 double FindSigma(int energy) {
 
@@ -28,7 +28,7 @@ double FindSigma(int energy) {
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Calculates the FWHM for a given energy value
 double FindFWHM(int energy) {
 
@@ -42,7 +42,7 @@ double FindFWHM(int energy) {
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Calculates the maximum of the signal height parameter
 int *FindMaximumSignalHeight(int energy, std::vector<int> bin_content) {
 
@@ -100,32 +100,33 @@ int *FindMaximumSignalHeight(int energy, std::vector<int> bin_content) {
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Find the range in which the BKG-Pol0 parameters of the models vary
-double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, int *output) {
+double *FindRange_Pol0(int energy, std::vector<int> bin_content, int *max_height) {
 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   
+   int p0 = 0;
+   for (int i=energy-20; i<energy+20; i++) { p0 += bin_content.at(i); }
+   p0 = std::round(p0/40);
 
    // ROOT fit: f0 = pol0 
-   if ( output[2] < 3*sqrt(output[1]) ) { 
+   if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
 	   	
 	   TF1 *f0 = new TF1("f0","[0]", energy-20, energy+20);
 	   
-	   int S_avg = 0;
-	   for (int i=energy-20; i<energy+20; i++) { S_avg += bin_content.at(i); }
-	   S_avg = std::round(S_avg/20);
-	   f0->SetParameter(0, S_avg);
+	   f0->SetParameter(0, p0);
 	   
 	   h_energy->Fit("f0","R");
 	   
-	   double *output_fit_pol0 = new double[2];
-	   output_fit_pol0[0] = f0->GetParameter(0); // constant
-	   output_fit_pol0[1] = f0->GetParError(0);
+	   double *output_pol0 = new double[2];
+	   output_pol0[0] = f0->GetParameter(0); // constant
+	   output_pol0[1] = f0->GetParError(0);
 	   
 	   delete h_energy;
 	   delete f0;
-	   return output_fit_pol0; 
+	   return output_pol0; 
    }
    
    // ROOT fit: f0 = pol0 + gaus
@@ -133,65 +134,58 @@ double *FindRangeOfBKGParameters_Pol0(int energy, std::vector<int> bin_content, 
    	   
    	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", energy-20, energy+20);
    	   
-	   int S_avg = 0;
-	   for (int i=energy-20; i<energy+20; i++) { S_avg += bin_content.at(i); }
-	   S_avg = std::round(S_avg/20);
-	   f0->SetParameter(0, S_avg);
+	   f0->SetParameter(0, p0);
 	   
-	   f0->SetParameter(1, output[3]);
+	   f0->SetParameter(1, max_height[3]);
 	   f0->FixParameter(2, energy);
-	   
-	   double sigma_E0 = FindSigma(energy);
-	   f0->FixParameter(3, sigma_E0);   
+	   f0->FixParameter(3, FindSigma(energy));   
 	   
    	   h_energy->Fit("f0","R");
    
-   	   double *output_fit_pol0 = new double[4];
-	   output_fit_pol0[0] = f0->GetParameter(0); // constant
-	   output_fit_pol0[1] = f0->GetParError(0);
-	   output_fit_pol0[2] = f0->GetParameter(1); // height
-	   output_fit_pol0[3] = f0->GetParError(1);
+   	   double *output_pol0 = new double[2];
+	   output_pol0[0] = f0->GetParameter(0); // constant
+	   output_pol0[1] = f0->GetParError(0);
 	   
 	   delete h_energy;
 	   delete f0;
-	   return output_fit_pol0;
+	   return output_pol0;
    }
-
 }
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Find the range in which the BKG-Pol1 parameters of the models vary
-double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, int *output) {
+double *FindRange_Pol1(int energy, std::vector<int> bin_content, int *max_height) {
 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   
+   // slope and constant are evaluated starting from the equation of a straight line crossing two points
+   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20-1) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
+   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20-1) ) / ( (energy-20) - (energy+20) + 0.0 );
 
    // ROOT fit: f1 = pol1
-   if ( output[2] < 3*sqrt(output[1]) ) { 
+   if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
 	 
 	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i)", energy);
    	   TF1 *f1 = new TF1("f1", function, energy-20, energy+20);
    	   
-   	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   	   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20-1) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
-   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20-1) ) / ( (energy-20) - (energy+20) + 0.0 ); // 0.0 is needed since we are dividing an int by an int, but we want a double
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
 	   
 	   h_energy->Fit("f1","R");
 	   
-	   double *output_fit_pol1 = new double[4];
-	   output_fit_pol1[0] = f1->GetParameter(0); // constant
-	   output_fit_pol1[1] = f1->GetParError(0);
-	   output_fit_pol1[2] = f1->GetParameter(1); // slope
-	   output_fit_pol1[3] = f1->GetParError(1);
+	   double *output_pol1 = new double[4];
+	   output_pol1[0] = f1->GetParameter(0); // constant
+	   output_pol1[1] = f1->GetParError(0);
+	   output_pol1[2] = f1->GetParameter(1); // slope
+	   output_pol1[3] = f1->GetParError(1);
 	   
 	   delete h_energy;
 	   delete f1;
-	   return output_fit_pol1; 
+	   return output_pol1; 
    }
    
    // ROOT fit: f1 = pol1 + gaus
@@ -201,68 +195,59 @@ double *FindRangeOfBKGParameters_Pol1(int energy, std::vector<int> bin_content, 
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true)", energy);
    	   TF1 *f1 = new TF1("f1",function, energy-20, energy+20);
    	   
-   	   // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   	   //double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
-   	   double q = ( bin_content.at(energy+20-1)*(energy-20) - bin_content.at(energy-20)*(energy+20) ) / 40.0 ;
-   	   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20-1) ) / 40.0 ; // 0.0 is needed since we are dividing an int by an int, but we want a double
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);	   
 	   
-   	   f1->SetParLimits(2, 0, output[3]);
+   	   f1->SetParLimits(2, 0, max_height[3]);
 	   f1->FixParameter(3, energy);
-	   
-	   double sigma_E0 = FindSigma(energy);
-	   f1->FixParameter(4, sigma_E0);   
+	   f1->FixParameter(4, FindSigma(energy));   
 	   
 	   h_energy->Fit("f1","R");
 	   
-	   double *output_fit_pol1 = new double[6];
-	   output_fit_pol1[0] = f1->GetParameter(0); // constant
-	   output_fit_pol1[1] = f1->GetParError(0);
-	   output_fit_pol1[2] = f1->GetParameter(1); // slope
-	   output_fit_pol1[3] = f1->GetParError(1);
-	   output_fit_pol1[4] = f1->GetParameter(2); // height
-	   output_fit_pol1[5] = f1->GetParError(2);
+	   double *output_pol1 = new double[4];
+	   output_pol1[0] = f1->GetParameter(0); // constant
+	   output_pol1[1] = f1->GetParError(0);
+	   output_pol1[2] = f1->GetParameter(1); // slope
+	   output_pol1[3] = f1->GetParError(1);
 	   
 	   delete h_energy;
 	   delete f1;
-	   return output_fit_pol1;    
+	   return output_pol1;    
    }
-
 }
 
 
 
 
-//-----------------------------------------------------------------------------------------------------------------------
+//=======================================================================================================================
 // Find the range in which the BKG-Pol2 parameters of the models vary
-double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, int *output) {
+double *FindRange_Pol2(int energy, std::vector<int> bin_content, int *max_height) {
 
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   
+   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
+   double a_x = energy - 20;
+   double a_y = bin_content.at(energy-20);
+   double b_x = energy;
+   double b_y = bin_content.at(energy);
+   double c_x = energy + 20;
+   double c_y = bin_content.at(energy+20-1);
+   	   
+   double k = pow ( b_x/c_x, 2);
+   double q = pow ( a_x/c_x, 2);
+   double z = ( b_y - k*c_y ) / ( b_x - k*c_x );
+   	   
+   double p_0 = ( a_y - z*(1-q*c_x) - q*c_y ) / ( 1 - (1-k)/(b_x-k*c_x) - q*(1-c_x*(1-k)/(b_x-k*c_x)) );
+   double p_1 = ( b_y - p_0*(1-k) - k*c_y ) / ( b_x - k*c_x );
+   double p_2 = ( c_y - p_0 - p_1*c_x ) / pow( c_x, 2);
 
    // ROOT fit: f2 = pol2
-   if ( output[2] < 3*sqrt(output[1]) ) { 
+   if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
 	
 	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i)", energy, energy, energy);
    	   TF1 *f2 = new TF1("f2", function, energy-20, energy+20);
-   	   
-   	   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
-   	   double a_x = energy - 20;
-   	   double a_y = bin_content.at(energy-20);
-   	   double b_x = energy;
-   	   double b_y = bin_content.at(energy);
-   	   double c_x = energy + 20;
-   	   double c_y = bin_content.at(energy+20-1);
-   	   
-   	   double k = pow ( b_x/c_x, 2);
-   	   double q = pow ( a_x/c_x, 2);
-   	   double z = ( b_y - k*c_y ) / ( b_x - k*c_x );
-   	   
-   	   double p_0 = ( a_y - z*(1-q*c_x) - q*c_y ) / ( 1 - (1-k)/(b_x-k*c_x) - q*(1-c_x*(1-k)/(b_x-k*c_x)) );
-   	   double p_1 = ( b_y - p_0*(1-k) - k*c_y ) / ( b_x - k*c_x );
-   	   double p_2 = ( c_y - p_0 - p_1*c_x ) / pow( c_x, 2);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
@@ -270,17 +255,17 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
 	   
 	   h_energy->Fit("f2","R");
 	   
-	   double *output_fit_pol2 = new double[6];
-	   output_fit_pol2[0] = f2->GetParameter(0); // constant
-	   output_fit_pol2[1] = f2->GetParError(0);
-	   output_fit_pol2[2] = f2->GetParameter(1); // slope
-	   output_fit_pol2[3] = f2->GetParError(1);
-	   output_fit_pol2[4] = f2->GetParameter(2); // quadratic term
-	   output_fit_pol2[5] = f2->GetParError(2);
+	   double *output_pol2 = new double[6];
+	   output_pol2[0] = f2->GetParameter(0); // constant
+	   output_pol2[1] = f2->GetParError(0);
+	   output_pol2[2] = f2->GetParameter(1); // slope
+	   output_pol2[3] = f2->GetParError(1);
+	   output_pol2[4] = f2->GetParameter(2); // quadratic term
+	   output_pol2[5] = f2->GetParError(2);
 	   
 	   delete h_energy;
 	   delete f2;
-	   return output_fit_pol2; 
+	   return output_pol2; 
    }
    
    // ROOT fit: f2 = pol2 + gaus
@@ -290,47 +275,262 @@ double *FindRangeOfBKGParameters_Pol2(int energy, std::vector<int> bin_content, 
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true)", energy, energy, energy);
    	   TF1 *f2 = new TF1("f2",function, energy-20, energy+20);
    	   
-   	   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
-   	   double a_x = energy - 20;
-   	   double a_y = bin_content.at(energy-20);
-   	   double b_x = energy;
-   	   double b_y = bin_content.at(energy);
-   	   double c_x = energy + 20;
-   	   double c_y = bin_content.at(energy+20-1);
-   	   
-   	   double k = pow ( b_x/c_x, 2);
-   	   double q = pow ( a_x/c_x, 2);
-   	   double z = ( b_y - k*c_y ) / ( b_x - k*c_x );
-   	   
-   	   double p_0 = ( a_y - z*(1-q*c_x) - q*c_y ) / ( 1 - (1-k)/(b_x-k*c_x) - q*(1-c_x*(1-k)/(b_x-k*c_x)) );
-   	   double p_1 = ( b_y - p_0*(1-k) - k*c_y ) / ( b_x - k*c_x );
-   	   double p_2 = ( c_y - p_0 - p_1*c_x ) / pow( c_x, 2);
-   	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
 	   f2->SetParameter(2, p_2);	   
 	   
-   	   f2->SetParameter(3, output[3]);
+   	   f2->SetParameter(3, max_height[3]);
 	   f2->FixParameter(4, energy);
-	   
-	   double sigma_E0 = FindSigma(energy);
-	   f2->FixParameter(5, sigma_E0);   
+	   f2->FixParameter(5, FindSigma(energy));   
 	   
 	   h_energy->Fit("f2","R");
 	   
-	   double *output_fit_pol2 = new double[8];
-	   output_fit_pol2[0] = f2->GetParameter(0); // constant
-	   output_fit_pol2[1] = f2->GetParError(0);
-	   output_fit_pol2[2] = f2->GetParameter(1); // slope
-	   output_fit_pol2[3] = f2->GetParError(1);
-	   output_fit_pol2[4] = f2->GetParameter(2); // quadratic term
-	   output_fit_pol2[5] = f2->GetParError(2);
-	   output_fit_pol2[6] = f2->GetParameter(3); // height
-	   output_fit_pol2[7] = f2->GetParError(3);
+	   double *output_pol2 = new double[6];
+	   output_pol2[0] = f2->GetParameter(0); // constant
+	   output_pol2[1] = f2->GetParError(0);
+	   output_pol2[2] = f2->GetParameter(1); // slope
+	   output_pol2[3] = f2->GetParError(1);
+	   output_pol2[4] = f2->GetParameter(2); // quadratic term
+	   output_pol2[5] = f2->GetParError(2);
 	   
 	   delete h_energy;
 	   delete f2;
-	   return output_fit_pol2;    
+	   return output_pol2;    
    }
+}
 
+
+
+//=======================================================================================================================
+// Find the range in which the BKG-Pol0 parameters of the models vary (1 gamma peak)
+double *FindRange_Gamma_Pol0(int energy, std::vector<int> bin_content, int *max_height, double EG, int *max_gammaYield) {
+
+   TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
+   for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   
+   int p0 = 0;
+   for (int i=energy-20; i<energy+20; i++) { p0 += bin_content.at(i); }
+   p0 = std::round(p0/40);
+
+   // ROOT fit: f0 = pol0 + gaus(EG)
+   if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
+	   	
+	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", energy-20, energy+20);
+	   
+	   f0->SetParameter(0, p0);
+	   
+	   f0->SetParameter(1, max_gammaYield[3]);
+	   f0->FixParameter(2, EG);
+	   f0->FixParameter(3, FindSigma(EG));
+	   
+	   h_energy->Fit("f0","R");
+	   
+	   double *output_pol0 = new double[4];
+	   output_pol0[0] = f0->GetParameter(0); // constant
+	   output_pol0[1] = f0->GetParError(0);
+	   output_pol0[2] = f0->GetParameter(1); // gamma yield
+	   output_pol0[3] = f0->GetParError(1);
+	   
+	   delete h_energy;
+	   delete f0;
+	   return output_pol0; 
+   }
+   
+   // ROOT fit: f0 = pol0 + gaus(EG) + gaus
+   else {
+   	   
+   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true)", energy-20, energy+20);	
+
+	   f0->SetParameter(0, p0);
+	   
+	   int *max_gammaYield = FindMaximumSignalHeight( EG, bin_content);
+	   f0->SetParameter(1, max_gammaYield[3]);
+	   f0->FixParameter(2, EG);
+	   f0->FixParameter(3, FindSigma(EG));
+	   
+	   f0->SetParameter(4, max_height[3]);
+	   f0->FixParameter(5, energy);
+	   f0->FixParameter(6, FindSigma(energy));	   
+	   
+   	   h_energy->Fit("f0","R");
+   
+   	   double *output_pol0 = new double[4];
+	   output_pol0[0] = f0->GetParameter(0); // constant
+	   output_pol0[1] = f0->GetParError(0);
+	   output_pol0[2] = f0->GetParameter(1); // gamma yield
+	   output_pol0[3] = f0->GetParError(1);
+	   
+	   delete h_energy;
+	   delete f0;
+	   return output_pol0;
+   }
+}
+  
+  
+  
+//=======================================================================================================================    
+// Find the range in which the BKG-Pol1 parameters of the models vary (1 gamma peak)
+double *FindRange_Gamma_Pol1(int energy, std::vector<int> bin_content, int *max_height, double EG, int *max_gammaYield) {
+
+   TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
+   for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   
+   // slope and constant are evaluated starting from the equation of a straight line crossing two points
+   double q = - ( 2*(energy-20)*bin_content.at(energy-20) - (energy-20)*bin_content.at(energy+20-1) - (energy+20)*bin_content.at(energy-20) ) / ( (energy-20) - (energy+20) );
+   double m = ( bin_content.at(energy-20) - bin_content.at(energy+20-1) ) / ( (energy-20) - (energy+20) + 0.0 );
+
+   // ROOT fit: f1 = pol1 + gaus(EG)
+   if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
+	   	
+	   char function[100];
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true)", energy);
+   	   TF1 *f1 = new TF1("f1", function, energy-20, energy+20);
+	   
+	   f1->SetParameter(0, q);
+	   f1->SetParameter(1, m);
+	   
+	   f1->SetParameter(2, max_gammaYield[3]);
+	   f1->FixParameter(3, EG);
+	   f1->FixParameter(4, FindSigma(EG));
+	   
+	   h_energy->Fit("f1","R");
+	   
+	   double *output_pol1 = new double[6];
+	   output_pol1[0] = f1->GetParameter(0); // constant
+	   output_pol1[1] = f1->GetParError(0);
+	   output_pol1[2] = f1->GetParameter(1); // gamma yield
+	   output_pol1[3] = f1->GetParError(1);
+	   output_pol1[4] = f1->GetParameter(2); // gamma yield
+	   output_pol1[5] = f1->GetParError(2);
+	   
+	   delete h_energy;
+	   delete f1;
+	   return output_pol1; 
+   }
+   
+   // ROOT fit: f1 = pol1 + gaus(EG) + gaus
+   else {
+   	   
+   	   char function[200];
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true) + [5]*TMath::Gaus(x, [6], [7], true)", energy);
+   	   TF1 *f1 = new TF1("f1", function, energy-20, energy+20);
+
+	   f1->SetParameter(0, q);
+	   f1->SetParameter(1, m);
+	   
+	   int *max_gammaYield = FindMaximumSignalHeight( EG, bin_content);
+	   f1->SetParameter(2, max_gammaYield[3]);
+	   f1->FixParameter(3, EG);
+	   f1->FixParameter(4, FindSigma(EG));
+	   
+	   f1->SetParameter(5, max_height[3]);
+	   f1->FixParameter(6, energy);
+	   f1->FixParameter(7, FindSigma(energy));	   
+	   
+   	   h_energy->Fit("f1","R");
+   
+   	   double *output_pol1 = new double[4];
+	   output_pol1[0] = f1->GetParameter(0); // constant
+	   output_pol1[1] = f1->GetParError(0);
+	   output_pol1[2] = f1->GetParameter(1); // gamma yield
+	   output_pol1[3] = f1->GetParError(1);
+	   
+	   delete h_energy;
+	   delete f1;
+	   return output_pol1;
+   }
+}
+
+
+
+//======================================================================================================================= 
+// Find the range in which the BKG-Pol2 parameters of the models vary (1 gamma peak)
+double *FindRange_Gamma_Pol2(int energy, std::vector<int> bin_content, int *max_height, double EG, int *max_gammaYield) {
+
+   TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
+   for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
+   
+   // Second order parameters are evaluated starting from the equation of a parabola crossing three points
+   double a_x = energy - 20;
+   double a_y = bin_content.at(energy-20);
+   double b_x = energy;
+   double b_y = bin_content.at(energy);
+   double c_x = energy + 20;
+   double c_y = bin_content.at(energy+20-1);
+   	   
+   double k = pow ( b_x/c_x, 2);
+   double q = pow ( a_x/c_x, 2);
+   double z = ( b_y - k*c_y ) / ( b_x - k*c_x );
+   	   
+   double p_0 = ( a_y - z*(1-q*c_x) - q*c_y ) / ( 1 - (1-k)/(b_x-k*c_x) - q*(1-c_x*(1-k)/(b_x-k*c_x)) );
+   double p_1 = ( b_y - p_0*(1-k) - k*c_y ) / ( b_x - k*c_x );
+   double p_2 = ( c_y - p_0 - p_1*c_x ) / pow( c_x, 2);
+
+   // ROOT fit: f2 = pol2 + gaus(EG)
+   if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
+	
+	   char function[100];
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true)", energy, energy, energy);
+   	   TF1 *f2 = new TF1("f2", function, energy-20, energy+20);
+   	   
+   	   f2->SetParameter(0, p_0);
+	   f2->SetParameter(1, p_1);
+	   f2->SetParameter(2, p_2);
+	   
+	   f2->SetParameter(3, max_gammaYield[3]);
+	   f2->FixParameter(4, EG);
+	   f2->FixParameter(5, FindSigma(EG));
+	   
+	   h_energy->Fit("f2","R");
+	   
+	   double *output_pol2 = new double[8];
+	   output_pol2[0] = f2->GetParameter(0); // constant
+	   output_pol2[1] = f2->GetParError(0);
+	   output_pol2[2] = f2->GetParameter(1); // slope
+	   output_pol2[3] = f2->GetParError(1);
+	   output_pol2[4] = f2->GetParameter(2); // quadratic term
+	   output_pol2[5] = f2->GetParError(2);
+	   output_pol2[6] = f2->GetParameter(3); // gamma yield
+	   output_pol2[7] = f2->GetParError(3);
+	   
+	   delete h_energy;
+	   delete f2;
+	   return output_pol2; 
+   }
+   
+   // ROOT fit: f2 = pol2 + gaus(EG) +  gaus
+   else {
+   	   
+   	   char function[200];
+   	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true) + [6]*TMath::Gaus(x, [7], [8], true)", energy, energy, energy);
+   	   TF1 *f2 = new TF1("f2",function, energy-20, energy+20);
+   	   
+   	   f2->SetParameter(0, p_0);
+	   f2->SetParameter(1, p_1);
+	   f2->SetParameter(2, p_2);	 
+	   
+	   f2->SetParameter(3, max_gammaYield[3]);
+	   f2->FixParameter(4, EG);
+	   f2->FixParameter(5, FindSigma(EG));  
+	   
+   	   f2->SetParameter(6, max_height[3]);
+	   f2->FixParameter(7, energy);
+	   f2->FixParameter(8, FindSigma(energy));   
+	   
+	   h_energy->Fit("f2","R");
+	   
+	   double *output_pol2 = new double[8];
+	   output_pol2[0] = f2->GetParameter(0); // constant
+	   output_pol2[1] = f2->GetParError(0);
+	   output_pol2[2] = f2->GetParameter(1); // slope
+	   output_pol2[3] = f2->GetParError(1);
+	   output_pol2[4] = f2->GetParameter(2); // quadratic term
+	   output_pol2[5] = f2->GetParError(2);
+	   output_pol2[6] = f2->GetParameter(3); // gamma yield
+	   output_pol2[7] = f2->GetParError(3);
+	   
+	   delete h_energy;
+	   delete f2;
+	   return output_pol2;    
+   }
 }

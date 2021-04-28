@@ -9,6 +9,7 @@ $ ./peak_search.sh
   * _k_ is used as an index to get the energy of the corresponding peak from the array that contains all the gamma transitions;
   * _output(k)_ is important to see if there is 1(2) gamma peak(s) and where is(are).
 * "Operations.cxx": file that stores different functions that are called in the main source file and in the model source files.
+* "DrawPlots.cxx": file that draws the experimental data together with the fit result.
 * "GausPol0.cxx": model for fitting with f(x)=gaus(x)+pol0(x).
 * "GausPol1.cxx": model for fitting with f(x)=gaus(x)+pol1(x).
 * "GausPol2.cxx": model for fitting with f(x)=gaus(x)+pol2(x).

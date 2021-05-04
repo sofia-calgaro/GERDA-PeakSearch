@@ -1,5 +1,5 @@
 ## gerda-BATanalysis
-* "peak_search.sh": starting program for the analysis. It requires as input parameters the central energy of the fit window and the polynomial degree for fitting the background. Execute it by using:
+* "peak_search.sh": starting program for the analysis. It requires as input parameters the central energy (_E0_) of the fit window and the polynomial degree (_pol_degree_) for fitting the background. Execute it by using:
 ```
 $ chmod +x peak_search.sh 
 $ ./peak_search.sh 

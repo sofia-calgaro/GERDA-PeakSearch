@@ -1,0 +1,40 @@
+In this file, you can see the meaning of the value of output[k] (or outputK).There are two cases:
+  1) peaks that differ more than 24 keV;
+  2) peaks that differ less than 24 keV.
+  
+The peak search starts from a fit window of 24 keV in width having x1 as the lower limit and x2 as
+the upper limit x2; after the analysis, "peak_search.sh" will return new limits, xL (lower) and
+xR (upper).
+
+
+
+(1) ΔE > 24 keV
+
+  outputK = 0   ->   NO gamma peaks are present near/inside the fit window  
+  outputK = 1   ->   Two gamma peaks are present, both OUTSIDE-NEAR the fit window  
+  outputK = 2   ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one OUTSIDE-NEAR
+  outputK = 3   ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one INSIDE-NEAR
+  outputK = 4   ->   One gamma peak is present OUTSIDE-NEAR (left or right) the fit window
+  outputK = 5   ->   One gamma peak is present INSIDE-NEAR (left or right) the fit window
+  outputK = 6   ->   One gamma peak is present INSIDE the fit window
+  outputK = 7   ->   One gamma peak is present in x1 or x2.
+
+
+
+(2) ΔE < 24 keV
+
+  outputK = 8   ->   Two gamma peaks are present, both INSIDE the fit window  
+  outputK = 9   ->   Two gamma peaks are present, the left one INSIDE, the right one INSIDE-NEAR
+  outputK = 10  ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one INSIDE
+  outputK = 11  ->   Two gamma peaks are present, both INSIDE-NEAR the fit window  
+  outputK = 12  ->   Two gamma peaks are present, the left one INSIDE, the right one OUTSIDE-NEAR
+  outputK = 13  ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one OUTSIDE-NEAR
+  outputK = 14  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one INSIDE-NEAR
+  outputK = 15  ->   Two gamma peaks are present, the left one in x1, the right one OUTSIDE-NEAR
+  outputK = 16  ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one in x2
+  outputK = 17  ->   Two gamma peaks are present, the left one INSIDE, the right one in x2
+  outputK = 18  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one in x2
+  outputK = 19  ->   Two gamma peaks are present, the left one in x1, the right one INSIDE-NEAR
+  outputK = 20  ->   Two gamma peaks are present, the left one OUTSIDE, the right one in x1
+  outputK = 21  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one OUTSIDE
+  outputK = 22  ->   Two gamma peaks are present, the left one OUTSIDE, the right one OUTSIDE-NEAR

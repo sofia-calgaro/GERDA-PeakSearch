@@ -1,5 +1,5 @@
 ## gerda-BATanalysis
-* "peak_search.sh": starting program for the analysis. It requires the central energy of the fit window as an input parameter after having executed it:
+* "peak_search.sh": starting program for the analysis. It requires the central energy of the fit window and the polynomial degree for fitting the background as input parameters. Execute it by:
 ```
 $ chmod +x peak_search.sh 
 $ ./peak_search.sh 
@@ -10,6 +10,6 @@ $ ./peak_search.sh
   * _output(k)_ is important to see if there is 1(2) gamma peak(s) and where is(are).
 * "Operations.cxx": file that stores different functions that are called in the main source file and in the model source files.
 * "DrawPlots.cxx": file that draws the experimental data together with the fit result.
-* "GausPol0.cxx": model for fitting with f(x)=gaus(x)+pol0(x).
-* "GausPol1.cxx": model for fitting with f(x)=gaus(x)+pol1(x).
-* "GausPol2.cxx": model for fitting with f(x)=gaus(x)+pol2(x).
+* "GausPol0.cxx": model for fitting with f(x)=pol0(x)+gaus(x) (+gaus1(x)+gaus2(x)).
+* "GausPol1.cxx": model for fitting with f(x)=pol1(x)+gaus(x) (+gaus1(x)+gaus2(x)).
+* "GausPol2.cxx": model for fitting with f(x)=pol2(x)+gaus(x) (+gaus1(x)+gaus2(x)).

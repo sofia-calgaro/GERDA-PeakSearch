@@ -4,16 +4,16 @@
 
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0, int xL, int xR, double EG, int outputK)
+GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0, int xL, int xR, double E1, double E2, int outputK)
     : BCModel(name)
 {
-	    int *max_height = FindMaximumSignalHeight( E0, bin_content);
+	    int *max_height = FindMaximumSignalHeight( E0, E1, E2, bin_content, xL, xR, outputK);
 	    
-	    if ( outputK==50 || outputK==1 || outputK==4 || outputK==7 || outputK==15 || outputK==18 || outputK==20 || outputK==21 || outputK==22 ) {
+	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {
 	 	    double *output_pol2 = FindRange_Pol2( E0, bin_content, max_height);
 		
 		    // 1) Signal yield (index 0)
-		    AddParameter("height", 0, max_height[3], "", "[events]");
+		    AddParameter("S_height", 0, max_height[3], "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
@@ -30,11 +30,11 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
             }
             
             else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) {
-		    int *max_gammaYield = FindMaximumSignalHeight( EG, bin_content);
-		    double *output_G_pol2 = FindRange_Gamma_Pol2( E0, bin_content, max_height, EG, max_gammaYield);
+		    int *max_gammaYield = FindMaximumGammaHeight1( E0, E1, E2, bin_content, xL, xR, outputK);
+		    double *output_G_pol2 = FindRange_Gamma_Pol2( E0, bin_content, max_height, E1, max_gammaYield, xL, xR);
 		    
 		    // 1) Signal yield (index 0)
-		    AddParameter("height", 0, max_height[3], "", "[events]");
+		    AddParameter("S_height", 0, max_height[3], "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
@@ -50,12 +50,38 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 5) Gamma yield (index 4)  
-		    AddParameter("gamma_height", 0, max_gammaYield[3], "", "[events]");
+		    AddParameter("E1_height", 0, max_gammaYield[3], "", "[events]");
 		    GetParameters().Back().SetPriorConstant();        
             } 
             
             else {
-            	   // studio dei picchi che distano meno di 24 keV					//!!!!!!!!!!!!!!!!!!
+            	    int *max_gammaYield1 = FindMaximumGammaHeight1( E0, E1, E2, bin_content, xL, xR, outputK);
+            	    int *max_gammaYield2 = FindMaximumGammaHeight2( E0, E1, E2, bin_content, xL, xR, outputK);
+		    double *output_2G_pol2 = FindRange_TwoGamma_Pol2( E0, bin_content, max_height, E1, max_gammaYield1, E2, max_gammaYield2, xL, xR);
+            	   
+            	    // 1) Signal yield (index 0)
+		    AddParameter("S_height", 0, max_height[3], "", "[events]");
+		    GetParameters().Back().SetPriorConstant();
+
+		    // 2) Constant (index 1)
+		    AddParameter("p0", output_2G_pol2[0]-10*output_2G_pol2[1], output_2G_pol2[0]+10*output_2G_pol2[1], "p0", "[events]");
+		    GetParameters().Back().SetPriorConstant();
+		    
+		    // 3) Slope (index 2)
+		    AddParameter("p1", output_2G_pol2[2]-10*output_2G_pol2[3], output_2G_pol2[2]+10*output_2G_pol2[3], "p1", "[events/keV]");
+		    GetParameters().Back().SetPriorConstant();
+		    
+		    // 4) Quadratic term (index 3)
+		    AddParameter("p2", output_2G_pol2[4]-10*output_2G_pol2[5], output_2G_pol2[4]+10*output_2G_pol2[5], "p2", "[events/keV^2]");
+		    GetParameters().Back().SetPriorConstant();
+		    
+		    // 5) Gamma yield (1) (index 4)  
+		    AddParameter("E1_height", 0, max_gammaYield1[3], "", "[events]");
+		    GetParameters().Back().SetPriorConstant();
+		    
+		    // 6) Gamma yield (2) (index 5)  
+		    AddParameter("E2_height", 0, max_gammaYield2[3], "", "[events]");
+		    GetParameters().Back().SetPriorConstant();
             }
        
 }
@@ -72,7 +98,6 @@ double GausPol2::LogLikelihood(const std::vector<double>& pars)
             int E0 = GetDataSet()->GetDataPoint(5201).GetValue(0);
             int xL = GetDataSet()->GetDataPoint(5202).GetValue(0);
             int xR = GetDataSet()->GetDataPoint(5203).GetValue(0);
-            double EG = GetDataSet()->GetDataPoint(5204).GetValue(0);
             int outputK = GetDataSet()->GetDataPoint(5205).GetValue(0);
 
             // Loop over 24 elements
@@ -82,9 +107,16 @@ double GausPol2::LogLikelihood(const std::vector<double>& pars)
                     double y_exp = 0;
                     
                     // expected value
-                    if ( outputK==50 || outputK==1 || outputK==4 || outputK==7 || outputK==15 || outputK==18 || outputK==20 || outputK==21 || outputK==22 ) { y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0); }
-                    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0) + pars[4]*TMath::Gaus(i, EG, FindSigma(EG), true); }
-                    else {}
+                    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0); }
+                    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { 
+                    	double E1 = GetDataSet()->GetDataPoint(5204).GetValue(0);
+                        y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0) + pars[4]*TMath::Gaus(i, E1, FindSigma(E1), true);
+                    }
+                    else { 
+                    	double E1 = GetDataSet()->GetDataPoint(5204).GetValue(0);
+                   	double E2 = GetDataSet()->GetDataPoint(5206).GetValue(0);
+                    	y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0) + pars[4]*TMath::Gaus(i, E1, FindSigma(E1), true) + pars[5]*TMath::Gaus(i, E2, FindSigma(E2), true);
+                    }
 
                     LP += BCMath::LogPoisson(y_obs, y_exp); // log of conditional probability, p(data|pars)         
             }

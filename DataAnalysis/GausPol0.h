@@ -24,7 +24,7 @@ class GausPol0 : public BCModel
 public:
 
     // Constructor
-    GausPol0(const std::string& name, std::vector<int> bin_content, int E0, int xL, int xR, double EG, int outputK);
+    GausPol0(const std::string& name, std::vector<int> bin_content, int E0, int xL, int xR, double E1, double E2, int outputK);
 
     // Destructor
     ~GausPol0();

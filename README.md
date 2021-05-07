@@ -5,7 +5,7 @@ $ chmod +x peak_search.sh
 $ ./peak_search.sh 
 ```
 * **"runDataAnalysis.cxx"**: main program for the analysis. It takes six input values (_E0, pol_degree, xL, xR, k, output(k)_) directly from the analysis performed in "peak_search.sh":
-  * _pol_degree_ is the polynomial order chosen for the background;
+  * _pol_degree_ for the BKG is 0, 1, or 2;
   * _xL_ (_xR_) is the left (right) energy limit for the fit window centered in _E0_;
   * _k_ is used as an index to get the energy of the corresponding peak from the array that contains all the gamma transitions;
   * _output(k)_ is important to see if there is 1(2) gamma peak(s) and where is(are); see "peakPosition.txt" for more information.

@@ -9,7 +9,9 @@ $ ./peak_search.sh
   * _k_ is used as an index to get the energy of the corresponding peak from the array that contains all the gamma transitions;
   * _output(k)_ is important to see if there is 1(2) gamma peak(s) and where is(are); see "peakPosition.txt" for more information.
 * "Operations.cxx": file that stores different functions that are called in the main source file and in the model source files.
-* "DrawPlots.cxx": file that draws the experimental data together with the fit result.
 * "GausPol0.cxx": model for fitting with f(x)=pol0(x)+gaus(x) (+gaus1(x)+gaus2(x)).
 * "GausPol1.cxx": model for fitting with f(x)=pol1(x)+gaus(x) (+gaus1(x)+gaus2(x)).
 * "GausPol2.cxx": model for fitting with f(x)=pol2(x)+gaus(x) (+gaus1(x)+gaus2(x)).
+* "Output.cxx": file that:
+  * creates a JSON file containing the "peah_search.sh" results together with the BAT results; it requires the class _json.hpp_ (see [nlohmann/json](https://github.com/nlohmann/json));
+  * draws the experimental data together with the fit result.

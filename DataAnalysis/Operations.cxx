@@ -59,7 +59,7 @@ int *FindMaximumSignalHeight(int E0, double E1, double E2, std::vector<int> bin_
    double B_S = 0.0;
    int S = 0;
 
-   if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {
+   if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 	   
 	   for ( int i=xL; i<xL_S; i++ ) { B_i += bin_content.at(i); }     
 	   for ( int i=xR_S; i<xR; i++ ) { B_i += bin_content.at(i); } // Bin content outside [xL_S;xR_S]     
@@ -69,7 +69,7 @@ int *FindMaximumSignalHeight(int E0, double E1, double E2, std::vector<int> bin_
 	   for ( int i=xL_S; i<xR_S; i++ ) { S_i += bin_content.at(i); } // Bin content in [xL_S;xR_S]         
    }
    
-   else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { 
+   else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { 
    
     	   int xL_1 = std::round( E1 - 1.5*FWHM_1 ); 
    	   int xR_1 = std::round( E1 + 1.5*FWHM_1 ); 
@@ -200,7 +200,7 @@ int *FindMaximumGammaHeight1(int E0, double E1, double E2, std::vector<int> bin_
    int G = 0;
 
 
-   if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { 
+   if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { 
    
    	   if ( E1 > E0 ) {
    	   	   if ( fabs(E0-E1) > 1.5*(FWHM_1 + FWHM_0) ) {

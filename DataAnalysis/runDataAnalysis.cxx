@@ -14,7 +14,7 @@
 
 // OTHER
 #include "Operations.h"
-#include "DrawPlots.h"
+#include "Output.h"
 #include "args_reader.hpp"
 
 
@@ -35,10 +35,7 @@ int main(int argc, char *argv[])
     std::cout << "\n  output[k] = " << inpval[6] << std::endl;
     std::cout << " *************************\n" << std::endl;
     }
-    
-    double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
-    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
-    
+      
     //---------------------------------------------------------------------------------------------------------------------- DATA LOADING   
 
     TFile *file = new TFile("/home/sofia/gerda_data/IC_20210406.root","READ");
@@ -68,6 +65,9 @@ int main(int argc, char *argv[])
     xRight->SetValue(0, xR);
     data_set.AddDataPoint(*xRight);
     
+    double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
+    
     // create a new data point: E1=E_gamma[k]
     int k = inpval[5];
     double E1 = 0;
@@ -90,12 +90,14 @@ int main(int argc, char *argv[])
     }       
     gammaEnergy_2->SetValue(0, E2);
     data_set.AddDataPoint(*gammaEnergy_2);
-    
+        
     // open log file
     int pol_degree = inpval[2];
     char name_log[100];
     sprintf(name_log,"/home/sofia/Analysis/DataAnalysis/Log_files/log_%i_GausPol%i.txt", E0, pol_degree);
     BCLog::OpenLog(name_log, BCLog::detail, BCLog::detail);	
+    
+    int IntResults[6] = { E0, xL, xR, k, outputK, pol_degree};
     
     //---------------------------------------------------------------------------------------------------------------------- ANALYSIS     
     
@@ -103,8 +105,8 @@ int main(int argc, char *argv[])
     if ( pol_degree==0 ) {
     	
     	    char name_model[100];
-    	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { sprintf(name_model,"%iGausPol0", E0); }
-	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { sprintf(name_model,"%iGausPol0_%gGamma", E0, E1); }
+    	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) { sprintf(name_model,"%iGausPol0", E0); }
+	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { sprintf(name_model,"%iGausPol0_%gGamma", E0, E1); }
 	    else { sprintf(name_model,"%iGausPol0_%gGamma_%gGamma", E0, E1, E2); }
 	    
 	    GausPol0 m(name_model, bin_content, E0, xL, xR, E1, E2, outputK);
@@ -129,10 +131,12 @@ int main(int argc, char *argv[])
 	    BCLog::CloseLog();
 	    
 	    const std::vector<double> params = m.GetBestFitParameters();
-
+	    double DblResults[2] = { E1, E2};	    
+	    JsonFile(params, IntResults, DblResults);
+	    
 	    // plot: data + fit
-	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { Draw_Pol0(E0, xL, xR, params, h); }
-	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { Draw_Gamma_Pol0(E0, E1, xL, xR, params, h); }
+	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) { Draw_Pol0(E0, xL, xR, params, h); }
+	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { Draw_Gamma_Pol0(E0, E1, xL, xR, params, h); }
 	    else { Draw_TwoGamma_Pol0(E0, E1, E2, xL, xR, params, h); }
 	
 	    
@@ -144,8 +148,8 @@ int main(int argc, char *argv[])
     if ( pol_degree==1 ) {
     
    	    char name_model[100];
-    	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { sprintf(name_model,"%iGausPol1", E0); }
-	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { sprintf(name_model,"%iGausPol1_%gGamma", E0, E1); }
+    	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) { sprintf(name_model,"%iGausPol1", E0); }
+	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { sprintf(name_model,"%iGausPol1_%gGamma", E0, E1); }
 	    else { sprintf(name_model,"%iGausPol0_%gGamma_%gGamma", E0, E1, E2); }
 	    
 	    GausPol1 m(name_model, bin_content, E0, xL, xR, E1, E2, outputK);
@@ -170,10 +174,12 @@ int main(int argc, char *argv[])
 	    BCLog::CloseLog();
 	    
 	    const std::vector<double> params = m.GetBestFitParameters();
+	    double DblResults[2] = { E1, E2};	    
+	    JsonFile(params, IntResults, DblResults);
 	    
 	    // plot: data + fit
 	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { Draw_Pol1(E0, xL, xR, params, h); }
-	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { Draw_Gamma_Pol1(E0, E1, xL, xR, params, h); }
+	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { Draw_Gamma_Pol1(E0, E1, xL, xR, params, h); }
 	    else { Draw_TwoGamma_Pol1(E0, E1, E2, xL, xR, params, h); }
     }
     
@@ -183,8 +189,8 @@ int main(int argc, char *argv[])
     if ( pol_degree==2 ) {
     
   	    char name_model[100];
-    	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { sprintf(name_model,"%iGausPol2", E0); }
-	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { sprintf(name_model,"%iGausPol2_%gGamma", E0, E1); }
+    	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) { sprintf(name_model,"%iGausPol2", E0); }
+	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { sprintf(name_model,"%iGausPol2_%gGamma", E0, E1); }
 	    else { sprintf(name_model,"%iGausPol0_%gGamma_%gGamma", E0, E1, E2); }
 	    
 	    GausPol2 m(name_model, bin_content, E0, xL, xR, E1, E2, outputK);
@@ -209,10 +215,12 @@ int main(int argc, char *argv[])
 	    BCLog::CloseLog();
 	    
 	    const std::vector<double> params = m.GetBestFitParameters();
+	    double DblResults[2] = { E1, E2};	    
+	    JsonFile(params, IntResults, DblResults);
 	    
 	    // plot: data + fit
 	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { Draw_Pol2(E0, xL, xR, params, h); }
-	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 ) { Draw_Gamma_Pol2(E0, E1, xL, xR, params, h); }
+	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { Draw_Gamma_Pol2(E0, E1, xL, xR, params, h); }
 	    else { Draw_TwoGamma_Pol2(E0, E1, E2, xL, xR, params, h); }	    
     }
 

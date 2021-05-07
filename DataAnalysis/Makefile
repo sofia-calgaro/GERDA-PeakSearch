@@ -21,7 +21,7 @@ CXXSRCS = GausPol0.cxx \
 	  GausPol1.cxx \
 	  GausPol2.cxx \
 	  Operations.cxx \
-	  DrawPlots.cxx
+	  Output.cxx
 	 
 
 # List of all program sources used in the program,
@@ -31,9 +31,9 @@ PRGSRCS = runDataAnalysis.cxx
 
 # compiler and flags
 CXX       = g++
-CXXFLAGS  = -std=c++17 -g -O2 -Wall -fPIC -Wno-deprecated  -fopenmp
-LD        = /usr/bin/ld -m elf_x86_64
-LDFLAGS   = -g -O2   -fopenmp
+CXXFLAGS  = -std=c++17 -g -O2 -Wall -fPIC -Wno-deprecated  -fopenmp  
+LD        = /usr/bin/ld -m elf_x86_64 
+LDFLAGS   = -g -O2   -fopenmp  
 
 # ----------------------------------------------------------------------
 # The following definitions rely on the script bat-config being

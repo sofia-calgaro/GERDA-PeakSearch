@@ -1,6 +1,9 @@
 #! /bin/bash
 
-
+rm JsonPol0.json
+rm JsonPol1.json
+rm JsonPol2.json
+clear
 
 #------------------------------------------------------------------------------------------------------------------------------------------ VARIABLES
 #         Pb212   Pb214   Pb214   Pb214   Ac228    e+e-    Kr85   Tl208   Bi214   Ac228   Ac228
@@ -408,22 +411,37 @@ printf " k = $k -> outputK = $outputK\n\n"
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------ POL-DEGREE
-#if [ "$E0" -lt 120 ]
-#then
-#	pol_degree=2
-#elif [ "$E0" -ge 120 ] && [ "$E0" -lt 1700 ]
-#then
-#	pol_degree=1
-#else
-#	pol_degree=0
-#fi
+if [ "$E0" -lt 120 ]
+then
+	pol_degree=2
+elif [ "$E0" -ge 120 ] && [ "$E0" -lt 1700 ]
+then
+	pol_degree=1
+else
+	pol_degree=0
+fi
 
-read -p " What degree (0, 1, 2) do you want for the BKG? "  pol_degree
+#read -p " What degree (0, 1, 2) do you want for the BKG? "  pol_degree
 printf "\n"
 
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------ ANALYSIS
 make clean
-make -s
-./runDataAnalysis --nums 6 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK"
+time make -s
+
+time ./runDataAnalysis --nums 6 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK"
+
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------ OUTPUT
+printf "\n ***** OUTPUT *****\n"
+if [ "$pol_degree" -eq 0 ]
+then
+	cat JsonPol0.json | jq
+elif [ "$pol_degree" -eq 1 ]
+then
+	cat JsonPol1.json | jq
+else
+	cat JsonPol2.json | jq
+fi

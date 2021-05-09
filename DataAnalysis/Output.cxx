@@ -10,9 +10,22 @@
 
 
 //=======================================================================================================================
-// Create a JSON file when NO gamma lines are present
-void JsonFile (const std::vector<double> params, int IntResults[], double DblResults[]) {
+// Create a JSON file
+void JsonFile (const std::vector<double> params, const std::vector<double> params_err, int IntResults[], std::vector<double> DblResults) {
 
+	char name_file[100];
+	sprintf(name_file, "JsonPol%i.json", IntResults[5]);
+	
+	std::fstream file;
+	file.open(name_file, std::ios_base::app); // add lines without overwriting the file
+	
+	// If file does not exist...
+	if ( !file ) {
+		std::cout << "\"" << name_file << "\" does not exist. The file is created!" << std::endl;
+		file.open(name_file, std::ios::out);
+	}
+
+	//----------------------------------------------------------------------------------
 	int E0 = IntResults[0];
 	int xL = IntResults[1];
 	int xR = IntResults[2];
@@ -21,32 +34,74 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	int outputK = IntResults[4];
 	int pol_degree = IntResults[5];	
 	
-	double E1 = DblResults[0];
-	double E2 = DblResults[1];
+	double E1 = DblResults.at(30);
+	double E2 = DblResults.at(31);
+		
+	//----------------------------------------------------------------------------------
+	// Global mode
+	double E0_height_GM=0, E0_height_err_GM=0, E1_height_GM=0, E1_height_err_GM=0, E2_height_GM=0, E2_height_err_GM=0;
+	E0_height_GM = params.at(0);
+	E0_height_err_GM = params_err.at(0);
 	
-	char name_file[100];
-	sprintf(name_file, "JsonPol%i.json", pol_degree);
-	
-	std::fstream file;
-	file.open(name_file, std::ios_base::app); // add lines without overwriting the file
-	
-	// If file does not exist...
-	if (!file) {
-		std::cout << "\"" << name_file << "\" does not exist. The file is created!" << std::endl;
-		file.open(name_file, std::ios::out);
-		file << "" << std::endl;
-		file.close();
-		std::fstream file;
-		file.open("name_file", std::ios_base::app);
+	double p0_GM=0, p0_err_GM=0, p1_GM=0, p2_GM=0, p1_err_GM=0, p2_err_GM=0;	
+	p0_GM = params.at(1);
+	p0_err_GM = params_err.at(1);
+	if ( pol_degree==1 ) {
+		p1_GM = params.at(2);
+		p1_err_GM = params_err.at(2);
+	}
+	if ( pol_degree==2 ) {
+		p1_GM = params.at(2);
+		p1_err_GM = params_err.at(2);
+		p2_GM = params.at(3);
+		p2_err_GM = params_err.at(3);
 	}
 	
+	// 1 gamma peak (pay attention to the indexes)
+	if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+		if ( pol_degree==0 ) {
+			E1_height_GM = params.at(2);
+			E1_height_err_GM = params_err.at(2);
+		}
+		if ( pol_degree==1 ) {
+			E1_height_GM = params.at(3);
+			E1_height_err_GM = params_err.at(3);
+			}
+		if (pol_degree==2 ) {
+			E1_height_GM = params.at(4);
+			E1_height_err_GM = params_err.at(4);
+			}
+	}
+	// 2 gamma peaks (pay attention to the indexes)
+	if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+		if ( pol_degree==0 ) {
+			E1_height_GM = params.at(2);
+			E1_height_err_GM = params_err.at(2);
+			E2_height_GM = params.at(3);
+			E2_height_err_GM = params_err.at(3);
+		}
+		if ( pol_degree==1 ) {
+			E1_height_GM = params.at(3);
+			E1_height_err_GM = params_err.at(3);
+			E2_height_GM = params.at(4);
+			E2_height_err_GM = params_err.at(4);
+			}
+		if ( pol_degree==2 ) {
+			E1_height_GM = params.at(4);
+			E1_height_err_GM = params_err.at(4);
+			E2_height_GM = params.at(5);
+			E2_height_err_GM = params_err.at(5);
+			}
+	}
+	
+	
+	//----------------------------------------------------------------------------------
 	std::string str;
 	str = "E0-" + std::to_string(E0);
 	
 	json j1, j2, j3, j4, j5;
 	
 	
-	//----------------------------------------------------------------------------------
 	// Results of "peak_search.sh"
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
@@ -98,8 +153,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	//----------------------------------------------------------------------------------
 	// Results of BAT: parameters' ranges
 	char str1_PR[100], str2_PR[100];
-	sprintf(str1_PR, "[%g, %g]", 0.0, 88.0);
-	sprintf(str2_PR, "[%g, %g]", 11.39, 26.102);
+	sprintf(str1_PR, "[%g, %g]", DblResults.at(32), DblResults.at(33)); // E0_height
+	sprintf(str2_PR, "[%g, %g]", DblResults.at(34), DblResults.at(35)); // p0
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {	
@@ -113,7 +168,7 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {	
 		char str3_PR[100];
-		sprintf(str3_PR, "[%g, %g]", 0.0, 100.0);
+		sprintf(str3_PR, "[%g, %g]", DblResults.at(40), DblResults.at(41)); // E1_height
 		j2 = {
 			{ "ParameterRange", {
 					{ "E0_height", str1_PR},
@@ -125,8 +180,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 2 gamma peaks
 	else {	
 		char str3_PR[100], str4_PR[100];
-		sprintf(str3_PR, "[%g, %g]", 0.0, 100.0);
-		sprintf(str4_PR, "[%g, %g]", 0.0, 80.0);
+		sprintf(str3_PR, "[%g, %g]", DblResults.at(40), DblResults.at(41)); // E1_height
+		sprintf(str4_PR, "[%g, %g]", DblResults.at(42), DblResults.at(43)); // E2_height
 		j2 = {
 			{ "ParameterRange", {
 					{ "E0_height", str1_PR},
@@ -141,8 +196,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	//----------------------------------------------------------------------------------
 	// Results of BAT: global mode
 	char str1_GM[100], str2_GM[100];
-	sprintf(str1_GM, "%g +- %g", 5.24, 0.02); // E0_height
-	sprintf(str2_GM, "%g +- %g", 163.0, 9.0); // p0
+	sprintf(str1_GM, "%g +- %g", E0_height_GM, E0_height_err_GM); // E0_height
+	sprintf(str2_GM, "%g +- %g", p0_GM, p0_err_GM); // p0
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
@@ -156,7 +211,7 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
 		char str3_GM[100];
-		sprintf(str3_GM, "%g +- %g", 11.5, 0.2); // E1_height
+		sprintf(str3_GM, "%g +- %g", E1_height_GM, E1_height_err_GM); // E1_height
 		j3 = {
 			{ "GlobalMode", {
 					{ "E0_height", str1_GM},
@@ -168,8 +223,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 2 gamma peaks
 	else {
 		char str3_GM[100], str4_GM[100];
-		sprintf(str3_GM, "%g +- %g", 11.5, 0.2); // E1_height
-		sprintf(str4_GM, "%g +- %g", 6.5, 0.1); // E2_height
+		sprintf(str3_GM, "%g +- %g", E1_height_GM, E1_height_err_GM); // E1_height
+		sprintf(str4_GM, "%g +- %g", E2_height_GM, E2_height_err_GM); // E2_height
 		j3 = {
 			{ "GlobalMode", {
 					{ "E0_height", str1_GM},
@@ -184,8 +239,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	//----------------------------------------------------------------------------------
 	// Results of BAT: mean +- sqrt(variance)
 	char str1_M[100], str2_M[100];
-	sprintf(str1_M, "%g +- %g", 5.12, 0.14); // E0_height
-	sprintf(str2_M, "%g +- %g", 162.1, 4.2); // p0
+	sprintf(str1_M, "%g +- %g", DblResults.at(6), DblResults.at(12)); // E0_height
+	sprintf(str2_M, "%g +- %g", DblResults.at(7), DblResults.at(13)); // p0
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
@@ -199,7 +254,7 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
 		char str3_M[100];
-		sprintf(str3_M, "%g +- %g", 12.3, 0.7); // E1_height
+		sprintf(str3_M, "%g +- %g", DblResults.at(10), DblResults.at(16)); // E1_height
 		j4 = {
 			{ "Mean+-sqrt(variance)", {
 					{ "E0_height", str1_M},
@@ -211,8 +266,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 2 gamma peaks
 	else {
 		char str3_M[100], str4_M[100];
-		sprintf(str3_M, "%g +- %g", 11.7, 0.4); // E1_height
-		sprintf(str4_M, "%g +- %g", 7.3, 0.8); // E2_height
+		sprintf(str3_M, "%g +- %g", DblResults.at(10), DblResults.at(16)); // E1_height
+		sprintf(str4_M, "%g +- %g", DblResults.at(11), DblResults.at(17)); // E2_height
 		j4 = {
 			{ "Mean+-sqrt(variance)", {
 					{ "E0_height", str1_M},
@@ -228,8 +283,8 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	//----------------------------------------------------------------------------------
 	// Results of BAT: 68% quantile ( L=lower; U=upper )
 	char str1_68[100], str2_68[100];
-	sprintf(str1_68, "[L_68, U_68] = [%g, %g]", 4.12, 6.14); // E0_height
-	sprintf(str2_68, "[L_68, U_68] = [%g, %g]", 162.1, 4.2); // p0
+	sprintf(str1_68, "[L_68, U_68] = [%g, %g]", DblResults.at(18), DblResults.at(19)); // E0_height
+	sprintf(str2_68, "[L_68, U_68] = [%g, %g]", DblResults.at(20), DblResults.at(21)); // p0
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
@@ -243,26 +298,26 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
 		char str3_68[100];
-		sprintf(str3_68, "[L_68, U_68] = [%g, %g]", 4.12, 6.14); // E1_height
+		sprintf(str3_68, "[L_68, U_68] = [%g, %g]", DblResults.at(26), DblResults.at(27)); // E1_height
 		j5 = {
 			{ "68-Quantile", {
 					{ "E0_height", str1_68},
-					{ "E1_height", str2_68},
-					{ "p0", str3_68}
+					{ "p0", str2_68},
+					{ "E1_height", str3_68}
 			}}
 		};
 	}
 	// 2 gamma peaks
 	else {
 		char str3_68[100], str4_68[100];
-		sprintf(str3_68, "[L_68, U_68] = [%g, %g]", 11.7, 12.4); // E1_height
-		sprintf(str4_68, "[L_68, U_68] = [%g, %g]", 7.3, 8.8); // E2_height
+		sprintf(str3_68, "[L_68, U_68] = [%g, %g]", DblResults.at(26), DblResults.at(27)); // E1_height
+		sprintf(str4_68, "[L_68, U_68] = [%g, %g]", DblResults.at(28), DblResults.at(29)); // E2_height
 		j5 = {
 			{ "68-Quantile", {
 					{ "E0_height", str1_68},
-					{ "E1_height", str2_68},
-					{ "E2_height", str3_68},
-					{ "p0", str4_68}
+					{ "p0", str2_68},
+					{ "E1_height", str3_68},
+					{ "E2_height", str4_68}
 			}}
 		};
 	}
@@ -272,10 +327,10 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	if ( pol_degree == 1 ) {
 		// p1 data
 		char str5_PR[100], str5_GM[100], str5_M[100], str5_68[100];
-		sprintf(str5_PR, "[%g, %g]", 0.0, 100.0);
-		sprintf(str5_GM, "%g +- %g", 6.5, 0.1); 
-		sprintf(str5_M, "%g +- %g", 12.3, 0.7); 
-		sprintf(str5_68, "[L_68, U_68] = [%g, %g]", -0.2, -0.05); 
+		sprintf(str5_PR, "[%g, %g]", DblResults.at(36), DblResults.at(37));
+		sprintf(str5_GM, "%g +- %g", p1_GM, p1_err_GM); 
+		sprintf(str5_M, "%g +- %g", DblResults.at(8), DblResults.at(14)); 
+		sprintf(str5_68, "[L_68, U_68] = [%g, %g]", DblResults.at(22), DblResults.at(23)); 
 
 		j2["ParameterRange"]["p1"] = str5_PR;
 		j3["GlobalMode"]["p1"] = str5_GM;
@@ -285,10 +340,10 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 	if ( pol_degree == 2 ) {
 		// p1 data
 		char str5_PR[100], str5_GM[100], str5_M[100], str5_68[100];
-		sprintf(str5_PR, "[%g, %g]", 0.0, 100.0);
-		sprintf(str5_GM, "%g +- %g", 6.5, 0.1); 
-		sprintf(str5_M, "%g +- %g", 12.3, 0.7); 
-		sprintf(str5_68, "[L_68, U_68] = [%g, %g]", -0.2, -0.05); 
+		sprintf(str5_PR, "[%g, %g]", DblResults.at(36), DblResults.at(37));
+		sprintf(str5_GM, "%g +- %g", p1_GM, p1_err_GM); 
+		sprintf(str5_M, "%g +- %g", DblResults.at(8), DblResults.at(14)); 
+		sprintf(str5_68, "[L_68, U_68] = [%g, %g]", DblResults.at(22), DblResults.at(23));
 	
 		j2["ParameterRange"]["p1"] = str5_PR;
 		j3["GlobalMode"]["p1"] = str5_GM;
@@ -297,10 +352,10 @@ void JsonFile (const std::vector<double> params, int IntResults[], double DblRes
 		
 		// p2 data
 		char str6_PR[100], str6_GM[100], str6_M[100], str6_68[100];
-		sprintf(str6_PR, "[%g, %g]", 0.0, 100.0);
-		sprintf(str6_GM, "%g +- %g", 6.5, 0.1); 
-		sprintf(str6_M, "%g +- %g", 12.3, 0.7); 
-		sprintf(str6_68, "[L_68, U_68] = [%g, %g]", -0.2, -0.05); 
+		sprintf(str6_PR, "[%g, %g]", DblResults.at(38), DblResults.at(39));
+		sprintf(str6_GM, "%g +- %g", p2_GM, p2_err_GM); 
+		sprintf(str6_M, "%g +- %g", DblResults.at(9), DblResults.at(15));
+		sprintf(str6_68, "[L_68, U_68] = [%g, %g]", DblResults.at(24), DblResults.at(25));
 	
 		j2["ParameterRange"]["p2"] = str6_PR;
 		j3["GlobalMode"]["p2"] = str6_GM;
@@ -379,9 +434,9 @@ void Draw_Gamma_Pol0(int E0, double EG, int xL, int xR, const std::vector<double
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0_%gGamma.png", E0, EG);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_%gGamma.root", E0, EG);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_%gGamma.root", E0, EG);
+	//c->Print(name_rootfile);
 }
 
 
@@ -411,9 +466,9 @@ void Draw_TwoGamma_Pol0(int E0, double EG, double EG_2, int xL, int xR, const st
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0_%gGamma_%gGamma.png", E0, EG, EG_2);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_%gGamma_%gGamma.root", E0, EG, EG_2);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_%gGamma_%gGamma.root", E0, EG, EG_2);
+	//c->Print(name_rootfile);
 }
 
 
@@ -442,9 +497,9 @@ void Draw_Pol1(int E0, int xL, int xR, const std::vector<double> params, TH1D *h
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1.png", E0);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1.root", E0);
-	c->Print(name_rootfile);     
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1.root", E0);
+	//c->Print(name_rootfile);     
 }
 
 
@@ -474,9 +529,9 @@ void Draw_Gamma_Pol1(int E0, double EG, int xL, int xR, const std::vector<double
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1_%gGamma.png", E0, EG);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_%gGamma.root", E0, EG);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_%gGamma.root", E0, EG);
+	//c->Print(name_rootfile);
 }
 
 
@@ -507,9 +562,9 @@ void Draw_TwoGamma_Pol1(int E0, double EG, double EG_2, int xL, int xR, const st
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1_%gGamma_%gGamma.png", E0, EG, EG_2);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_%gGamma_%gGamma.root", E0, EG, EG_2);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_%gGamma_%gGamma.root", E0, EG, EG_2);
+	//c->Print(name_rootfile);
 }
 
 
@@ -539,9 +594,9 @@ void Draw_Pol2(int E0, int xL, int xR, const std::vector<double> params, TH1D *h
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2.png", E0);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2.root", E0);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2.root", E0);
+	//c->Print(name_rootfile);
 }
 
 
@@ -572,9 +627,9 @@ void Draw_Gamma_Pol2(int E0, double EG, int xL, int xR, const std::vector<double
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2_%gGamma.png", E0, EG);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_%gGamma.root", E0, EG);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_%gGamma.root", E0, EG);
+	//c->Print(name_rootfile);
 }
 
 
@@ -588,7 +643,7 @@ void Draw_TwoGamma_Pol2(int E0, double EG, double EG_2, int xL, int xR, const st
 	h->GetXaxis()->SetRangeUser(xL, xR);
 
 	char function[200];
-	sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1] + [2]*(x-%i) + [3]*(x-%i)*(x-%i) + [4]*TMath::Gaus(x, %f, %f, true)+ + [5]*TMath::Gaus(x, %f, %f, true)", E0, FindSigma(E0), E0, E0, E0, EG, FindSigma(EG), EG_2, FindSigma(EG_2));
+	sprintf(function, "[0]*TMath::Gaus(x, %i, %f, true) + [1] + [2]*(x-%i) + [3]*(x-%i)*(x-%i) + [4]*TMath::Gaus(x, %f, %f, true) + [5]*TMath::Gaus(x, %f, %f, true)", E0, FindSigma(E0), E0, E0, E0, EG, FindSigma(EG), EG_2, FindSigma(EG_2));
 	TF1 *f2 = new TF1("f2", function, xL, xR);
 	f2->FixParameter(0, params.at(0));
 	f2->FixParameter(1, params.at(1));
@@ -606,7 +661,7 @@ void Draw_TwoGamma_Pol2(int E0, double EG, double EG_2, int xL, int xR, const st
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2_%gGamma_%gGamma.png", E0, EG, EG_2);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_%gGamma_%gGamma.root", E0, EG, EG_2);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_%gGamma_%gGamma.root", E0, EG, EG_2);
+	//c->Print(name_rootfile);
 }

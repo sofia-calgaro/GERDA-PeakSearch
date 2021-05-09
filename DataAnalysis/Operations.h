@@ -60,3 +60,8 @@
     
     // Find the range in which the BKG-Pol2 parameters of the models vary (2 gamma peaks)
     double *FindRange_TwoGamma_Pol2(int E0, std::vector<int> bin_content, int *max_height, double E1, int *max_gammaYield1, double E2, int *max_gammaYield2, int xL, int xR);
+    
+    // Create an array with fit (BAT) results for given marginalized distributions
+    std::vector<double> BATResults (int outputK, int pol_degree, BCH1D h_E0, BCH1D h_p0, BCH1D h_p1, BCH1D h_p2, BCH1D h_E1, BCH1D h_E2);
+    
+     

@@ -425,23 +425,23 @@ fi
 printf "\n"
 
 
-
 #------------------------------------------------------------------------------------------------------------------------------------------ ANALYSIS
 make clean
 time make -s
 
-time ./runDataAnalysis --nums 6 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK"
+time ./runDataAnalysis --nums 6 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" &&
 
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------ OUTPUT
-printf "\n ***** OUTPUT *****\n"
-if [ "$pol_degree" -eq 0 ]
+printf "\n****** OUTPUT ******"
+if [ "$pol_degree" -eq 2 ]
 then
-	cat JsonPol0.json | jq
+	cat JsonPol2.json | jq
 elif [ "$pol_degree" -eq 1 ]
 then
 	cat JsonPol1.json | jq
 else
-	cat JsonPol2.json | jq
+	cat JsonPol0.json | jq
 fi
+printf "\n"

@@ -20,10 +20,9 @@ using json = nlohmann::json;
 
 #pragma once
 
-
-    // Create a JSON file for BKG=pol0 when 0, 1, or 2 gamma lines are present
-    void JsonFile (const std::vector<double> params, int IntResults[], double DblResults[]);
-    
+    // Create a JSON file
+    void JsonFile (const std::vector<double> params, const std::vector<double> params_err, int IntResults[], std::vector<double> DblResults);
+        
     // Draw f(x) = pol0(x)+gaus(x)
     void Draw_Pol0(int E0, int xL, int xR, const std::vector<double> params, TH1D *h); 
     

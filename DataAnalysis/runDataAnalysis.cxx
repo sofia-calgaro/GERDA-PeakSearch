@@ -129,11 +129,64 @@ int main(int argc, char *argv[])
 	  
 	    BCLog::OutSummary("Exiting");
 	    BCLog::CloseLog();
+	    	    
+	    //---------------------------------------------------------------------------------------------
+	    // Posterior distributions
+	    BCH1D h_E0, h_p0, h_p1, h_p2, h_E1, h_E2;
+	    h_E0 = m.GetMarginalizedHistogram(0);
+	    h_p0 = m.GetMarginalizedHistogram(1);
 	    
-	    const std::vector<double> params = m.GetBestFitParameters();
-	    double DblResults[2] = { E1, E2};	    
-	    JsonFile(params, IntResults, DblResults);
+	    // Global mode
+	    const std::vector<double> params = m.GetBestFitParameters(); 
+	    const std::vector<double> params_err = m.GetBestFitParameterErrors();
 	    
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	    h_E1 = m.GetMarginalizedHistogram(2);
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+		    h_E1 = m.GetMarginalizedHistogram(2);
+		    h_E2 = m.GetMarginalizedHistogram(3);
+	    }
+	    
+	    std::vector<double> DblResults = BATResults(outputK, pol_degree, h_E0, h_p0, h_p1, h_p2, h_E1, h_E2);
+	    
+	    DblResults.push_back(E1); // # 30
+	    DblResults.push_back(E2); // # 31
+	    
+	    // Parameter range
+	    double E0_LPR=0, p0_LPR=0, p1_LPR=0, p2_LPR=0, E1_LPR=0, E2_LPR=0;
+	    double E0_UPR=0, p0_UPR=0, p1_UPR=0, p2_UPR=0, E1_UPR=0, E2_UPR=0;
+	    E0_LPR = m.GetParameter(0).GetLowerLimit();
+	    E0_UPR = m.GetParameter(0).GetUpperLimit();
+	    p0_LPR = m.GetParameter(1).GetLowerLimit();
+	    p0_UPR = m.GetParameter(1).GetUpperLimit();
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	E1_LPR = m.GetParameter(2).GetLowerLimit();
+	    	E1_UPR = m.GetParameter(2).GetUpperLimit();
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	    	E1_LPR = m.GetParameter(2).GetLowerLimit();
+	    	E1_UPR = m.GetParameter(2).GetUpperLimit();
+	    	E2_LPR = m.GetParameter(3).GetLowerLimit();
+	    	E2_UPR = m.GetParameter(3).GetUpperLimit();
+	    }
+	    
+	    DblResults.push_back(E0_LPR); // # 32
+	    DblResults.push_back(E0_UPR); // # 33
+	    DblResults.push_back(p0_LPR); // # 34
+	    DblResults.push_back(p0_UPR); // # 35
+	    DblResults.push_back(p1_LPR); // # 36
+	    DblResults.push_back(p1_UPR); // # 37
+	    DblResults.push_back(p2_LPR); // # 38
+	    DblResults.push_back(p2_UPR); // # 39
+	    DblResults.push_back(E1_LPR); // # 40
+	    DblResults.push_back(E1_UPR); // # 41
+	    DblResults.push_back(E2_LPR); // # 42
+	    DblResults.push_back(E2_UPR); // # 43
+	    	    
+	    JsonFile(params, params_err, IntResults, DblResults);
+	    
+	    //---------------------------------------------------------------------------------------------
 	    // plot: data + fit
 	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) { Draw_Pol0(E0, xL, xR, params, h); }
 	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { Draw_Gamma_Pol0(E0, E1, xL, xR, params, h); }
@@ -173,11 +226,66 @@ int main(int argc, char *argv[])
 	    BCLog::OutSummary("Exiting");
 	    BCLog::CloseLog();
 	    
-	    const std::vector<double> params = m.GetBestFitParameters();
-	    double DblResults[2] = { E1, E2};	    
-	    JsonFile(params, IntResults, DblResults);
+	    //---------------------------------------------------------------------------------------------
+	    // Posterior distributions
+	    BCH1D h_E0, h_p0, h_p1, h_p2, h_E1, h_E2;
+	    h_E0 = m.GetMarginalizedHistogram(0);
+	    h_p0 = m.GetMarginalizedHistogram(1);
+	    h_p1 = m.GetMarginalizedHistogram(2);
 	    
-	    // plot: data + fit
+	    // Global mode
+	    const std::vector<double> params = m.GetBestFitParameters(); 
+	    const std::vector<double> params_err = m.GetBestFitParameterErrors();
+	    
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	    h_E1 = m.GetMarginalizedHistogram(3);
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+		    h_E1 = m.GetMarginalizedHistogram(3);
+		    h_E2 = m.GetMarginalizedHistogram(4);
+	    }
+	    
+	    std::vector<double> DblResults = BATResults(outputK, pol_degree, h_E0, h_p0, h_p1, h_p2, h_E1, h_E2);
+	    
+	    DblResults.push_back(E1); // # 30
+	    DblResults.push_back(E2); // # 31
+	    
+	    // Parameter range
+	    double E0_LPR=0, p0_LPR=0, p1_LPR=0, p2_LPR=0, E1_LPR=0, E2_LPR=0;
+	    double E0_UPR=0, p0_UPR=0, p1_UPR=0, p2_UPR=0, E1_UPR=0, E2_UPR=0;
+	    E0_LPR = m.GetParameter(0).GetLowerLimit();
+	    E0_UPR = m.GetParameter(0).GetUpperLimit();
+	    p0_LPR = m.GetParameter(1).GetLowerLimit();
+	    p0_UPR = m.GetParameter(1).GetUpperLimit();
+	    p1_LPR = m.GetParameter(2).GetLowerLimit();
+	    p1_UPR = m.GetParameter(2).GetUpperLimit();
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	E1_LPR = m.GetParameter(3).GetLowerLimit();
+	    	E1_UPR = m.GetParameter(3).GetUpperLimit();
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	    	E1_LPR = m.GetParameter(3).GetLowerLimit();
+	    	E1_UPR = m.GetParameter(3).GetUpperLimit();
+	    	E2_LPR = m.GetParameter(4).GetLowerLimit();
+	    	E2_UPR = m.GetParameter(4).GetUpperLimit();
+	    }
+	    
+	    DblResults.push_back(E0_LPR); // # 32
+	    DblResults.push_back(E0_UPR); // # 33
+	    DblResults.push_back(p0_LPR); // # 34
+	    DblResults.push_back(p0_UPR); // # 35
+	    DblResults.push_back(p1_LPR); // # 36
+	    DblResults.push_back(p1_UPR); // # 37
+	    DblResults.push_back(p2_LPR); // # 38
+	    DblResults.push_back(p2_UPR); // # 39
+	    DblResults.push_back(E1_LPR); // # 40
+	    DblResults.push_back(E1_UPR); // # 41
+	    DblResults.push_back(E2_LPR); // # 42
+	    DblResults.push_back(E2_UPR); // # 43
+	    	    
+	    JsonFile(params, params_err, IntResults, DblResults);
+	    
+	    //--------------------------------------------------------------------------------------------- PLOT: DATA+FIT
 	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { Draw_Pol1(E0, xL, xR, params, h); }
 	    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { Draw_Gamma_Pol1(E0, E1, xL, xR, params, h); }
 	    else { Draw_TwoGamma_Pol1(E0, E1, E2, xL, xR, params, h); }
@@ -214,9 +322,69 @@ int main(int argc, char *argv[])
 	    BCLog::OutSummary("Exiting");
 	    BCLog::CloseLog();
 	    
-	    const std::vector<double> params = m.GetBestFitParameters();
-	    double DblResults[2] = { E1, E2};	    
-	    JsonFile(params, IntResults, DblResults);
+	    //---------------------------------------------------------------------------------------------
+	    // Posterior distributions
+	    BCH1D h_E0, h_p0, h_p1, h_p2, h_E1, h_E2;
+	    h_E0 = m.GetMarginalizedHistogram(0);
+	    h_p0 = m.GetMarginalizedHistogram(1);
+	    h_p1 = m.GetMarginalizedHistogram(2);
+	    h_p2 = m.GetMarginalizedHistogram(3);
+	    
+	    // Global mode
+	    const std::vector<double> params = m.GetBestFitParameters(); 
+	    const std::vector<double> params_err = m.GetBestFitParameterErrors();
+	    
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	    h_E1 = m.GetMarginalizedHistogram(4);
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+		    h_E1 = m.GetMarginalizedHistogram(4);
+		    h_E2 = m.GetMarginalizedHistogram(5);
+	    }
+	    
+	    std::vector<double> DblResults = BATResults(outputK, pol_degree, h_E0, h_p0, h_p1, h_p2, h_E1, h_E2);
+	    
+	    DblResults.push_back(E1); // # 30
+	    DblResults.push_back(E2); // # 31
+	    
+	    // Parameter range
+	    double E0_LPR=0, p0_LPR=0, p1_LPR=0, p2_LPR=0, E1_LPR=0, E2_LPR=0;
+	    double E0_UPR=0, p0_UPR=0, p1_UPR=0, p2_UPR=0, E1_UPR=0, E2_UPR=0;
+	    E0_LPR = m.GetParameter(0).GetLowerLimit();
+	    E0_UPR = m.GetParameter(0).GetUpperLimit();
+	    p0_LPR = m.GetParameter(1).GetLowerLimit();
+	    p0_UPR = m.GetParameter(1).GetUpperLimit();
+	    p1_LPR = m.GetParameter(2).GetLowerLimit();
+	    p1_UPR = m.GetParameter(2).GetUpperLimit();
+	    p2_LPR = m.GetParameter(3).GetLowerLimit();
+	    p2_UPR = m.GetParameter(3).GetUpperLimit();
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	E1_LPR = m.GetParameter(4).GetLowerLimit();
+	    	E1_UPR = m.GetParameter(4).GetUpperLimit();
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	    	E1_LPR = m.GetParameter(4).GetLowerLimit();
+	    	E1_UPR = m.GetParameter(4).GetUpperLimit();
+	    	E2_LPR = m.GetParameter(5).GetLowerLimit();
+	    	E2_UPR = m.GetParameter(5).GetUpperLimit();
+	    }
+	    
+	    DblResults.push_back(E0_LPR); // # 32
+	    DblResults.push_back(E0_UPR); // # 33
+	    DblResults.push_back(p0_LPR); // # 34
+	    DblResults.push_back(p0_UPR); // # 35
+	    DblResults.push_back(p1_LPR); // # 36
+	    DblResults.push_back(p1_UPR); // # 37
+	    DblResults.push_back(p2_LPR); // # 38
+	    DblResults.push_back(p2_UPR); // # 39
+	    DblResults.push_back(E1_LPR); // # 40
+	    DblResults.push_back(E1_UPR); // # 41
+	    DblResults.push_back(E2_LPR); // # 42
+	    DblResults.push_back(E2_UPR); // # 43
+	    	    
+	    JsonFile(params, params_err, IntResults, DblResults);
+	    
+	    //---------------------------------------------------------------------------------------------
 	    
 	    // plot: data + fit
 	    if ( outputK==0 || outputK==1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) { Draw_Pol2(E0, xL, xR, params, h); }

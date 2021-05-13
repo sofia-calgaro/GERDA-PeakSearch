@@ -33,7 +33,7 @@ xR (upper).
   outputK = 15  ->   Two gamma peaks are present, the left one in x1, the right one OUTSIDE-NEAR
   outputK = 16  ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one in x2
   outputK = 17  ->   Two gamma peaks are present, the left one INSIDE, the right one in x2
-  outputK = 18  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one in x2
+  outputK = 18  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one in x1
   outputK = 19  ->   Two gamma peaks are present, the left one in x1, the right one INSIDE-NEAR
   outputK = 20  ->   Two gamma peaks are present, the left one OUTSIDE, the right one in x1
   outputK = 21  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one OUTSIDE

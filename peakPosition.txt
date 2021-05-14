@@ -1,15 +1,12 @@
 In this file, you can see the meaning of the value of output[k] (or outputK).There are two cases:
   1) peaks that differ more than 24 keV;
   2) peaks that differ less than 24 keV.
-  
 The peak search starts from a fit window of 24 keV in width having x1 as the lower limit and x2 as
 the upper limit x2; after the analysis, "peak_search.sh" will return new limits, xL (lower) and
 xR (upper).
 
 
-
 (1) ΔE > 24 keV
-
   outputK = 0   ->   NO gamma peaks are present near/inside the fit window  
   outputK = 1   ->   Two gamma peaks are present, both OUTSIDE-NEAR the fit window  
   outputK = 2   ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one OUTSIDE-NEAR
@@ -19,10 +16,7 @@ xR (upper).
   outputK = 6   ->   One gamma peak is present INSIDE the fit window
   outputK = 7   ->   One gamma peak is present in x1 or x2.
 
-
-
 (2) ΔE < 24 keV
-
   outputK = 8   ->   Two gamma peaks are present, both INSIDE the fit window  
   outputK = 9   ->   Two gamma peaks are present, the left one INSIDE, the right one INSIDE-NEAR
   outputK = 10  ->   Two gamma peaks are present, the left one INSIDE-NEAR, the right one INSIDE
@@ -38,3 +32,9 @@ xR (upper).
   outputK = 20  ->   Two gamma peaks are present, the left one OUTSIDE, the right one in x1
   outputK = 21  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one OUTSIDE
   outputK = 22  ->   Two gamma peaks are present, the left one OUTSIDE, the right one OUTSIDE-NEAR
+
+
+The fit function contains:
+ - 0 peaks if outputK = 0, 1, 4, 7, 13, 14, 15, 18, 20, 21, 22
+ - 1 peak if outputK = 2, 3, 5, 6, 12
+ - 2 peaks if outputK = 8, 9, 10, 11, 16, 17, 19

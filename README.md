@@ -16,3 +16,4 @@ $ ./peak_search.sh
 * **"Output.cxx"**: file that:
   * creates a JSON file containing the "peak_search.sh" results together with the BAT results; it requires the class _json.hpp_ (see [nlohmann/json](https://github.com/nlohmann/json));
   * draws the experimental data together with the fit result.
+* **"read_JSON.cpp"**: file that read JSON files and create .txt files containing BAT fit results.

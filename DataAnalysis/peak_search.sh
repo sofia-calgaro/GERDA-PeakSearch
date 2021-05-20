@@ -1,10 +1,5 @@
 #! /bin/bash
 
-rm JsonPol0.json
-rm JsonPol1.json
-rm JsonPol2.json
-clear
-
 #------------------------------------------------------------------------------------------------------------------------------------------ VARIABLES
 #         Pb212   Pb214   Pb214   Pb214   Ac228    e+e-    Kr85   Tl208   Bi214   Ac228   Ac228
 E_gamma=('238.6' '242.0' '295.2' '352.0' '478.3' '511.0' '514.0' '583.2' '609.3' '911.2' '969.0')
@@ -15,7 +10,6 @@ readonly b=0.000583
 
 read -p " What energy (E0>=40) do you want to study? "  E0 # -p = to assign the input value to the variable E0
 
-
 if [ "$E0" -lt 40 ]
 then
 	while [ "$E0" -lt 40 ]
@@ -25,10 +19,19 @@ then
 	done
 fi
 
+read -p " How many energies do you want to study? " num_E0
+echo " You will study energies inside [$E0;$(( num_E0+E0-1  ))]"
+
+
+#=============================================== WHILE LOOP over E0
+max_E0=`echo "$(( E0+num_E0 ))" | bc`
+while [ "$E0" -lt "$max_E0" ]
+do #============================================ START while
 
 x1=`echo "$(( E0-12 ))" | bc`
 x2=`echo "$(( E0+12 ))" | bc`
-printf " The fit window is given by [x1=$x1;x2=$x2] (# of bins = $(( x2-x1 )))\n" 
+printf "\n\n----------------------------------------------------------------------------------\n"
+printf " For E0=$E0 the fit window is [x1=$x1;x2=$x2] (# of bins = $(( x2-x1 )))\n" 
 
 
 
@@ -426,22 +429,17 @@ printf "\n"
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------ ANALYSIS
-make clean
-time make -s
+#make clean
+#time make -s
 
-time ./runDataAnalysis --nums 6 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" &&
+time ./runDataAnalysis --nums 6 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" 
+
+
+E0=`echo "$(( E0+1 ))" | bc`
+done &&
+#=============================================== STOP while
 
 
 
 #------------------------------------------------------------------------------------------------------------------------------------------ OUTPUT
-printf "\n****** OUTPUT ******"
-if [ "$pol_degree" -eq 2 ]
-then
-	cat JsonPol2.json | jq
-elif [ "$pol_degree" -eq 1 ]
-then
-	cat JsonPol1.json | jq
-else
-	cat JsonPol0.json | jq
-fi
-printf "\n"
+./read_JSON.sh

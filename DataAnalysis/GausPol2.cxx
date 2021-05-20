@@ -29,7 +29,7 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
             }
             
-            else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+            else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 		    int *max_gammaYield = FindMaximumGammaHeight1( E0, E1, E2, bin_content, xL, xR, outputK);
 		    double *output_G_pol2 = FindRange_Gamma_Pol2( E0, bin_content, max_height, E1, max_gammaYield, xL, xR);
 		    
@@ -107,8 +107,10 @@ double GausPol2::LogLikelihood(const std::vector<double>& pars)
                     double y_exp = 0;
                     
                     // expected value
-                    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) { y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0); }
-                    else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { 
+                    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
+                    	y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0);
+                    }
+                    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) { 
                     	double E1 = GetDataSet()->GetDataPoint(5204).GetValue(0);
                         y_exp =  pars[0]*TMath::Gaus(i, E0, FindSigma(E0), true) + pars[1] + pars[2]*(i-E0) + pars[3]*(i-E0)*(i-E0) + pars[4]*TMath::Gaus(i, E1, FindSigma(E1), true);
                     }

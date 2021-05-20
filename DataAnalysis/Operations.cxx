@@ -1546,42 +1546,66 @@ std::vector<double> BATResults (int outputK, int pol_degree, BCH1D h_E0, BCH1D h
 	    	p2_RMS = h_p2.GetHistogram()->GetRMS();
 	    }
 	    
-	    // 68% Quantile
+	    // 68% Quantile, Median
 	    double p[7] = {0.05, 0.10, 0.16, 0.50, 0.84, 0.90, 0.95};
 	    double E0_q[7]={0}, p0_q[7]={0}, p1_q[7]={0}, p2_q[7]={0}, E1_q[7]={0}, E2_q[7]={0};
 	    double E0_L68=0, E0_U68=0, p0_L68=0, p0_U68=0, p1_L68=0, p1_U68=0, p2_L68=0, p2_U68=0, E1_L68=0, E1_U68=0, E2_L68=0, E2_U68=0;
 	    h_E0.GetHistogram()->GetQuantiles(7, E0_q, p); // GetQuantiles(n_division, quantiles, probsum[%]);
 	    h_p0.GetHistogram()->GetQuantiles(7, p0_q, p);
 
-	    E0_L68 = E0_M - ( E0_q[3] - E0_q[2] );
-	    E0_U68 = E0_M + ( E0_q[4] - E0_q[3] );
-	    p0_L68 = p0_M - ( p0_q[3] - p0_q[2] );
-	    p0_U68 = p0_M + ( p0_q[4] - p0_q[3] );
+	    double E0_med=0, p0_med=0, p1_med=0, p2_med=0, E1_med=0, E2_med=0; 
+	    E0_med = h_E0.GetQuantile(0.5); // Median
+	    p0_med = h_p0.GetQuantile(0.5);
+	    
+	    double E0_L68_sigma=0, E0_U68_sigma=0, p0_L68_sigma=0, p0_U68_sigma=0, p1_L68_sigma=0, p1_U68_sigma=0;
+	    double p2_L68_sigma=0, p2_U68_sigma=0, E1_L68_sigma=0, E1_U68_sigma=0, E2_L68_sigma=0, E2_U68_sigma=0;
+	    E0_L68_sigma = E0_q[3] - E0_q[2];
+	    E0_U68_sigma = E0_q[4] - E0_q[3];
+	    p0_L68_sigma = p0_q[3] - p0_q[2];
+	    p0_U68_sigma = p0_q[4] - p0_q[3];
+	    
+	    E0_L68 = E0_med - E0_L68_sigma;
+	    E0_U68 = E0_med + E0_U68_sigma;
+	    p0_L68 = p0_med - p0_L68_sigma;
+	    p0_U68 = p0_med + p0_U68_sigma;
 	    
 	    if ( pol_degree==1 ) {
 	    	    h_p1.GetHistogram()->GetQuantiles(7, p1_q, p);
-	            p1_L68 = p1_M - ( p1_q[3] - p1_q[2] );
-		    p1_U68 = p1_M + ( p1_q[4] - p1_q[3] );
+	    	    p1_med = h_p1.GetQuantile(0.5);
+	    	    p1_L68_sigma = p1_q[3] - p1_q[2];
+		    p1_U68_sigma = p1_q[4] - p1_q[3];
+	            p1_L68 = p1_med - p1_L68_sigma;
+		    p1_U68 = p1_med + p1_U68_sigma;
 	    }
 	    if ( pol_degree==2 ) {
 	    	    h_p1.GetHistogram()->GetQuantiles(7, p1_q, p);
-	    	    h_p2.GetHistogram()->GetQuantiles(7, p2_q, p);
-	            p1_L68 = p1_M - ( p1_q[3] - p1_q[2] );
-		    p1_U68 = p1_M + ( p1_q[4] - p1_q[3] );
-		    p2_L68 = p2_M - ( p2_q[3] - p2_q[2] );
-		    p2_U68 = p2_M + ( p2_q[4] - p2_q[3] );
+	    	    p1_med = h_p1.GetQuantile(0.5);
+	    	    p1_L68_sigma = p1_q[3] - p1_q[2];
+		    p1_U68_sigma = p1_q[4] - p1_q[3];
+	            p1_L68 = p1_med - p1_L68_sigma;
+		    p1_U68 = p1_med + p1_U68_sigma;
+		    
+		    h_p2.GetHistogram()->GetQuantiles(7, p2_q, p);
+		    p2_med = h_p2.GetQuantile(0.5);
+		    p2_L68_sigma = p2_q[3] - p2_q[2];
+		    p2_U68_sigma = p2_q[4] - p2_q[3];
+		    p2_L68 = p2_med - p2_L68_sigma;
+		    p2_U68 = p2_med + p2_U68_sigma;
 	    }
 	
-	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) { // E1
 	    	    E1_LM = h_E1.GetLocalMode();
 	    	    E1_M = h_E1.GetHistogram()->GetMean();
 	    	    E1_RMS = h_E1.GetHistogram()->GetRMS();
 	    	    
 	    	    h_E1.GetHistogram()->GetQuantiles(7, E1_q, p);
-	    	    E1_L68 = E1_M - ( E1_q[3] - E1_q[2] );
-	    	    E1_U68 = E1_M + ( E1_q[4] - E1_q[3] );
+	    	    E1_med = h_E1.GetQuantile(0.5);
+	    	    E1_L68_sigma = E1_q[3] - E1_q[2];
+		    E1_U68_sigma = E1_q[4] - E1_q[3];
+	    	    E1_L68 = E1_med - E1_L68_sigma;
+	    	    E1_U68 = E1_med + E1_U68_sigma;
 	    }
-	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) { 
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) { // E1, E2
 	    	    E1_LM = h_E1.GetLocalMode();
 	    	    E2_LM = h_E2.GetLocalMode();
 	    	    E1_M = h_E1.GetHistogram()->GetMean();
@@ -1590,14 +1614,42 @@ std::vector<double> BATResults (int outputK, int pol_degree, BCH1D h_E0, BCH1D h
 	    	    E2_RMS = h_E2.GetHistogram()->GetRMS();
 	    	    
 	    	    h_E1.GetHistogram()->GetQuantiles(7, E1_q, p);
-	    	    E1_L68 = E1_M - ( E1_q[3] - E1_q[2] );
-	    	    E1_U68 = E1_M + ( E1_q[4] - E1_q[3] );
+	    	    E1_med = h_E1.GetQuantile(0.5);
+	    	    E1_L68_sigma = E1_q[3] - E1_q[2];
+		    E1_U68_sigma = E1_q[4] - E1_q[3];
+	    	    E1_L68 = E1_med - E1_L68_sigma;
+	    	    E1_U68 = E1_med + E1_U68_sigma;
+	    	    
 	    	    h_E2.GetHistogram()->GetQuantiles(7, E2_q, p);
-	    	    E2_L68 = E2_M - ( E2_q[3] - E2_q[2] );
-	    	    E2_U68 = E2_M + ( E2_q[4] - E2_q[3] );
-	    }    
+	    	    E2_med = h_E2.GetQuantile(0.5);
+	    	    E2_L68_sigma = E2_q[3] - E2_q[2];
+		    E2_U68_sigma = E2_q[4] - E2_q[3];
+	    	    E2_L68 = E2_med - E2_L68_sigma;
+	    	    E2_U68 = E2_med + E2_U68_sigma;
+	    }   
+	    
+	    // 90% Upper Limit
+	    double E0_U90=0, p0_U90=0, p1_U90=0, p2_U90=0, E1_U90=0, E2_U90=0;
+	    E0_U90 = h_E0.GetQuantile(0.90);
+	    p0_U90 = h_p0.GetQuantile(0.90);
+	    
+	    if ( pol_degree==1 ) {
+	    	    p1_U90 = h_p1.GetQuantile(0.90);
+	    }
+	    if ( pol_degree==2 ) {
+	    	    p1_U90 = h_p1.GetQuantile(0.90);
+	    	    p2_U90 = h_p2.GetQuantile(0.90);
+	    }
+	
+	    if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+	    	    E1_U90 = h_E1.GetQuantile(0.90);
+	    }
+	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) { 	    	    
+	    	    E1_U90 = h_E1.GetQuantile(0.90);
+	    	    E2_U90 = h_E2.GetQuantile(0.90);
+	    }  
 	      	    
-	    std::vector<double> DblResults(30);
+	    std::vector<double> DblResults(54);
 	    
 	    // Local mode
 	    DblResults.at(0) = E0_LM;
@@ -1636,6 +1688,34 @@ std::vector<double> BATResults (int outputK, int pol_degree, BCH1D h_E0, BCH1D h
 	    DblResults.at(27) = E1_U68;
 	    DblResults.at(28) = E2_L68;
 	    DblResults.at(29) = E2_U68;
+	    
+	    // 90% Upper Limit
+	    DblResults.at(30) = E0_U90;
+	    DblResults.at(31) = p0_U90;
+	    DblResults.at(32) = p1_U90;
+	    DblResults.at(33) = p2_U90;
+	    DblResults.at(34) = E1_U90;
+	    DblResults.at(35) = E2_U90;
+	    
+	    // Median
+	    DblResults.at(36) = E0_med;
+	    DblResults.at(37) = p0_med;
+	    DblResults.at(38) = p1_med;
+	    DblResults.at(39) = p2_med;
+	    DblResults.at(40) = E1_med;
+	    DblResults.at(41) = E2_med;
+	    DblResults.at(42) = E0_L68_sigma;
+	    DblResults.at(43) = E0_U68_sigma;
+	    DblResults.at(44) = p0_L68_sigma;
+	    DblResults.at(45) = p0_U68_sigma;
+	    DblResults.at(46) = p1_L68_sigma;
+	    DblResults.at(47) = p1_U68_sigma;
+	    DblResults.at(48) = p2_L68_sigma;
+	    DblResults.at(49) = p2_U68_sigma;
+	    DblResults.at(50) = E1_L68_sigma;
+	    DblResults.at(51) = E1_U68_sigma;
+	    DblResults.at(52) = E2_L68_sigma;
+	    DblResults.at(53) = E2_U68_sigma;
 	    
 	    
 	    return DblResults;

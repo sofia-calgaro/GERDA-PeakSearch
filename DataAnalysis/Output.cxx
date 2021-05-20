@@ -13,19 +13,6 @@
 // Create a JSON file
 void JsonFile (const std::vector<double> params, const std::vector<double> params_err, int IntResults[], std::vector<double> DblResults) {
 
-	char name_file[100];
-	sprintf(name_file, "JsonPol%i.json", IntResults[5]);
-	
-	std::fstream file;
-	file.open(name_file, std::ios_base::app); // add lines without overwriting the file
-	
-	// If file does not exist...
-	if ( !file ) {
-		std::cout << "\"" << name_file << "\" does not exist. The file is created!" << std::endl;
-		file.open(name_file, std::ios::out);
-	}
-
-	//----------------------------------------------------------------------------------
 	int E0 = IntResults[0];
 	int xL = IntResults[1];
 	int xR = IntResults[2];
@@ -34,8 +21,42 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	int outputK = IntResults[4];
 	int pol_degree = IntResults[5];	
 	
-	double E1 = DblResults.at(30);
-	double E2 = DblResults.at(31);
+	double E1 = DblResults.at(54);
+	double E2 = DblResults.at(55);
+
+	char name_file[200];
+	sprintf(name_file, "/home/sofia/Analysis/DataAnalysis/JsonFiles/JsonFile%i.json", E0);
+	std::fstream file;
+	file.open(name_file, std::ios::out);
+	
+	// signal counts VS E0
+	std::fstream file_counts;
+	file_counts.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/counts_VS_E0.txt", std::ios_base::app);
+	if ( !file_counts ) { file_counts.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/counts_VS_E0.txt", std::ios::out); }
+	file_counts << E0 << "\t" <<  DblResults.at(30) << std::endl; // U-90
+	
+	// p0 VS E0
+	std::fstream file_p0;
+	file_p0.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p0_VS_E0.txt", std::ios_base::app);
+	if ( !file_p0 ) { file_p0.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p0_VS_E0.txt", std::ios::out); }
+	file_p0 << E0 << "\t" <<  params.at(1) << "\t" << DblResults.at(44) << "\t" << DblResults.at(45) << std::endl;
+	
+	// p1 VS E0
+	if ( pol_degree==1 ) {
+		std::fstream file_p1;
+		file_p1.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p1_VS_E0.txt", std::ios_base::app);
+		if ( !file_p1 ) { file_p1.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p1_VS_E0.txt", std::ios::out); }
+		file_p1 << E0 << "\t" <<  params.at(2) << "\t" << DblResults.at(46) << "\t" << DblResults.at(47) << std::endl;
+	}
+	
+	// p2 VS E0
+	if ( pol_degree==2 ) {
+		std::fstream file_p2;
+		file_p2.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p2_VS_E0.txt", std::ios_base::app);
+		if ( !file_p2 ) { file_p2.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p2_VS_E0.txt", std::ios::out); }
+		file_p2 << E0 << "\t" <<  params.at(3) << "\t" << DblResults.at(48) << "\t" << DblResults.at(49) << std::endl;
+	}
+	
 		
 	//----------------------------------------------------------------------------------
 	// Global mode
@@ -96,229 +117,271 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	
 	
 	//----------------------------------------------------------------------------------
-	std::string str;
-	str = "E0-" + std::to_string(E0);
-	
-	json j1, j2, j3, j4, j5;
-	
+	json j1, j2, j3, j4, j5, j6, j7;
 	
 	// Results of "peak_search.sh"
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 		j1 = {
-			{ "PeakSearch", {
-				{"E0", E0},
-				{ "polDegree_BKG", pol_degree},
-				{ "windowLeftEdge_xL", xL},
-				{ "windowRightEdge_xR", xR},
-				{ "windowWidth", bin_width},
-				{ "k_GammaArrayIndex", k},
-				{ "outputk_GammaPosition", outputK}
-			}}
+			{ "polDegree_BKG", pol_degree},
+			{ "windowLeftEdge_xL", xL},
+			{ "windowRightEdge_xR", xR},
+			{ "windowWidth", bin_width},
+			{ "k_GammaArrayIndex", k},
+			{ "outputk_GammaPosition", outputK}
 		};
 	}
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {	
 		j1 = {
-			{ "PeakSearch", {
-				{"E0", E0},
-				{"E1", E1},
-				{ "polDegree_BKG", pol_degree},
-				{ "windowLeftEdge_xL", xL},
-				{ "windowRightEdge_xR", xR},
-				{ "windowWidth", bin_width},
-				{ "k_GammaArrayIndex", k},
-				{ "outputk_GammaPosition", outputK}
-			}}
+			{ "E1", E1},
+			{ "polDegree_BKG", pol_degree},
+			{ "windowLeftEdge_xL", xL},
+			{ "windowRightEdge_xR", xR},
+			{ "windowWidth", bin_width},
+			{ "k_GammaArrayIndex", k},
+			{ "outputk_GammaPosition", outputK}
 		};
 	}
 	// 2 gamma peaks
 	else {
 		j1 = {
-			{ "PeakSearch", {
-				{"E0", E0},
-				{"E1", E1},
-				{"E2", E2},
-				{ "polDegree_BKG", pol_degree},
-				{ "windowLeftEdge_xL", xL},
-				{ "windowRightEdge_xR", xR},
-				{ "windowWidth", bin_width},
-				{ "k_GammaArrayIndex", k},
-				{ "outputk_GammaPosition", outputK}
-			}}
+			{ "E1", E1},
+			{ "E2", E2},
+			{ "polDegree_BKG", pol_degree},
+			{ "windowLeftEdge_xL", xL},
+			{ "windowRightEdge_xR", xR},
+			{ "windowWidth", bin_width},
+			{ "k_GammaArrayIndex", k},
+			{ "outputk_GammaPosition", outputK}
 		};
 	}
 	
 	
 	//----------------------------------------------------------------------------------
 	// Results of BAT: parameters' ranges
-	char str1_PR[100], str2_PR[100];
-	sprintf(str1_PR, "[%g, %g]", DblResults.at(32), DblResults.at(33)); // E0_height
-	sprintf(str2_PR, "[%g, %g]", DblResults.at(34), DblResults.at(35)); // p0
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {	
 		j2 = {
-			{ "ParameterRange", {
-					{ "E0_height", str1_PR},
-					{ "p0", str2_PR},
-			}}
+			{ "E0_counts_MIN", DblResults.at(56)},
+			{ "E0_counts_MAX", DblResults.at(57)},
+			{ "p0_MIN", DblResults.at(58)},
+			{ "p0_MAX", DblResults.at(59)}
 		};
 	}
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {	
-		char str3_PR[100];
-		sprintf(str3_PR, "[%g, %g]", DblResults.at(40), DblResults.at(41)); // E1_height
 		j2 = {
-			{ "ParameterRange", {
-					{ "E0_height", str1_PR},
-					{ "p0", str2_PR},
-					{ "E1_height", str3_PR}
-			}}
+			{ "E0_counts_MIN", DblResults.at(56)},
+			{ "E0_counts_MAX", DblResults.at(57)},
+			{ "p0_MIN", DblResults.at(58)},
+			{ "p0_MAX", DblResults.at(59)},
+			{ "E1_counts_MIN", DblResults.at(64)},
+			{ "E1_counts_MAX", DblResults.at(65)}
 		};
 	}
 	// 2 gamma peaks
 	else {	
-		char str3_PR[100], str4_PR[100];
-		sprintf(str3_PR, "[%g, %g]", DblResults.at(40), DblResults.at(41)); // E1_height
-		sprintf(str4_PR, "[%g, %g]", DblResults.at(42), DblResults.at(43)); // E2_height
 		j2 = {
-			{ "ParameterRange", {
-					{ "E0_height", str1_PR},
-					{ "p0", str2_PR},
-					{ "E1_height", str3_PR},
-					{ "E2_height", str4_PR}
-			}}
+			{ "E0_counts_MIN", DblResults.at(56)},
+			{ "E0_counts_MAX", DblResults.at(57)},
+			{ "p0_MIN", DblResults.at(58)},
+			{ "p0_MAX", DblResults.at(59)},
+			{ "E1_counts_MIN", DblResults.at(64)},
+			{ "E1_counts_MAX", DblResults.at(65)},
+			{ "E2_counts_MIN", DblResults.at(66)},
+			{ "E2_counts_MAX", DblResults.at(67)}
 		};
 	}
 	
 	
 	//----------------------------------------------------------------------------------
 	// Results of BAT: global mode
-	char str1_GM[100], str2_GM[100];
-	sprintf(str1_GM, "%g +- %g", E0_height_GM, E0_height_err_GM); // E0_height
-	sprintf(str2_GM, "%g +- %g", p0_GM, p0_err_GM); // p0
-	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 		j3 = {
-			{ "GlobalMode", {
-					{ "E0_height", str1_GM},
-					{ "p0", str2_GM}
-			}}
+			{ "E0_counts", E0_height_GM},
+			{ "E0_counts_sigma", E0_height_err_GM},
+			{ "p0", p0_GM},
+			{ "p0_sigma", p0_err_GM}
 		};
 	}
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
-		char str3_GM[100];
-		sprintf(str3_GM, "%g +- %g", E1_height_GM, E1_height_err_GM); // E1_height
 		j3 = {
-			{ "GlobalMode", {
-					{ "E0_height", str1_GM},
-					{ "p0", str2_GM},
-					{ "E1_height", str3_GM}
-			}}
+			{ "E0_counts", E0_height_GM},
+			{ "E0_counts_sigma", E0_height_err_GM},
+			{ "p0", p0_GM},
+			{ "p0_sigma", p0_err_GM},
+			{ "E1_counts", E1_height_GM},
+			{ "E1_counts_sigma", E1_height_err_GM}
 		};
 	}
 	// 2 gamma peaks
 	else {
-		char str3_GM[100], str4_GM[100];
-		sprintf(str3_GM, "%g +- %g", E1_height_GM, E1_height_err_GM); // E1_height
-		sprintf(str4_GM, "%g +- %g", E2_height_GM, E2_height_err_GM); // E2_height
 		j3 = {
-			{ "GlobalMode", {
-					{ "E0_height", str1_GM},
-					{ "p0", str2_GM},
-					{ "E1_height", str3_GM},
-					{ "E2_height", str4_GM}
-			}}
+			{ "E0_counts", E0_height_GM},
+			{ "E0_counts_sigma", E0_height_err_GM},
+			{ "p0", p0_GM},
+			{ "p0_sigma", p0_err_GM},
+			{ "E1_counts", E1_height_GM},
+			{ "E1_counts_sigma", E1_height_err_GM},
+			{ "E2_counts", E2_height_GM},
+			{ "E2_counts_sigma", E2_height_err_GM}
 		};
 	}
 		
 	
 	//----------------------------------------------------------------------------------
 	// Results of BAT: mean +- sqrt(variance)
-	char str1_M[100], str2_M[100];
-	sprintf(str1_M, "%g +- %g", DblResults.at(6), DblResults.at(12)); // E0_height
-	sprintf(str2_M, "%g +- %g", DblResults.at(7), DblResults.at(13)); // p0
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 		j4 = {
-			{ "Mean+-sqrt(variance)", {
-					{ "E0_height", str1_M},
-					{ "p0", str2_M}
-			}}
+			{ "E0_counts", DblResults.at(6)},
+			{ "E0_counts_sigma", DblResults.at(12)},
+			{ "p0", DblResults.at(7)},
+			{ "p0_sigma", DblResults.at(13)}
 		};
 	}
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
-		char str3_M[100];
-		sprintf(str3_M, "%g +- %g", DblResults.at(10), DblResults.at(16)); // E1_height
 		j4 = {
-			{ "Mean+-sqrt(variance)", {
-					{ "E0_height", str1_M},
-					{ "p0", str2_M},
-					{ "E1_height", str3_M}
-			}}
+			{ "E0_counts", DblResults.at(6)},
+			{ "E0_counts_sigma", DblResults.at(12)},
+			{ "p0", DblResults.at(7)},
+			{ "p0_sigma", DblResults.at(13)},
+			{ "E1_counts", DblResults.at(10)},
+			{ "E1_counts_sigma", DblResults.at(16)}
 		};
 	}
 	// 2 gamma peaks
 	else {
-		char str3_M[100], str4_M[100];
-		sprintf(str3_M, "%g +- %g", DblResults.at(10), DblResults.at(16)); // E1_height
-		sprintf(str4_M, "%g +- %g", DblResults.at(11), DblResults.at(17)); // E2_height
 		j4 = {
-			{ "Mean+-sqrt(variance)", {
-					{ "E0_height", str1_M},
-					{ "p0", str2_M},
-					{ "E1_height", str3_M},
-					{ "E2_height", str4_M}
-			}}
+			{ "E0_counts", DblResults.at(6)},
+			{ "E0_counts_sigma", DblResults.at(12)},
+			{ "p0", DblResults.at(7)},
+			{ "p0_sigma", DblResults.at(13)},
+			{ "E1_counts", DblResults.at(10)},
+			{ "E1_counts_sigma", DblResults.at(16)},
+			{ "E2_counts", DblResults.at(11)},
+			{ "E2_counts_sigma", DblResults.at(17)}
 		};
 	}
 	
 	
 	
 	//----------------------------------------------------------------------------------
-	// Results of BAT: 68% quantile ( L=lower; U=upper )
-	char str1_68[100], str2_68[100];
-	sprintf(str1_68, "[L_68, U_68] = [%g, %g]", DblResults.at(18), DblResults.at(19)); // E0_height
-	sprintf(str2_68, "[L_68, U_68] = [%g, %g]", DblResults.at(20), DblResults.at(21)); // p0
+	// Results of BAT: 68% central range ( L=lower/U=upper limit )
 	
 	// NO gamma peaks
 	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 		j5 = {
-			{ "68-Quantile", {
-					{ "E0_height", str1_68},
-					{ "p0", str2_68}
-			}}
+			{ "E0_counts_L68", DblResults.at(18)},
+			{ "E0_counts_U68", DblResults.at(19)},
+			{ "p0_L68", DblResults.at(20)},
+			{ "p0_U68", DblResults.at(21)}
 		};
 	}
 	// 1 gamma peak
 	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
-		char str3_68[100];
-		sprintf(str3_68, "[L_68, U_68] = [%g, %g]", DblResults.at(26), DblResults.at(27)); // E1_height
 		j5 = {
-			{ "68-Quantile", {
-					{ "E0_height", str1_68},
-					{ "p0", str2_68},
-					{ "E1_height", str3_68}
-			}}
+			{ "E0_counts_L68", DblResults.at(18)},
+			{ "E0_counts_U68", DblResults.at(19)},
+			{ "p0_L68", DblResults.at(20)},
+			{ "p0_U68", DblResults.at(21)},
+			{ "E1_counts_L68", DblResults.at(26)},
+			{ "E1_counts_U68", DblResults.at(27)}
 		};
 	}
 	// 2 gamma peaks
 	else {
-		char str3_68[100], str4_68[100];
-		sprintf(str3_68, "[L_68, U_68] = [%g, %g]", DblResults.at(26), DblResults.at(27)); // E1_height
-		sprintf(str4_68, "[L_68, U_68] = [%g, %g]", DblResults.at(28), DblResults.at(29)); // E2_height
 		j5 = {
-			{ "68-Quantile", {
-					{ "E0_height", str1_68},
-					{ "p0", str2_68},
-					{ "E1_height", str3_68},
-					{ "E2_height", str4_68}
-			}}
+			{ "E0_counts_L68", DblResults.at(18)},
+			{ "E0_counts_U68", DblResults.at(19)},
+			{ "p0_L68", DblResults.at(20)},
+			{ "p0_U68", DblResults.at(21)},
+			{ "E1_counts_L68", DblResults.at(26)},
+			{ "E1_counts_U68", DblResults.at(27)},
+			{ "E2_counts_L68", DblResults.at(28)},
+			{ "E2_counts_U68", DblResults.at(29)}
+		};
+	}
+	
+	
+	//----------------------------------------------------------------------------------
+	// Results of BAT: 90% upper limit
+	
+	// NO gamma peaks
+	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
+		j6 = {
+			{ "E0_counts_U90", DblResults.at(30)},
+			{ "p0_U90", DblResults.at(31)}
+		};
+	}
+	// 1 gamma peak
+	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+		j6 = {
+			{ "E0_counts_U90", DblResults.at(30)},
+			{ "p0_U90", DblResults.at(31)},
+			{ "E1_counts_U90", DblResults.at(34)}
+		};
+	}
+	// 2 gamma peaks
+	else {
+		j6 = {
+			{ "E0_counts_U90", DblResults.at(30)},
+			{ "p0_U90", DblResults.at(31)},
+			{ "E1_counts_U90", DblResults.at(34)},
+			{ "E2_counts_U90", DblResults.at(35)}
+		};
+	}
+	
+	
+	//----------------------------------------------------------------------------------
+	// Results of BAT: median
+	
+	// NO gamma peaks
+	if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
+		j7 = {
+			{ "E0_counts_median", DblResults.at(36)},
+			{ "E0_counts_L68_sigma", DblResults.at(42)},
+			{ "E0_counts_U68_sigma", DblResults.at(43)},
+			{ "p0_median", DblResults.at(37)},
+			{ "p0_L68_sigma", DblResults.at(44)},
+			{ "p0_U68_sigma", DblResults.at(45)},
+		};
+	}
+	// 1 gamma peak
+	else if ( (outputK>=2 && outputK<=6) && outputK!=4 ) {
+		j7 = {
+			{ "E0_counts_median", DblResults.at(36)},
+			{ "E0_counts_L68_sigma", DblResults.at(42)},
+			{ "E0_counts_U68_sigma", DblResults.at(43)},
+			{ "p0_median", DblResults.at(37)},
+			{ "p0_L68_sigma", DblResults.at(44)},
+			{ "p0_U68_sigma", DblResults.at(45)},
+			{ "E1_counts_median", DblResults.at(40)},
+			{ "E1_counts_L68_sigma", DblResults.at(50)},
+			{ "E1_counts_U68_sigma", DblResults.at(51)}
+		};
+	}
+	// 2 gamma peaks
+	else {
+		j7 = {
+			{ "E0_counts_median", DblResults.at(36)},
+			{ "E0_counts_L68_sigma", DblResults.at(42)},
+			{ "E0_counts_U68_sigma", DblResults.at(43)},
+			{ "p0_median", DblResults.at(37)},
+			{ "p0_L68_sigma", DblResults.at(44)},
+			{ "p0_U68_sigma", DblResults.at(45)},
+			{ "E1_counts_median", DblResults.at(40)},
+			{ "E1_counts_L68_sigma", DblResults.at(50)},
+			{ "E1_counts_U68_sigma", DblResults.at(51)},
+			{ "E2_counts_median", DblResults.at(41)},
+			{ "E2_counts_L68_sigma", DblResults.at(52)},
+			{ "E2_counts_U68_sigma", DblResults.at(53)}
 		};
 	}
 	
@@ -326,55 +389,57 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	//----------------------------------------------------------------------------------
 	if ( pol_degree == 1 ) {
 		// p1 data
-		char str5_PR[100], str5_GM[100], str5_M[100], str5_68[100];
-		sprintf(str5_PR, "[%g, %g]", DblResults.at(36), DblResults.at(37));
-		sprintf(str5_GM, "%g +- %g", p1_GM, p1_err_GM); 
-		sprintf(str5_M, "%g +- %g", DblResults.at(8), DblResults.at(14)); 
-		sprintf(str5_68, "[L_68, U_68] = [%g, %g]", DblResults.at(22), DblResults.at(23)); 
-
-		j2["ParameterRange"]["p1"] = str5_PR;
-		j3["GlobalMode"]["p1"] = str5_GM;
-		j4["Mean+-sqrt(variance)"]["p1"] = str5_M;
-		j5["68-Quantile"]["p1"] = str5_68;
+		j2["p1_MIN"] = DblResults.at(60);
+		j2["p1_MAX"] = DblResults.at(61);
+		j3["p1"] = p1_GM;
+		j3["p1_sigma"] = p1_err_GM;
+		j4["p1"] = DblResults.at(8);
+		j4["p1_sigma"] = DblResults.at(14);
+		j5["p1_L68"] = DblResults.at(22);
+		j5["p1_U68"] = DblResults.at(23);
+		j6["p1_U90"] = DblResults.at(32);
+		j7["p1_median"] = DblResults.at(38);
+		j7["p1_L68_sigma"] = DblResults.at(46);
+		j7["p1_U68_sigma"] = DblResults.at(47);
 	}
 	if ( pol_degree == 2 ) {
 		// p1 data
-		char str5_PR[100], str5_GM[100], str5_M[100], str5_68[100];
-		sprintf(str5_PR, "[%g, %g]", DblResults.at(36), DblResults.at(37));
-		sprintf(str5_GM, "%g +- %g", p1_GM, p1_err_GM); 
-		sprintf(str5_M, "%g +- %g", DblResults.at(8), DblResults.at(14)); 
-		sprintf(str5_68, "[L_68, U_68] = [%g, %g]", DblResults.at(22), DblResults.at(23));
-	
-		j2["ParameterRange"]["p1"] = str5_PR;
-		j3["GlobalMode"]["p1"] = str5_GM;
-		j4["Mean+-sqrt(variance)"]["p1"] = str5_M;
-		j5["68-Quantile"]["p1"] = str5_68;
+		j2["p1_MIN"] = DblResults.at(60);
+		j2["p1_MAX"] = DblResults.at(61);
+		j3["p1"] = p1_GM;
+		j3["p1_sigma"] = p1_err_GM;
+		j4["p1"] = DblResults.at(8);
+		j4["p1_sigma"] = DblResults.at(14);
+		j5["p1_L68"] = DblResults.at(22);
+		j5["p1_U68"] = DblResults.at(23);
+		j6["p1_U90"] = DblResults.at(32);
+		j7["p1_median"] = DblResults.at(38);
+		j7["p1_L68_sigma"] = DblResults.at(46);
+		j7["p1_U68_sigma"] = DblResults.at(47);
 		
 		// p2 data
-		char str6_PR[100], str6_GM[100], str6_M[100], str6_68[100];
-		sprintf(str6_PR, "[%g, %g]", DblResults.at(38), DblResults.at(39));
-		sprintf(str6_GM, "%g +- %g", p2_GM, p2_err_GM); 
-		sprintf(str6_M, "%g +- %g", DblResults.at(9), DblResults.at(15));
-		sprintf(str6_68, "[L_68, U_68] = [%g, %g]", DblResults.at(24), DblResults.at(25));
-	
-		j2["ParameterRange"]["p2"] = str6_PR;
-		j3["GlobalMode"]["p2"] = str6_GM;
-		j4["Mean+-sqrt(variance)"]["p2"] = str6_M;
-		j5["68-Quantile"]["p2"] = str6_68;
+		j2["p2_MIN"] = DblResults.at(62);
+		j2["p2_MAX"] = DblResults.at(63);
+		j3["p2"] = p2_GM;
+		j3["p2_sigma"] = p2_err_GM;
+		j4["p2"] = DblResults.at(9);
+		j4["p2_sigma"] = DblResults.at(15);
+		j5["p2_L68"] = DblResults.at(24);
+		j5["p2_U68"] = DblResults.at(25);
+		j6["p2_U90"] = DblResults.at(33);
+		j7["p2_median"] = DblResults.at(39);
+		j7["p2_L68_sigma"] = DblResults.at(48);
+		j7["p2_U68_sigma"] = DblResults.at(49);
 	}
 	
 	
 	//----------------------------------------------------------------------------------	
-	// Array of the type: [ j1{...}, j2{...}, j3{...}, j4{...}, j5{...} ]	
-	json j_arr = json::array({ j1 , j2, j3, j4, j5 });
-	
 	// Final JSON object
-	json j_tot = {
-		{ str, j_arr}
-	};
+	json jtot = json::object({  {"E0", E0}, {"PeakSearch", j1 }, {"ParameterRange", j2 }, {"GlobalMode", j3 },
+				    {"Mean", j4 }, {"68CentralRange", j5 }, {"90UpperLimit", j6 }, {"Median", j7 } });
 	
 	// Print data inside the JSON file
-	file << j_tot;
+	file << std::setw(4) << jtot << std::endl;
 	file.close();
 }
 

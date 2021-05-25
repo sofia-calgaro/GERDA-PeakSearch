@@ -107,7 +107,7 @@ int main() {
 		std::cout << "\t - choose E0_max: ";
 		std::cin >> E0_max;
 		
-		std::string filename1, filename2, filename3, filename4, filename5, filename6, filename7;
+		std::string filename1, filename2, filename3, filename4, filename5, filename6, filename7, filename8, filename9, filename10, filename11;
 		
 		// Peak Search
 		if ( ans0==0 ) { filename1 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/PeakSearch.txt"; }
@@ -153,10 +153,34 @@ int main() {
 		if ( ans0==0 ) { filename7 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/Median.txt"; }
 		else { filename7 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/BEGe/Median.txt"; }
 		std::ofstream file7(filename7);
-		file7 << "# E0" << std::setw(15) << "E0_med" << std::setw(14) << "E0_L68sig" << std::setw(14) << "E0_U68sig" << std::setw(14)
-		<< "p0_med" << std::setw(15) << "p0_L68sig" << std::setw(15) << "p0_U68sig" << std::setw(15) << "p1_med" << std::setw(15) << 
+		file7 << "# E0" << std::setw(15) << "E0_med" << std::setw(14) << "E0_L68sig" << std::setw(14) << "E0_U68sig" << std::setw(14) <<
+		"p0_med" << std::setw(15) << "p0_L68sig" << std::setw(15) << "p0_U68sig" << std::setw(15) << "p1_med" << std::setw(15) << 
 		"p1_L68sig" << std::setw(15) << "p1_U68sig" << std::setw(15) << "p2_med" << std::setw(15) << "p2_L68sig" << std::setw(15) <<
 		"p2_U68sig" << std::endl;
+		
+		// p0 VS E0
+		if ( ans0==0 ) { filename8 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/p0_VS_E0.txt"; }
+		else { filename8 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/BEGe/p0_VS_E0.txt"; }
+		std::ofstream file8(filename8);
+		//file8 << "# E0" << "\t" << "p0" << "\t" << "p0_L68sig" << "\t" << "p0_U68sig" << std::endl;
+		
+		// p1 VS E0
+		if ( ans0==0 ) { filename9 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/p1_VS_E0.txt"; }
+		else { filename9 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/BEGe/p1_VS_E0.txt"; }
+		std::ofstream file9(filename9);
+		//file9 << "# E0" << "\t" << "p1" << "\t" << "p1_L68sig" << "\t" << "p1_U68sig" << std::endl;
+		
+		// p2 VS E0
+		if ( ans0==0 ) { filename10 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/p2_VS_E0.txt"; }
+		else { filename10 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/BEGe/p2_VS_E0.txt"; }
+		std::ofstream file10(filename10);
+		//file10 << "# E0" << "\t" << "p2" << "\t" << "p2_L68sig" << "\t" << "p2_U68sig" << std::endl;
+		
+		// 90% Upper Limit - NORMALIZED
+		if ( ans0==0 ) { filename11 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/90UpperLimit_norm.txt"; }
+		else { filename11 = "/home/sofia/Analysis/DataAnalysis/ReadJSON/BEGe/90UpperLimit_norm.txt"; }
+		std::ofstream file11(filename11);
+		file11 << "# E0" << std::setw(15) << "E0_count_U90" << std::setw(14) << "p0_U90" << std::setw(15) << "p1_U90" << std::setw(15) << "p2_U90" << std::endl;
 		
 		for ( int i=E0_min; i<=E0_max; i++) {
 		
@@ -300,6 +324,48 @@ int main() {
 				<< p0_median << std::setw(15) << p0_L68_sigma << std::setw(15) << p0_U68_sigma << std::setw(15) << p1_median << std::setw(15) << 
 				p1_L68_sigma << std::setw(15) << p1_U68_sigma << std::setw(15) << p2_median << std::setw(15) << p2_L68_sigma << std::setw(15) <<
 				p2_U68_sigma << std::endl;
+							
+				file8 << i << "\t" << p0_GM << "\t" << p0_L68_sigma << "\t" << p0_U68_sigma << std::endl;
+				file9 << i << "\t" << p1_GM << "\t" << p1_L68_sigma << "\t" << p1_U68_sigma << std::endl;
+				file10 << i << "\t" << p2_GM << "\t" << p2_L68_sigma << "\t" << p2_U68_sigma << std::endl;
+				
+				
+				int thr_BEGe=0, thr_coax=0;
+				// coax
+				if ( ans0==0 )  {
+					thr_BEGe = 195;
+					if ( i<=thr_coax ) {
+						E0_counts_U90 = E0_counts_U90/6.9;
+						p0_U90 = p0_U90/6.9;
+						p1_U90 = p0_U90/6.9;
+						p2_U90 = p0_U90/6.9;
+					}
+					if ( i>thr_coax ) {
+						E0_counts_U90 = E0_counts_U90/28.1;
+						p0_U90 = p0_U90/28.1;
+						p1_U90 = p0_U90/28.1;
+						p2_U90 = p0_U90/28.1;
+					}
+				}
+				
+				// BEGe
+				if ( ans0==1 )  {
+					thr_BEGe = 165;
+					if ( i<=thr_BEGe ) {
+						E0_counts_U90 = E0_counts_U90/7.7;
+						p0_U90 = p0_U90/7.7;
+						p1_U90 = p0_U90/7.7;
+						p2_U90 = p0_U90/7.7;
+					}
+					if ( i>thr_BEGe ) {
+						E0_counts_U90 = E0_counts_U90/30.8;
+						p0_U90 = p0_U90/30.8;
+						p1_U90 = p0_U90/30.8;
+						p2_U90 = p0_U90/30.8;
+					}
+				}
+				
+				file11 << i << std::setw(15) << E0_counts_U90 << std::setw(14) << p0_U90 << std::setw(15) << p1_U90 << std::setw(15) << p2_U90 << std::endl;
 			} // stop else
 		} // stop for
 		
@@ -310,6 +376,10 @@ int main() {
 		file5.close();
 		file6.close();
 		file7.close();
+		file8.close();
+		file9.close();
+		file10.close();
+		file11.close();
 		
 		std::cout << "\033[1;31m -> files have been created\033[0m\n";
 		

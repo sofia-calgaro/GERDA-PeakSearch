@@ -4,28 +4,69 @@
 
 
 // ----------------------------------------------------------------------------------------------------- CONSTRUCTOR
-GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0, int xL, int xR, double E1, double E2, int outputK)
+GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0, int xL, int xR, double E1, double E2, int outputK, int *rng)
     : BCModel(name)
 {
 	    int *max_height = FindMaximumSignalHeight( E0, E1, E2, bin_content, xL, xR, outputK);
+	    double min_p0=0, max_p0=0, min_p1=0, max_p1=0, min_p2=0, max_p2=0;
 	    
 	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 	 	    double *output_pol2 = FindRange_Pol2( E0, bin_content, max_height);
 		
 		    // 1) Signal yield (index 0)
-		    AddParameter("S_height", 0, max_height[3], "", "[events]");
+		    AddParameter("E0_height", 0, max_height[3], "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    AddParameter("p0", output_pol2[0]-10*output_pol2[1], output_pol2[0]+10*output_pol2[1], "p0", "[events]");
+		    if ( rng[0]==0 ) {
+		    	min_p0 = output_pol2[0]-10*output_pol2[1];
+		    	max_p0 = output_pol2[0]+10*output_pol2[1];
+		    }
+		    if ( rng[0]==1 ) {
+		    	min_p0 = output_pol2[0]-15*output_pol2[1];
+		    	max_p0 = output_pol2[0]+15*output_pol2[1];
+		    }
+		    if ( rng[0]==2 ) {
+		    	min_p0 = output_pol2[0]-20*output_pol2[1];
+		    	max_p0 = output_pol2[0]+20*output_pol2[1];
+		    }
+		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 3) Slope (index 2)
-		    AddParameter("p1", output_pol2[2]-10*output_pol2[3], output_pol2[2]+10*output_pol2[3], "p1", "[events/keV]");
+		    if ( rng[1]==0 ) {
+		    	min_p1 = output_pol2[2]-10*output_pol2[3];
+		    	max_p1 = output_pol2[2]+10*output_pol2[3];
+		    }
+		    if ( rng[1]==1 ) {
+		    	min_p1 = output_pol2[2]-15*output_pol2[3];
+		    	max_p1 = output_pol2[2]+15*output_pol2[3];
+		    }
+		    if ( rng[1]==2 ) {
+		    	min_p1 = output_pol2[2]-20*output_pol2[3];
+		    	max_p1 = output_pol2[2]+20*output_pol2[3];
+		    }
+		    AddParameter("p1", min_p1, max_p1, "p1", "[events/keV]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Quadratic term (index 3)
-		    AddParameter("p2", output_pol2[4]-10*output_pol2[5], output_pol2[4]+10*output_pol2[5], "p2", "[events/keV^2]");
+		    if ( rng[2]==0 ) {
+		    	min_p2 = output_pol2[4]-10*output_pol2[5];
+		    	max_p2 = output_pol2[4]+10*output_pol2[5];
+		    }
+		    if ( rng[2]==1 ) {
+		    	min_p2 = output_pol2[4]-15*output_pol2[5];
+		    	max_p2 = output_pol2[4]+15*output_pol2[5];
+		    }
+		    if ( rng[2]==2 ) {
+		    	min_p2 = output_pol2[4]-20*output_pol2[5];
+		    	max_p2 = output_pol2[4]+20*output_pol2[5];
+		    }
+		    if ( rng[2]==3 ) {
+		    	min_p2 = output_pol2[4]-25*output_pol2[5];
+		    	max_p2 = output_pol2[4]+25*output_pol2[5];
+		    }
+		    AddParameter("p2", min_p2, max_p2, "p2", "[events/keV^2]");
 		    GetParameters().Back().SetPriorConstant();
             }
             
@@ -34,19 +75,59 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    double *output_G_pol2 = FindRange_Gamma_Pol2( E0, bin_content, max_height, E1, max_gammaYield, xL, xR);
 		    
 		    // 1) Signal yield (index 0)
-		    AddParameter("S_height", 0, max_height[3], "", "[events]");
+		    AddParameter("E0_height", 0, max_height[3], "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    AddParameter("p0", output_G_pol2[0]-10*output_G_pol2[1], output_G_pol2[0]+10*output_G_pol2[1], "p0", "[events]");
+		    if ( rng[0]==0 ) {
+		    	min_p0 = output_G_pol2[0]-10*output_G_pol2[1];
+		    	max_p0 = output_G_pol2[0]+10*output_G_pol2[1];
+		    }
+		    if ( rng[0]==1 ) {
+		    	min_p0 = output_G_pol2[0]-15*output_G_pol2[1];
+		    	max_p0 = output_G_pol2[0]+15*output_G_pol2[1];
+		    }
+		    if ( rng[0]==2 ) {
+		    	min_p0 = output_G_pol2[0]-20*output_G_pol2[1];
+		    	max_p0 = output_G_pol2[0]+20*output_G_pol2[1];
+		    }
+		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 3) Slope (index 2)
-		    AddParameter("p1", output_G_pol2[2]-10*output_G_pol2[3], output_G_pol2[2]+10*output_G_pol2[3], "p1", "[events/keV]");
+		    if ( rng[1]==0 ) {
+		    	min_p1 = output_G_pol2[2]-10*output_G_pol2[3];
+		    	max_p1 = output_G_pol2[2]+10*output_G_pol2[3];
+		    }
+		    if ( rng[1]==1 ) {
+		    	min_p1 = output_G_pol2[2]-15*output_G_pol2[3];
+		    	max_p1 = output_G_pol2[2]+15*output_G_pol2[3];
+		    }
+		    if ( rng[1]==2 ) {
+		    	min_p1 = output_G_pol2[2]-20*output_G_pol2[3];
+		    	max_p1 = output_G_pol2[2]+20*output_G_pol2[3];
+		    }
+		    AddParameter("p1", min_p1, max_p1, "p1", "[events/keV]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Quadratic term (index 3)
-		    AddParameter("p2", output_G_pol2[4]-10*output_G_pol2[5], output_G_pol2[4]+10*output_G_pol2[5], "p2", "[events/keV^2]");
+		    if ( rng[2]==0 ) {
+		    	min_p2 = output_G_pol2[4]-10*output_G_pol2[5];
+		    	max_p2 = output_G_pol2[4]+10*output_G_pol2[5];
+		    }
+		    if ( rng[2]==1 ) {
+		    	min_p2 = output_G_pol2[4]-15*output_G_pol2[5];
+		    	max_p2 = output_G_pol2[4]+15*output_G_pol2[5];
+		    }
+		    if ( rng[2]==2 ) {
+		    	min_p2 = output_G_pol2[4]-20*output_G_pol2[5];
+		    	max_p2 = output_G_pol2[4]+20*output_G_pol2[5];
+		    }
+		    if ( rng[2]==3 ) {
+		    	min_p2 = output_G_pol2[4]-25*output_G_pol2[5];
+		    	max_p2 = output_G_pol2[4]+25*output_G_pol2[5];
+		    }
+		    AddParameter("p2", min_p2, max_p2, "p2", "[events/keV^2]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 5) Gamma yield (index 4)  
@@ -60,19 +141,59 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    double *output_2G_pol2 = FindRange_TwoGamma_Pol2( E0, bin_content, max_height, E1, max_gammaYield1, E2, max_gammaYield2, xL, xR);
             	   
             	    // 1) Signal yield (index 0)
-		    AddParameter("S_height", 0, max_height[3], "", "[events]");
+		    AddParameter("E0_height", 0, max_height[3], "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    AddParameter("p0", output_2G_pol2[0]-10*output_2G_pol2[1], output_2G_pol2[0]+10*output_2G_pol2[1], "p0", "[events]");
+		    if ( rng[0]==0 ) {
+		    	min_p0 = output_2G_pol2[0]-10*output_2G_pol2[1];
+		    	max_p0 = output_2G_pol2[0]+10*output_2G_pol2[1];
+		    }
+		    if ( rng[0]==1 ) {
+		    	min_p0 = output_2G_pol2[0]-15*output_2G_pol2[1];
+		    	max_p0 = output_2G_pol2[0]+15*output_2G_pol2[1];
+		    }
+		    if ( rng[0]==2 ) {
+		    	min_p0 = output_2G_pol2[0]-20*output_2G_pol2[1];
+		    	max_p0 = output_2G_pol2[0]+20*output_2G_pol2[1];
+		    }
+		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 3) Slope (index 2)
-		    AddParameter("p1", output_2G_pol2[2]-10*output_2G_pol2[3], output_2G_pol2[2]+10*output_2G_pol2[3], "p1", "[events/keV]");
+		    if ( rng[1]==0 ) {
+		    	min_p1 = output_2G_pol2[2]-10*output_2G_pol2[3];
+		    	max_p1 = output_2G_pol2[2]+10*output_2G_pol2[3];
+		    }
+		    if ( rng[1]==1 ) {
+		    	min_p1 = output_2G_pol2[2]-15*output_2G_pol2[3];
+		    	max_p1 = output_2G_pol2[2]+15*output_2G_pol2[3];
+		    }
+		    if ( rng[1]==2 ) {
+		    	min_p1 = output_2G_pol2[2]-20*output_2G_pol2[3];
+		    	max_p1 = output_2G_pol2[2]+20*output_2G_pol2[3];
+		    }
+		    AddParameter("p1", min_p1, max_p1, "p1", "[events/keV]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Quadratic term (index 3)
-		    AddParameter("p2", output_2G_pol2[4]-10*output_2G_pol2[5], output_2G_pol2[4]+10*output_2G_pol2[5], "p2", "[events/keV^2]");
+		    if ( rng[2]==0 ) {
+		    	min_p2 = output_2G_pol2[4]-10*output_2G_pol2[5];
+		    	max_p2 = output_2G_pol2[4]+10*output_2G_pol2[5];
+		    }
+		    if ( rng[2]==1 ) {
+		    	min_p2 = output_2G_pol2[4]-15*output_2G_pol2[5];
+		    	max_p2 = output_2G_pol2[4]+15*output_2G_pol2[5];
+		    }
+		    if ( rng[2]==2 ) {
+		    	min_p2 = output_2G_pol2[4]-20*output_2G_pol2[5];
+		    	max_p2 = output_2G_pol2[4]+20*output_2G_pol2[5];
+		    }
+		    if ( rng[2]==3 ) {
+		    	min_p2 = output_2G_pol2[4]-25*output_2G_pol2[5];
+		    	max_p2 = output_2G_pol2[4]+25*output_2G_pol2[5];
+		    }
+		    AddParameter("p2", min_p2, max_p2, "p2", "[events/keV^2]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 5) Gamma yield (1) (index 4)  

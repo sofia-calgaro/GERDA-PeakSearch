@@ -4,7 +4,7 @@
 // **********************************************************************************************************************
 #include "Operations.h"
 
-
+const int thr = 165;
 
 //=======================================================================================================================
 // Returns 'true' only if b > a
@@ -403,11 +403,26 @@ double *FindRange_Pol0(int E0, std::vector<int> bin_content, int *max_height, in
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    int B_i = 0;
    int N_bkg = 0;
@@ -509,7 +524,7 @@ double *FindRange_Pol0(int E0, std::vector<int> bin_content, int *max_height, in
    // ROOT fit: f0 = pol0 
    if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
 	   	
-	   TF1 *f0 = new TF1("f0","[0]", E0-20, E0+20);
+	   TF1 *f0 = new TF1("f0","[0]", x_min, x_max);
 	   
 	   f0->SetParameter(0, p0);
 	   
@@ -527,7 +542,7 @@ double *FindRange_Pol0(int E0, std::vector<int> bin_content, int *max_height, in
    // ROOT fit: f0 = pol0 + gaus
    else {
    	   
-   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", E0-20, E0+20);
+   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", x_min, x_max);
    	   
 	   f0->SetParameter(0, p0);
 	   
@@ -557,12 +572,27 @@ double *FindRange_Pol1(int E0, std::vector<int> bin_content, int *max_height) {
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
    // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
-  
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+
    for (int i=0; i<numGamma; i++) {
    	// x_min:
    	// gamma peak on the left
@@ -588,7 +618,7 @@ double *FindRange_Pol1(int E0, std::vector<int> bin_content, int *max_height) {
 	 
 	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i)", E0);
-   	   TF1 *f1 = new TF1("f1", function, E0-20, E0+20);
+   	   TF1 *f1 = new TF1("f1", function, x_min, x_max);
    	   
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
@@ -611,7 +641,7 @@ double *FindRange_Pol1(int E0, std::vector<int> bin_content, int *max_height) {
    	   
    	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true)", E0);
-   	   TF1 *f1 = new TF1("f1",function, E0-20, E0+20);
+   	   TF1 *f1 = new TF1("f1", function, x_min, x_max);
    	   
    	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);	   
@@ -645,11 +675,26 @@ double *FindRange_Pol2(int E0, std::vector<int> bin_content, int *max_height) {
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
    // Second order parameters are evaluated starting from the equation of a parabola crossing three points
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    for (int i=0; i<numGamma; i++) {
    	// x_min:
@@ -670,7 +715,7 @@ double *FindRange_Pol2(int E0, std::vector<int> bin_content, int *max_height) {
    
    double a_x = x_min;
    double a_y = bin_content.at(x_min);
-   double b_x = E0+1.5*FindFWHM(E0);
+   double b_x = E0;
    double b_y = bin_content.at(std::round(b_x));
    double c_x = x_max;
    double c_y = bin_content.at(x_max-1);
@@ -688,7 +733,7 @@ double *FindRange_Pol2(int E0, std::vector<int> bin_content, int *max_height) {
 	
 	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i)", E0, E0, E0);
-   	   TF1 *f2 = new TF1("f2", function, E0-20, E0+20);
+   	   TF1 *f2 = new TF1("f2", function, x_min, x_max);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
@@ -714,7 +759,7 @@ double *FindRange_Pol2(int E0, std::vector<int> bin_content, int *max_height) {
    	   
    	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true)", E0, E0, E0);
-   	   TF1 *f2 = new TF1("f2",function, E0-20, E0+20);
+   	   TF1 *f2 = new TF1("f2", function, x_min, x_max);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
@@ -749,11 +794,26 @@ double *FindRange_Gamma_Pol0(int E0, std::vector<int> bin_content, int *max_heig
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    int B_i = 0;
    int N_bkg = 0;
@@ -855,7 +915,7 @@ double *FindRange_Gamma_Pol0(int E0, std::vector<int> bin_content, int *max_heig
    // ROOT fit: f0 = pol0 + gaus(E1)
    if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
 	   	
-	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", E0-20, E0+20);
+	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true)", x_min, x_max);
 	   
 	   f0->SetParameter(0, p0);
 	   
@@ -877,7 +937,7 @@ double *FindRange_Gamma_Pol0(int E0, std::vector<int> bin_content, int *max_heig
    // ROOT fit: f0 = pol0 + gaus(E1) + gaus
    else {
    	   
-   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true)", E0-20, E0+20);	
+   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true)", x_min, x_max);
 
 	   f0->SetParameter(0, p0);
 	   
@@ -911,11 +971,26 @@ double *FindRange_Gamma_Pol1(int E0, std::vector<int> bin_content, int *max_heig
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
    // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    for (int i=0; i<numGamma; i++) {
    	// x_min:
@@ -942,7 +1017,7 @@ double *FindRange_Gamma_Pol1(int E0, std::vector<int> bin_content, int *max_heig
 	   	
 	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true)", E0);
-   	   TF1 *f1 = new TF1("f1", function, E0-20, E0+20);
+   	   TF1 *f1 = new TF1("f1", function, x_min, x_max);
 	   
 	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
@@ -969,7 +1044,7 @@ double *FindRange_Gamma_Pol1(int E0, std::vector<int> bin_content, int *max_heig
    	   
    	   char function[200];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true) + [5]*TMath::Gaus(x, [6], [7], true)", E0);
-   	   TF1 *f1 = new TF1("f1", function, E0-20, E0+20);
+   	   TF1 *f1 = new TF1("f1", function, x_min, x_max);
 
 	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
@@ -1006,11 +1081,26 @@ double *FindRange_Gamma_Pol2(int E0, std::vector<int> bin_content, int *max_heig
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
    // Second order parameters are evaluated starting from the equation of a parabola crossing three points
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    for (int i=0; i<numGamma; i++) {
    	// x_min:
@@ -1049,7 +1139,7 @@ double *FindRange_Gamma_Pol2(int E0, std::vector<int> bin_content, int *max_heig
 	
 	   char function[100];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true)", E0, E0, E0);
-   	   TF1 *f2 = new TF1("f2", function, E0-20, E0+20);
+   	   TF1 *f2 = new TF1("f2", function, x_min, x_max);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
@@ -1079,7 +1169,7 @@ double *FindRange_Gamma_Pol2(int E0, std::vector<int> bin_content, int *max_heig
    	   
    	   char function[200];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true) + [6]*TMath::Gaus(x, [7], [8], true)", E0, E0, E0);
-   	   TF1 *f2 = new TF1("f2",function, E0-20, E0+20);
+   	   TF1 *f2 = new TF1("f2", function, x_min, x_max);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
@@ -1118,11 +1208,26 @@ double *FindRange_TwoGamma_Pol0(int E0, std::vector<int> bin_content, int *max_h
    TH1D *h_energy = new TH1D("h_energy","", 5200, 0, 5200);
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    int B_i = 0;
    int N_bkg = 0;
@@ -1224,7 +1329,7 @@ double *FindRange_TwoGamma_Pol0(int E0, std::vector<int> bin_content, int *max_h
    // ROOT fit: f0 = pol0 + gaus(E1) + gaus(E2)
    if ( max_height[2] < 3*sqrt(max_height[1]) ) { 
 	   	
-	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true)", E0-20, E0+20);
+	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true)", x_min, x_max);
 	   
 	   f0->SetParameter(0, p0);
 	   
@@ -1250,7 +1355,7 @@ double *FindRange_TwoGamma_Pol0(int E0, std::vector<int> bin_content, int *max_h
    // ROOT fit: f0 = pol0 + gaus(E1) + gaus(E2) + gaus
    else {
    	   
-   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true) + [7]*TMath::Gaus(x, [8], [9], true)", E0-20, E0+20);	
+   	   TF1 *f0 = new TF1("f0","[0] + [1]*TMath::Gaus(x, [2], [3], true) + [4]*TMath::Gaus(x, [5], [6], true) + [7]*TMath::Gaus(x, [8], [9], true)", x_min, x_max);
 
 	   f0->SetParameter(0, p0);
 	   
@@ -1287,11 +1392,26 @@ double *FindRange_TwoGamma_Pol1(int E0, std::vector<int> bin_content, int *max_h
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
    // slope and constant are evaluated starting from the equation of a straight line crossing two points
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    for (int i=0; i<numGamma; i++) {
    	// x_min:
@@ -1318,7 +1438,7 @@ double *FindRange_TwoGamma_Pol1(int E0, std::vector<int> bin_content, int *max_h
 	   	
 	   char function[200];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true) + [5]*TMath::Gaus(x, [6], [7], true)", E0);
-   	   TF1 *f1 = new TF1("f1", function, E0-20, E0+20);
+   	   TF1 *f1 = new TF1("f1", function, x_min, x_max);
 	   
 	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
@@ -1349,7 +1469,7 @@ double *FindRange_TwoGamma_Pol1(int E0, std::vector<int> bin_content, int *max_h
    	   
    	   char function[200];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*TMath::Gaus(x, [3], [4], true) + [5]*TMath::Gaus(x, [6], [7], true) + [8]*TMath::Gaus(x, [9], [10], true)", E0);
-   	   TF1 *f1 = new TF1("f1", function, E0-20, E0+20);
+   	   TF1 *f1 = new TF1("f1", function, x_min, x_max);
 
 	   f1->SetParameter(0, q);
 	   f1->SetParameter(1, m);
@@ -1390,11 +1510,26 @@ double *FindRange_TwoGamma_Pol2(int E0, std::vector<int> bin_content, int *max_h
    for (int i=0; i<5200; i++) { h_energy->SetBinContent(i+1, bin_content.at(i) ); }
    
    // Second order parameters are evaluated starting from the equation of a parabola crossing three points
-   double E_gamma[11]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0};
+   double E_gamma[13]={238.6, 242.0, 295.2, 352.0, 478.3, 511.0, 514.0, 583.2, 609.3, 911.2, 969.0, 1460.8, 1524.6};
    int numGamma = sizeof(E_gamma)/sizeof(*E_gamma);
    
-   int x_min = E0 - 20;
-   int x_max = E0 + 20;
+   int x_min=0, x_max=0;
+   if ( E0 >= thr+20 ) {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
+   if ( E0 > thr-20 && E0 < thr ) {
+	   x_min = E0 - 20;
+	   x_max = thr-1;  
+   }
+   if ( E0 >= thr && E0 < thr+20 ) {
+	   x_min = thr;
+	   x_max = E0 + 20;   
+   }
+   if ( E0 <= thr-20)  {
+	   x_min = E0 - 20;
+	   x_max = E0 + 20;
+   }
    
    for (int i=0; i<numGamma; i++) {
    	// x_min:
@@ -1433,7 +1568,7 @@ double *FindRange_TwoGamma_Pol2(int E0, std::vector<int> bin_content, int *max_h
 	
 	   char function[200];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true) + [6]*TMath::Gaus(x, [7], [8], true)", E0, E0, E0);
-   	   TF1 *f2 = new TF1("f2", function, E0-20, E0+20);
+   	   TF1 *f2 = new TF1("f2", function, x_min, x_max);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);
@@ -1467,7 +1602,7 @@ double *FindRange_TwoGamma_Pol2(int E0, std::vector<int> bin_content, int *max_h
    	   
    	   char function[200];
    	   sprintf(function,"[0] + [1]*(x-%i) + [2]*(x-%i)*(x-%i) + [3]*TMath::Gaus(x, [4], [5], true) + [6]*TMath::Gaus(x, [7], [8], true) + [9]*TMath::Gaus(x, [10], [11], true)", E0, E0, E0);
-   	   TF1 *f2 = new TF1("f2",function, E0-20, E0+20);
+   	   TF1 *f2 = new TF1("f2", function, x_min, x_max);
    	   
    	   f2->SetParameter(0, p_0);
 	   f2->SetParameter(1, p_1);

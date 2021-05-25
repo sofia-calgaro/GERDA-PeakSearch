@@ -20,6 +20,9 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	int k = IntResults[3];
 	int outputK = IntResults[4];
 	int pol_degree = IntResults[5];	
+	int rng0 = IntResults[6];
+	int rng1 = IntResults[7];
+	int rng2 = IntResults[8];
 	
 	double E1 = DblResults.at(54);
 	double E2 = DblResults.at(55);
@@ -128,7 +131,8 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 			{ "windowRightEdge_xR", xR},
 			{ "windowWidth", bin_width},
 			{ "k_GammaArrayIndex", k},
-			{ "outputk_GammaPosition", outputK}
+			{ "outputk_GammaPosition", outputK},
+			{ "rng_p0", rng0}
 		};
 	}
 	// 1 gamma peak
@@ -140,7 +144,8 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 			{ "windowRightEdge_xR", xR},
 			{ "windowWidth", bin_width},
 			{ "k_GammaArrayIndex", k},
-			{ "outputk_GammaPosition", outputK}
+			{ "outputk_GammaPosition", outputK},
+			{ "rng_p0", rng0}
 		};
 	}
 	// 2 gamma peaks
@@ -153,7 +158,8 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 			{ "windowRightEdge_xR", xR},
 			{ "windowWidth", bin_width},
 			{ "k_GammaArrayIndex", k},
-			{ "outputk_GammaPosition", outputK}
+			{ "outputk_GammaPosition", outputK},
+			{ "rng_p0", rng0}
 		};
 	}
 	
@@ -389,6 +395,7 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	//----------------------------------------------------------------------------------
 	if ( pol_degree == 1 ) {
 		// p1 data
+		j1["rng_p1"] = rng1;
 		j2["p1_MIN"] = DblResults.at(60);
 		j2["p1_MAX"] = DblResults.at(61);
 		j3["p1"] = p1_GM;
@@ -404,6 +411,7 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	}
 	if ( pol_degree == 2 ) {
 		// p1 data
+		j1["rng_p1"] = rng1;
 		j2["p1_MIN"] = DblResults.at(60);
 		j2["p1_MAX"] = DblResults.at(61);
 		j3["p1"] = p1_GM;
@@ -418,6 +426,7 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 		j7["p1_U68_sigma"] = DblResults.at(47);
 		
 		// p2 data
+		j1["rng_p2"] = rng2;
 		j2["p2_MIN"] = DblResults.at(62);
 		j2["p2_MAX"] = DblResults.at(63);
 		j3["p2"] = p2_GM;
@@ -497,10 +506,10 @@ void Draw_Gamma_Pol0(int E0, double EG, int xL, int xR, const std::vector<double
 	h->SetTitle("Fit with pol0(x)+gaus(x)+gaus1(x)");
 	c->Update();
 	char name_image[100];
-	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0_%gGamma.png", E0, EG);
+	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0_1Gamma.png", E0);
 	c->Print(name_image);
 	//char name_rootfile[100];
-	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_%gGamma.root", E0, EG);
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_1Gamma.png", E0);
 	//c->Print(name_rootfile);
 }
 
@@ -529,10 +538,10 @@ void Draw_TwoGamma_Pol0(int E0, double EG, double EG_2, int xL, int xR, const st
 	h->SetTitle("Fit with pol0(x)+gaus(x)+gaus1(x)+gaus2(x)");
 	c->Update();
 	char name_image[100];
-	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0_%gGamma_%gGamma.png", E0, EG, EG_2);
+	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0_2Gamma.png", E0);
 	c->Print(name_image);
 	//char name_rootfile[100];
-	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_%gGamma_%gGamma.root", E0, EG, EG_2);
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0_2Gamma.png", E0);
 	//c->Print(name_rootfile);
 }
 
@@ -592,10 +601,10 @@ void Draw_Gamma_Pol1(int E0, double EG, int xL, int xR, const std::vector<double
 	h->SetTitle("Fit with pol1(x)+gaus(x)+gaus1(x)");
 	c->Update();
 	char name_image[100];
-	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1_%gGamma.png", E0, EG);
+	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1_1Gamma.png", E0);
 	c->Print(name_image);
 	//char name_rootfile[100];
-	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_%gGamma.root", E0, EG);
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_1Gamma.png", E0);
 	//c->Print(name_rootfile);
 }
 
@@ -625,10 +634,10 @@ void Draw_TwoGamma_Pol1(int E0, double EG, double EG_2, int xL, int xR, const st
 	h->SetTitle("Fit with pol1(x)+gaus(x)+gaus1(x)+gaus2(x)");
 	c->Update();
 	char name_image[100];
-	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1_%gGamma_%gGamma.png", E0, EG, EG_2);
+	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol1_2Gamma.png", E0);
 	c->Print(name_image);
 	//char name_rootfile[100];
-	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_%gGamma_%gGamma.root", E0, EG, EG_2);
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol1_2Gamma.png", E0);
 	//c->Print(name_rootfile);
 }
 
@@ -690,10 +699,10 @@ void Draw_Gamma_Pol2(int E0, double EG, int xL, int xR, const std::vector<double
 	h->SetTitle("Fit with pol2(x)+gaus(x)+gaus1(x)");
 	c->Update();
 	char name_image[100];
-	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2_%gGamma.png", E0, EG);
+	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2_1Gamma.png", E0);
 	c->Print(name_image);
 	//char name_rootfile[100];
-	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_%gGamma.root", E0, EG);
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_1Gamma.png", E0);
 	//c->Print(name_rootfile);
 }
 
@@ -724,9 +733,9 @@ void Draw_TwoGamma_Pol2(int E0, double EG, double EG_2, int xL, int xR, const st
 	h->SetTitle("Fit with pol2(x)+gaus(x)+gaus1(x)+gaus2(x)");
 	c->Update();
 	char name_image[100];
-	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2_%gGamma_%gGamma.png", E0, EG, EG_2);
+	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol2_2Gamma.png", E0);
 	c->Print(name_image);
 	//char name_rootfile[100];
-	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_%gGamma_%gGamma.root", E0, EG, EG_2);
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol2_2Gamma.png", E0);
 	//c->Print(name_rootfile);
 }

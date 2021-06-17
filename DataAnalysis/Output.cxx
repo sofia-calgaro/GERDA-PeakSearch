@@ -28,10 +28,10 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	double E2 = DblResults.at(55);
 
 	char name_file[200];
-	sprintf(name_file, "/home/sofia/Analysis/DataAnalysis/JsonFiles/JsonFile%i.json", E0);
+	sprintf(name_file, "/home/sofia/Analysis/DataAnalysis/JsonFiles/IC_PSD/JsonFile%i.json", E0);
 	std::fstream file;
 	file.open(name_file, std::ios::out);
-	
+	/*
 	// signal counts VS E0
 	std::fstream file_counts;
 	file_counts.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/counts_VS_E0.txt", std::ios_base::app);
@@ -59,7 +59,7 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 		if ( !file_p2 ) { file_p2.open("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/p2_VS_E0.txt", std::ios::out); }
 		file_p2 << E0 << "\t" <<  params.at(3) << "\t" << DblResults.at(48) << "\t" << DblResults.at(49) << std::endl;
 	}
-	
+	*/
 		
 	//----------------------------------------------------------------------------------
 	// Global mode
@@ -477,9 +477,9 @@ void Draw_Pol0(int E0, int xL, int xR, const std::vector<double> params, TH1D *h
 	char name_image[100];
 	sprintf(name_image, "/home/sofia/Analysis/DataAnalysis/Plot/fit_%iGausPol0.png", E0);
 	c->Print(name_image);
-	char name_rootfile[100];
-	sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0.root", E0);
-	c->Print(name_rootfile);
+	//char name_rootfile[100];
+	//sprintf(name_rootfile, "/home/sofia/Analysis/DataAnalysis/Root_files/fit_%iGausPol0.root", E0);
+	//c->Print(name_rootfile);
 }
 
 

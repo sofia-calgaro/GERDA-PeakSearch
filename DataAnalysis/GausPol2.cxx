@@ -10,6 +10,46 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 	    int *max_height = FindMaximumSignalHeight( E0, E1, E2, bin_content, xL, xR, outputK);
 	    double min_p0=0, max_p0=0, min_p1=0, max_p1=0, min_p2=0, max_p2=0;
 	    
+	    int i=0; // constant
+	    if ( rng[0]==0 ) { i=10; }
+	    if ( rng[0]==1 ) { i=15; }
+	    if ( rng[0]==2 ) { i=20; }
+	    if ( rng[0]==3 ) { i=25; }
+	    if ( rng[0]==4 ) { i=30; }
+	    if ( rng[0]==5 ) { i=40; }
+	    if ( rng[0]==6 ) { i=50; }
+	    if ( rng[0]==7 ) { i=60; }
+	    if ( rng[0]==8 ) { i=70; }
+	    if ( rng[0]==9 ) { i=80; }
+	    if ( rng[0]==10 ) { i=90; }
+	    if ( rng[0]==11 ) { i=100; }
+	    int j=0; // slope
+	    if ( rng[1]==0 ) { j=10; }
+	    if ( rng[1]==1 ) { j=15; }
+	    if ( rng[1]==2 ) { j=20; }
+	    if ( rng[1]==3 ) { j=25; }
+	    if ( rng[1]==4 ) { j=30; }
+	    if ( rng[1]==5 ) { j=40; }
+	    if ( rng[1]==6 ) { j=50; }
+	    if ( rng[1]==7 ) { j=60; }
+	    if ( rng[1]==8 ) { j=70; }
+	    if ( rng[1]==9 ) { j=80; }
+	    if ( rng[1]==10 ) { j=90; }
+	    if ( rng[1]==11 ) { j=100; }
+	    int l=0; // curvature
+	    if ( rng[2]==0 ) { l=10; }
+	    if ( rng[2]==1 ) { l=15; }
+	    if ( rng[2]==2 ) { l=20; }
+	    if ( rng[2]==3 ) { l=25; }
+	    if ( rng[2]==4 ) { l=30; }
+	    if ( rng[2]==5 ) { l=40; }
+	    if ( rng[2]==6 ) { l=50; }
+	    if ( rng[2]==7 ) { l=60; }
+	    if ( rng[2]==8 ) { l=70; }
+	    if ( rng[2]==9 ) { l=80; }
+	    if ( rng[2]==10 ) { l=90; }
+	    if ( rng[2]==11 ) { l=100; }
+	    
 	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 	 	    double *output_pol2 = FindRange_Pol2( E0, bin_content, max_height);
 		
@@ -18,54 +58,20 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    if ( rng[0]==0 ) {
-		    	min_p0 = output_pol2[0]-10*output_pol2[1];
-		    	max_p0 = output_pol2[0]+10*output_pol2[1];
-		    }
-		    if ( rng[0]==1 ) {
-		    	min_p0 = output_pol2[0]-15*output_pol2[1];
-		    	max_p0 = output_pol2[0]+15*output_pol2[1];
-		    }
-		    if ( rng[0]==2 ) {
-		    	min_p0 = output_pol2[0]-20*output_pol2[1];
-		    	max_p0 = output_pol2[0]+20*output_pol2[1];
-		    }
+		    min_p0 = output_pol2[0]-i*output_pol2[1];
+		    max_p0 = output_pol2[0]+i*output_pol2[1];
 		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 3) Slope (index 2)
-		    if ( rng[1]==0 ) {
-		    	min_p1 = output_pol2[2]-10*output_pol2[3];
-		    	max_p1 = output_pol2[2]+10*output_pol2[3];
-		    }
-		    if ( rng[1]==1 ) {
-		    	min_p1 = output_pol2[2]-15*output_pol2[3];
-		    	max_p1 = output_pol2[2]+15*output_pol2[3];
-		    }
-		    if ( rng[1]==2 ) {
-		    	min_p1 = output_pol2[2]-20*output_pol2[3];
-		    	max_p1 = output_pol2[2]+20*output_pol2[3];
-		    }
+		    min_p1 = output_pol2[2]-j*output_pol2[3];
+		    max_p1 = output_pol2[2]+j*output_pol2[3];
 		    AddParameter("p1", min_p1, max_p1, "p1", "[events/keV]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Quadratic term (index 3)
-		    if ( rng[2]==0 ) {
-		    	min_p2 = output_pol2[4]-10*output_pol2[5];
-		    	max_p2 = output_pol2[4]+10*output_pol2[5];
-		    }
-		    if ( rng[2]==1 ) {
-		    	min_p2 = output_pol2[4]-15*output_pol2[5];
-		    	max_p2 = output_pol2[4]+15*output_pol2[5];
-		    }
-		    if ( rng[2]==2 ) {
-		    	min_p2 = output_pol2[4]-20*output_pol2[5];
-		    	max_p2 = output_pol2[4]+20*output_pol2[5];
-		    }
-		    if ( rng[2]==3 ) {
-		    	min_p2 = output_pol2[4]-25*output_pol2[5];
-		    	max_p2 = output_pol2[4]+25*output_pol2[5];
-		    }
+		    min_p2 = output_pol2[4]-l*output_pol2[5];
+		    max_p2 = output_pol2[4]+l*output_pol2[5];
 		    AddParameter("p2", min_p2, max_p2, "p2", "[events/keV^2]");
 		    GetParameters().Back().SetPriorConstant();
             }
@@ -79,54 +85,20 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    if ( rng[0]==0 ) {
-		    	min_p0 = output_G_pol2[0]-10*output_G_pol2[1];
-		    	max_p0 = output_G_pol2[0]+10*output_G_pol2[1];
-		    }
-		    if ( rng[0]==1 ) {
-		    	min_p0 = output_G_pol2[0]-15*output_G_pol2[1];
-		    	max_p0 = output_G_pol2[0]+15*output_G_pol2[1];
-		    }
-		    if ( rng[0]==2 ) {
-		    	min_p0 = output_G_pol2[0]-20*output_G_pol2[1];
-		    	max_p0 = output_G_pol2[0]+20*output_G_pol2[1];
-		    }
+		    min_p0 = output_G_pol2[0]-i*output_G_pol2[1];
+		    max_p0 = output_G_pol2[0]+i*output_G_pol2[1];
 		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 3) Slope (index 2)
-		    if ( rng[1]==0 ) {
-		    	min_p1 = output_G_pol2[2]-10*output_G_pol2[3];
-		    	max_p1 = output_G_pol2[2]+10*output_G_pol2[3];
-		    }
-		    if ( rng[1]==1 ) {
-		    	min_p1 = output_G_pol2[2]-15*output_G_pol2[3];
-		    	max_p1 = output_G_pol2[2]+15*output_G_pol2[3];
-		    }
-		    if ( rng[1]==2 ) {
-		    	min_p1 = output_G_pol2[2]-20*output_G_pol2[3];
-		    	max_p1 = output_G_pol2[2]+20*output_G_pol2[3];
-		    }
+		    min_p1 = output_G_pol2[2]-j*output_G_pol2[3];
+		    max_p1 = output_G_pol2[2]+j*output_G_pol2[3];
 		    AddParameter("p1", min_p1, max_p1, "p1", "[events/keV]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Quadratic term (index 3)
-		    if ( rng[2]==0 ) {
-		    	min_p2 = output_G_pol2[4]-10*output_G_pol2[5];
-		    	max_p2 = output_G_pol2[4]+10*output_G_pol2[5];
-		    }
-		    if ( rng[2]==1 ) {
-		    	min_p2 = output_G_pol2[4]-15*output_G_pol2[5];
-		    	max_p2 = output_G_pol2[4]+15*output_G_pol2[5];
-		    }
-		    if ( rng[2]==2 ) {
-		    	min_p2 = output_G_pol2[4]-20*output_G_pol2[5];
-		    	max_p2 = output_G_pol2[4]+20*output_G_pol2[5];
-		    }
-		    if ( rng[2]==3 ) {
-		    	min_p2 = output_G_pol2[4]-25*output_G_pol2[5];
-		    	max_p2 = output_G_pol2[4]+25*output_G_pol2[5];
-		    }
+		    min_p2 = output_G_pol2[4]-l*output_G_pol2[5];
+		    max_p2 = output_G_pol2[4]+l*output_G_pol2[5];
 		    AddParameter("p2", min_p2, max_p2, "p2", "[events/keV^2]");
 		    GetParameters().Back().SetPriorConstant();
 		    
@@ -145,54 +117,20 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    if ( rng[0]==0 ) {
-		    	min_p0 = output_2G_pol2[0]-10*output_2G_pol2[1];
-		    	max_p0 = output_2G_pol2[0]+10*output_2G_pol2[1];
-		    }
-		    if ( rng[0]==1 ) {
-		    	min_p0 = output_2G_pol2[0]-15*output_2G_pol2[1];
-		    	max_p0 = output_2G_pol2[0]+15*output_2G_pol2[1];
-		    }
-		    if ( rng[0]==2 ) {
-		    	min_p0 = output_2G_pol2[0]-20*output_2G_pol2[1];
-		    	max_p0 = output_2G_pol2[0]+20*output_2G_pol2[1];
-		    }
+		    min_p0 = output_2G_pol2[0]-i*output_2G_pol2[1];
+		    max_p0 = output_2G_pol2[0]+i*output_2G_pol2[1];
 		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 3) Slope (index 2)
-		    if ( rng[1]==0 ) {
-		    	min_p1 = output_2G_pol2[2]-10*output_2G_pol2[3];
-		    	max_p1 = output_2G_pol2[2]+10*output_2G_pol2[3];
-		    }
-		    if ( rng[1]==1 ) {
-		    	min_p1 = output_2G_pol2[2]-15*output_2G_pol2[3];
-		    	max_p1 = output_2G_pol2[2]+15*output_2G_pol2[3];
-		    }
-		    if ( rng[1]==2 ) {
-		    	min_p1 = output_2G_pol2[2]-20*output_2G_pol2[3];
-		    	max_p1 = output_2G_pol2[2]+20*output_2G_pol2[3];
-		    }
+		    min_p1 = output_2G_pol2[2]-j*output_2G_pol2[3];
+		    max_p1 = output_2G_pol2[2]+j*output_2G_pol2[3];
 		    AddParameter("p1", min_p1, max_p1, "p1", "[events/keV]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Quadratic term (index 3)
-		    if ( rng[2]==0 ) {
-		    	min_p2 = output_2G_pol2[4]-10*output_2G_pol2[5];
-		    	max_p2 = output_2G_pol2[4]+10*output_2G_pol2[5];
-		    }
-		    if ( rng[2]==1 ) {
-		    	min_p2 = output_2G_pol2[4]-15*output_2G_pol2[5];
-		    	max_p2 = output_2G_pol2[4]+15*output_2G_pol2[5];
-		    }
-		    if ( rng[2]==2 ) {
-		    	min_p2 = output_2G_pol2[4]-20*output_2G_pol2[5];
-		    	max_p2 = output_2G_pol2[4]+20*output_2G_pol2[5];
-		    }
-		    if ( rng[2]==3 ) {
-		    	min_p2 = output_2G_pol2[4]-25*output_2G_pol2[5];
-		    	max_p2 = output_2G_pol2[4]+25*output_2G_pol2[5];
-		    }
+		    min_p2 = output_2G_pol2[4]-l*output_2G_pol2[5];
+		    max_p2 = output_2G_pol2[4]+l*output_2G_pol2[5];
 		    AddParameter("p2", min_p2, max_p2, "p2", "[events/keV^2]");
 		    GetParameters().Back().SetPriorConstant();
 		    

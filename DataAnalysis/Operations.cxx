@@ -4,7 +4,9 @@
 // **********************************************************************************************************************
 #include "Operations.h"
 
-const int thr = 165;
+//const int thr = 195; // coax
+//const int thr = 165; // BEGe
+const int thr = 0; // IC
 
 //=======================================================================================================================
 // Returns 'true' only if b > a
@@ -18,8 +20,10 @@ bool FindMax(int a, int b) {
 // Calculates the energetic resolution for a given energy value 
 double FindSigma(int energy) {
 
-   const double a = 0.280;   // a=0.280(2) keV^2 (electronic noise)
-   const double b = 5.83e-4; // b=5.83e-004(2) keV (fluctuation of the # of charge carriers)
+   //const double a = 0.551;   // keV^2 (electronic noise)
+   //const double b = 4.294e-4; // keV (fluctuation of the # of charge carriers)
+   const double a = 0.28;   // keV^2 (electronic noise)
+   const double b = 5.83e-4;
 
    double sigma =  sqrt( a + b*energy );
 
@@ -32,8 +36,10 @@ double FindSigma(int energy) {
 // Calculates the FWHM for a given energy value
 double FindFWHM(int energy) {
 
-   const double a = 0.280;   
-   const double b = 5.83e-4; 
+   //const double a = 0.551;   // keV^2 (electronic noise)
+   //const double b = 4.294e-4; // keV (fluctuation of the # of charge carriers)
+   const double a = 0.28;   // keV^2 (electronic noise)
+   const double b = 5.83e-4;
 
    double FWHM = sqrt( 8*log(2) ) * sqrt( a + b*energy );
 

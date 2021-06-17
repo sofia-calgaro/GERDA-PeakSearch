@@ -10,11 +10,12 @@ readonly b=0.000583
 
 #------------------------------------------------------------------------------------------------------------------------------------------ 
 
-thr=165 # BEGe
-#thr=195 # coax
-
 E0=$1
 num_E0=$2
+
+thr=0
+
+printf " E0 = $E0;\n num_energies = $num_E0;\n thr = $thr\n\n"
 
 #read -p " What energy (E0>=40) do you want to study? "  E0 # -p = to assign the input value to the variable E0
 
@@ -420,20 +421,28 @@ do
 	fi
 	
 	
-	if (( $(echo "$E0>$thr-20" | bc -l) )) && (( $(echo "$E0<$thr" | bc -l) ))
+	if [ "$xL" -lt "$thr" ] && [ "$xR" -gt "$thr" ] 
 	then
-		xR=`echo "$thr-1+0.1" | bc -l | awk '{printf "%f", $0}'`
+		if [ "$E0" -lt "$thr" ]
+		then
+			xR=`echo "$thr+0.1" | bc -l | awk '{printf "%f", $0}'`
+		elif [ "$E0" -ge "$thr" ] 
+		then
+			xL=`echo "$thr+0.1" | bc -l | awk '{printf "%f", $0}'`	
+		else
+			printf ""
+		fi
 	else
 		printf ""
 	fi
-	if (( $(echo "$E0>=$thr" | bc -l) )) && (( $(echo "$E0<$thr+20" | bc -l) ))
-	then
-		xL=`echo "$thr+0.1" | bc -l | awk '{printf "%f", $0}'`
-	else
-		printf ""
-	fi
+	#if [ "$xL" -lt "$thr" ] && [ "$xR" -gt "$thr" ] && [ "$E0" -gt "$thr" ]
+	#then
+	#	xL=`echo "$thr+0.1" | bc -l | awk '{printf "%f", $0}'`
+	#else
+	#	printf ""
+	#fi
 	
-
+	
 	# calculation of bins
 	delta=`echo "$xR-$xL" | bc -l`
 	bins=`echo $delta | bc -l | awk '{print ($0-int($0)<0.499)?int($0):int($0)+1}'` 
@@ -454,8 +463,6 @@ do
 	fi
 
 	printf " k = $k -> outputK = $outputK\n\n"
-
-
 
 	#------------------------------------------------------------------------------------------------------------------------------------------ POL-DEGREE
 	if [ "$E0" -lt 120 ]
@@ -483,14 +490,27 @@ do
 	rng0=0 # range for p0 range
 	rng1=0 # range for p1 range
 	rng2=0 # range for p2 range
-	# NOTA: if rngX=0, the range in models will be x+-10*sigma
-	#	if rngX=1, the range in models will be x+-15*sigma
-	#	if rngX=2, the range in models will be x+-20*sigma
-	#	if rng2=3, the range in models will be x+-25*sigma
+	# NOTA: the range is modified from x+-10*sigma up to x+-100*sigma
 	
-	while [[ "$ck0" != 0 || "$ck1" != 0 || "$ck2" != 0 ]] && [[ "$rng0" < 3 && "$rng1" < 3 && "$rng2" < 4 ]]
+	while [[ "$ck0" != 0 || "$ck1" != 0 || "$ck2" != 0 ]] && [[ "$rng0" < 12 && "$rng1" < 12 && "$rng2" < 12 ]]
 	do
-		./runDataAnalysis --nums 9 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" "$rng0" "$rng1" "$rng2" &&
+		warnings=20000
+		while [ "$warnings" -gt 10000 ]
+		do
+			warnings=0
+			./runDataAnalysis --nums 9 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" "$rng0" "$rng1" "$rng2" &&
+			
+			#=======================================================
+			declare -a txt_array # array of the .txt content
+			txt_array=(`cat "output.txt"`) &&
+
+			for j in ${txt_array[@]}
+			do
+				let warnings+=$j
+			done &&
+			printf "\n\t WARNINGS = $warnings \n"
+			> "output.txt" 
+		done
 		
 		name_model=""
 		# 0 gamma peaks

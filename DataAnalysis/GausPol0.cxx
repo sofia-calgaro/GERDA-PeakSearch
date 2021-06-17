@@ -10,6 +10,20 @@ GausPol0::GausPol0(const std::string& name, std::vector<int> bin_content, int E0
 	    int *max_height = FindMaximumSignalHeight( E0, E1, E2, bin_content, xL, xR, outputK);
 	    double min_p0=0, max_p0=0;
 	    
+	    int i=0; // constant
+	    if ( rng[0]==0 ) { i=10; }
+	    if ( rng[0]==1 ) { i=15; }
+	    if ( rng[0]==2 ) { i=20; }
+	    if ( rng[0]==3 ) { i=25; }
+	    if ( rng[0]==4 ) { i=30; }
+	    if ( rng[0]==5 ) { i=40; }
+	    if ( rng[0]==6 ) { i=50; }
+	    if ( rng[0]==7 ) { i=60; }
+	    if ( rng[0]==8 ) { i=70; }
+	    if ( rng[0]==9 ) { i=80; }
+	    if ( rng[0]==10 ) { i=90; }
+	    if ( rng[0]==11 ) { i=100; }
+	    
 	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {
 		    double *output_pol0 = FindRange_Pol0( E0, bin_content, max_height, xL, xR);
 		    
@@ -18,18 +32,8 @@ GausPol0::GausPol0(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    if ( rng[0]==0 ) {
-		    	min_p0 = output_pol0[0]-10*output_pol0[1];
-		    	max_p0 = output_pol0[0]+10*output_pol0[1];
-		    }
-		    if ( rng[0]==1 ) {
-		    	min_p0 = output_pol0[0]-15*output_pol0[1];
-		    	max_p0 = output_pol0[0]+15*output_pol0[1];
-		    }
-		    if ( rng[0]==2 ) {
-		    	min_p0 = output_pol0[0]-20*output_pol0[1];
-		    	max_p0 = output_pol0[0]+20*output_pol0[1];
-		    }
+		    min_p0 = output_pol0[0]-i*output_pol0[1];
+		    max_p0 = output_pol0[0]+i*output_pol0[1];
 		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
             }
@@ -43,18 +47,8 @@ GausPol0::GausPol0(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    if ( rng[0]==0 ) {
-		    	min_p0 = output_G_pol0[0]-10*output_G_pol0[1];
-		    	max_p0 = output_G_pol0[0]+10*output_G_pol0[1];
-		    }
-		    if ( rng[0]==1 ) {
-		    	min_p0 = output_G_pol0[0]-15*output_G_pol0[1];
-		    	max_p0 = output_G_pol0[0]+15*output_G_pol0[1];
-		    }
-		    if ( rng[0]==2 ) {
-		    	min_p0 = output_G_pol0[0]-20*output_G_pol0[1];
-		    	max_p0 = output_G_pol0[0]+20*output_G_pol0[1];
-		    }
+		    min_p0 = output_G_pol0[0]-i*output_G_pol0[1];
+		    max_p0 = output_G_pol0[0]+i*output_G_pol0[1];
 		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
@@ -73,18 +67,8 @@ GausPol0::GausPol0(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
-		    if ( rng[0]==0 ) {
-		    	min_p0 = output_2G_pol0[0]-10*output_2G_pol0[1];
-		    	max_p0 = output_2G_pol0[0]+10*output_2G_pol0[1];
-		    }
-		    if ( rng[0]==1 ) {
-		    	min_p0 = output_2G_pol0[0]-15*output_2G_pol0[1];
-		    	max_p0 = output_2G_pol0[0]+15*output_2G_pol0[1];
-		    }
-		    if ( rng[0]==2 ) {
-		    	min_p0 = output_2G_pol0[0]-20*output_2G_pol0[1];
-		    	max_p0 = output_2G_pol0[0]+20*output_2G_pol0[1];
-		    }
+		    min_p0 = output_2G_pol0[0]-i*output_2G_pol0[1];
+		    max_p0 = output_2G_pol0[0]+i*output_2G_pol0[1];
 		    AddParameter("p0", min_p0, max_p0, "p0", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    

@@ -1,9 +1,5 @@
 ## gerda-BATanalysis
-* **"peak_search.sh"**: starting program for the analysis. It requires as input parameters the central energy (_E0_) of the fit window; execute it by using:
-```
-$ chmod +x peak_search.sh 
-$ ./peak_search.sh 
-```
+* **"peak_search.sh"**: starting program for the analysis. It requires as input parameters the central energy (_E0_) of the fit window.
 * **"runDataAnalysis.cxx"**: main program for the analysis. It takes six input values (_E0, pol_degree, xL, xR, k, output(k)_) directly from the analysis performed in "peak_search.sh":
   * _pol_degree_ for the BKG is 0, 1, or 2;
   * _xL_ (_xR_) is the left (right) energy limit for the fit window centered in _E0_;
@@ -17,6 +13,5 @@ $ ./peak_search.sh
   * creates a JSON file containing the "peak_search.sh" results together with the BAT results; it requires the class _json.hpp_ (see [nlohmann/json](https://github.com/nlohmann/json));
   * draws the experimental data together with the fit result.
 * **"read_JSON.cpp"**: file that read JSON files and create .txt files containing BAT fit results.
-
 * **"PosteriorCheck.C"**: to analyze marginalized posteriors and see if they are cut or not.
-* **"par_VS_E0.C"**: to plot results as a function of the energy.
+* **"par_VS_E0.C"**: to plot fit results as a function of the energy.

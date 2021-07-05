@@ -4,7 +4,6 @@
 // **********************************************************************************************************************
 #include "Operations.h"
 
-//const int thr = 195; // coax
 //const int thr = 165; // BEGe
 const int thr = 0; // IC
 
@@ -22,7 +21,7 @@ double FindSigma(int energy) {
 
    //const double a = 0.551;   // keV^2 (electronic noise)
    //const double b = 4.294e-4; // keV (fluctuation of the # of charge carriers)
-   const double a = 0.28;   // keV^2 (electronic noise)
+   const double a = 0.28;
    const double b = 5.83e-4;
 
    double sigma =  sqrt( a + b*energy );
@@ -38,7 +37,7 @@ double FindFWHM(int energy) {
 
    //const double a = 0.551;   // keV^2 (electronic noise)
    //const double b = 4.294e-4; // keV (fluctuation of the # of charge carriers)
-   const double a = 0.28;   // keV^2 (electronic noise)
+   const double a = 0.28;
    const double b = 5.83e-4;
 
    double FWHM = sqrt( 8*log(2) ) * sqrt( a + b*energy );

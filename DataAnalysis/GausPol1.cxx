@@ -24,6 +24,11 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 	    if ( rng[0]==9 ) { i=80; }
 	    if ( rng[0]==10 ) { i=90; }
 	    if ( rng[0]==11 ) { i=100; }
+	    if ( rng[0]==12 ) { i=120; }
+	    if ( rng[0]==13 ) { i=140; }
+	    if ( rng[0]==14 ) { i=160; }
+	    if ( rng[0]==15 ) { i=180; }
+	    if ( rng[0]==16 ) { i=200; }
 	    int j=0; // slope
 	    if ( rng[1]==0 ) { j=10; }
 	    if ( rng[1]==1 ) { j=15; }
@@ -37,6 +42,11 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 	    if ( rng[1]==9 ) { j=80; }
 	    if ( rng[1]==10 ) { j=90; }
 	    if ( rng[1]==11 ) { j=100; }
+	    if ( rng[1]==12 ) { j=120; }
+	    if ( rng[1]==13 ) { j=140; }
+	    if ( rng[1]==14 ) { j=160; }
+	    if ( rng[1]==15 ) { j=180; }
+	    if ( rng[1]==16 ) { j=200; }
 	    
 	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {
 		    double *output_pol1 = FindRange_Pol1( E0, bin_content, max_height);
@@ -134,7 +144,7 @@ double GausPol1::LogLikelihood(const std::vector<double>& pars)
 	    
             for ( int i=xL; i<xR; i++ ) {
 		    
-                    int y_obs =  GetDataSet()->GetDataPoint(i-1).GetValue(0); // observed value ( 0 = 1st column )
+                    int y_obs =  GetDataSet()->GetDataPoint(i).GetValue(0); // observed value ( 0 = 1st column )
                     double y_exp = 0;
                     
                     // expected value

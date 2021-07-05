@@ -84,6 +84,10 @@ int *all() {
 	line4->SetLineColor(kGray+2);
 	line4->SetLineStyle(9);
 	line4->Draw();
+	TLine *line12 = new TLine(478.3, 0, 478.3, y_max);
+	line12->SetLineColor(kGray+2);
+	line12->SetLineStyle(9);
+	line12->Draw();
 	TLine *line5 = new TLine(511, 0, 511, y_max);
 	line5->SetLineColor(kGray+2);
 	line5->SetLineStyle(9);
@@ -111,7 +115,7 @@ int *all() {
 	
 	if ( A!=2 ) {
 		auto *legend = new TLegend(.65, .75, .88, .88);
-		legend->AddEntry(g1, "EnrBEGe (II, II+) - 90%  C.L.", "l");
+		legend->AddEntry(g1, "EnrBEGe (II, II+) - 90%  upper limit", "l");
 		legend->AddEntry(line1, "Background #gamma", "l");
 		TLine *line11 = new TLine(thr, 0, thr, y_max);
 		line11->SetLineColor(kRed);
@@ -125,7 +129,7 @@ int *all() {
 	}
 	if ( A==2 ) {
 		auto *legend = new TLegend(.75, .75, .88, .88);
-		legend->AddEntry(g1, "IC (II+) - 90%  C.L.", "l");
+		legend->AddEntry(g1, "IC (II+) - 90%  upper limit", "l");
 		legend->AddEntry(line1, "Background #gamma", "l");
 		legend->Draw();
 	}
@@ -135,7 +139,7 @@ int *all() {
 	if ( A==0 ) { c1->SaveAs("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/coax/counts_VS_E0.png"); }
 	if ( A==1 ) { c1->SaveAs("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/BEGe/counts_VS_E0.png"); }
 	if ( A==2 ) { c1->SaveAs("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/IC/counts_VS_E0.png"); }
-/*	
+
 	//========================================================================================================== p0 VS E0
 	if ( A==0 ) { sprintf(file_g2, "/home/sofia/Analysis/DataAnalysis/ReadJSON/coax/p0_VS_E0.txt"); }	
 	if ( A==1 ) { sprintf(file_g2, "/home/sofia/Analysis/DataAnalysis/ReadJSON/BEGe/p0_VS_E0.txt"); }
@@ -270,7 +274,7 @@ int *all() {
 		if ( A==1 ) { c4->SaveAs("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/BEGe/p2_VS_E0.png"); }
 		if ( A==2 ) { c4->SaveAs("/home/sofia/Analysis/DataAnalysis/Par_VS_E0/IC/p2_VS_E0.png"); }
 	}
-*/	
+
 	return 0;
 }
 

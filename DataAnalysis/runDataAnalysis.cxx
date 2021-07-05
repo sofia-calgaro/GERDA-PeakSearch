@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     }
       
     //---------------------------------------------------------------------------------------------------------------------- DATA LOADING   
-    TFile *file = new TFile("/home/sofia/53_114_PSD/PSD_20210615_IC.root","READ");
+    TFile *file = new TFile("/home/sofia/gerda_data/53_114_PSD/PSD_20210615_IC.root","READ");
     //TFile *file = new TFile("/home/sofia/gerda_data/20210528/IC_20210528_coax.root","READ");
     TH1D *h = (TH1D*) file->Get("histo_energy_LAr");
     std::vector< int> bin_content;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         		
     // create a new dataset
     BCDataSet data_set;
-    data_set.ReadDataFromFileTxt("/home/sofia/53_114_PSD/bin_content_PSD_IC.txt", 1);
+    data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/53_114_PSD/bin_content_PSD_IC.txt", 1);
     //data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/20210528/bin_content_coax.txt", 1);
     
     // create a new data point: E0 (5201)

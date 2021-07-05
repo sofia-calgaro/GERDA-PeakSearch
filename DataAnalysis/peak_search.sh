@@ -5,7 +5,9 @@
 E_gamma=('238.6' '242' '295.2' '352' '478.3' '511' '514' '583.2' '609.3' '911.2' '969' '1460.8' '1524.6')
 numGamma=${#E_gamma[@]}
 
-readonly a=0.28 # readonly = constant value
+#readonly a=0.551 # readonly = constant value
+#readonly b=0.0004294
+readonly a=0.28
 readonly b=0.000583
 
 #------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -17,26 +19,8 @@ thr=0
 
 printf " E0 = $E0;\n num_energies = $num_E0;\n thr = $thr\n\n"
 
-#read -p " What energy (E0>=40) do you want to study? "  E0 # -p = to assign the input value to the variable E0
-
-#if [ "$E0" -lt 40 ]
-#then
-#	while [ "$E0" -lt 40 ]
-#	do
-#		echo " E0 IS TOO LOW! "
-#		read -p " What energy (E0>=40) do you want to study? "  E0
-#	done
-#fi
-
-#read -p " How many energies do you want to study? " num_E0
-#read -p " Which threshold: 165 (BEGe) or 195 (coax)? " thr
-#echo " You will study energies inside [$E0;$(( num_E0+E0-1  ))]"
-
 make clean
 make -s
-
-# to remove already existing root files
-#find MarginalizedROOT/ -type f -delete
 
 #=============================================== WHILE LOOP over E0
 max_E0=`echo "$(( E0+num_E0 ))" | bc`
@@ -480,9 +464,6 @@ do
 
 
 	#------------------------------------------------------------------------------------------------------------------------------------------ ANALYSIS
-	#make clean
-	#time make -s
-
 	ck0=1 # check for p0 range
 	ck1=1 # check for p1 range
 	ck2=1 # check for p2 range
@@ -492,10 +473,10 @@ do
 	rng2=0 # range for p2 range
 	# NOTA: the range is modified from x+-10*sigma up to x+-100*sigma
 	
-	while [[ "$ck0" != 0 || "$ck1" != 0 || "$ck2" != 0 ]] && [[ "$rng0" < 12 && "$rng1" < 12 && "$rng2" < 12 ]]
+	while [[ "$ck0" != 0 || "$ck1" != 0 || "$ck2" != 0 ]] # && [[ "$rng0" < 12 && "$rng1" < 12 && "$rng2" < 12 ]]
 	do
-		warnings=20000
-		while [ "$warnings" -gt 10000 ]
+		warnings=30000
+		while [ "$warnings" -gt 22000 ]
 		do
 			warnings=0
 			./runDataAnalysis --nums 9 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" "$rng0" "$rng1" "$rng2" &&
@@ -577,6 +558,15 @@ do
 		if [ "$ck2" -eq 1 ]
 		then 
 			rng2=`echo "$(( rng2+1 ))" | bc`
+		fi
+		
+		printf "\n\t ck0 = $ck0 \n"
+		printf "\t ck1 = $ck1 \n"
+		printf "\t ck2 = $ck2 \n"
+		
+		if [[ "$rng0" -gt 16 || "$rng1" -gt 16 || "$rng2" -gt 16 ]]
+		then
+			break
 		fi	
 		
 	done

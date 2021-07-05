@@ -23,6 +23,11 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 	    if ( rng[0]==9 ) { i=80; }
 	    if ( rng[0]==10 ) { i=90; }
 	    if ( rng[0]==11 ) { i=100; }
+	    if ( rng[0]==12 ) { i=120; }
+	    if ( rng[0]==13 ) { i=140; }
+	    if ( rng[0]==14 ) { i=160; }
+	    if ( rng[0]==15 ) { i=180; }
+	    if ( rng[0]==16 ) { i=200; }
 	    int j=0; // slope
 	    if ( rng[1]==0 ) { j=10; }
 	    if ( rng[1]==1 ) { j=15; }
@@ -36,6 +41,11 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 	    if ( rng[1]==9 ) { j=80; }
 	    if ( rng[1]==10 ) { j=90; }
 	    if ( rng[1]==11 ) { j=100; }
+	    if ( rng[1]==12 ) { j=120; }
+	    if ( rng[1]==13 ) { j=140; }
+	    if ( rng[1]==14 ) { j=160; }
+	    if ( rng[1]==15 ) { j=180; }
+	    if ( rng[1]==16 ) { j=200; }
 	    int l=0; // curvature
 	    if ( rng[2]==0 ) { l=10; }
 	    if ( rng[2]==1 ) { l=15; }
@@ -49,6 +59,11 @@ GausPol2::GausPol2(const std::string& name, std::vector<int> bin_content, int E0
 	    if ( rng[2]==9 ) { l=80; }
 	    if ( rng[2]==10 ) { l=90; }
 	    if ( rng[2]==11 ) { l=100; }
+	    if ( rng[2]==12 ) { l=120; }
+	    if ( rng[2]==13 ) { l=140; }
+	    if ( rng[2]==14 ) { l=160; }
+	    if ( rng[2]==15 ) { l=180; }
+	    if ( rng[2]==16 ) { l=200; }
 	    
 	    if ( outputK<=1 || outputK==4 || outputK==7 || (outputK>=13 && outputK<=15) || outputK==18 || outputK>=20 ) {
 	 	    double *output_pol2 = FindRange_Pol2( E0, bin_content, max_height);

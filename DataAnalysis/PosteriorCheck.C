@@ -22,7 +22,7 @@
 #include <fstream>
 #include <string>
 
-void PosteriorCheck(int E0, int pol_degree, const char *root_file) {
+void PosteriorCheck(int E0, int pol_degree, int outputK, const char *root_file) {
 
 	char name[200];
 	sprintf(name,"MarginalizedROOT/%i%s.root", E0, root_file);
@@ -50,6 +50,26 @@ void PosteriorCheck(int E0, int pol_degree, const char *root_file) {
 		hp2 = (TH1D*) file->Get(histo_p2);
 	}
 	
+	// E0, E1, E2 marginalized posterior histograms
+	char histo_E0[200];
+	sprintf(histo_E0, "h1_%i%s_parameter_E0_height", E0, root_file);
+	TH1D *hE0 = (TH1D*) file->Get(histo_E0);
+	// 1 peak
+	char histo_E1[200];
+	sprintf(histo_E1, "h1_%i%s_parameter_E1_height", E0, root_file);
+	TH1D *hE1 = new TH1D();
+	if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+		hE1 = (TH1D*) file->Get(histo_E1);
+	}
+	// 2 peaks
+	char histo_E2[200];
+	sprintf(histo_E2, "h1_%i%s_parameter_E2_height", E0, root_file);
+	TH1D *hE2 = new TH1D();
+	if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+		hE1 = (TH1D*) file->Get(histo_E1);
+		hE2 = (TH1D*) file->Get(histo_E2);
+	}
+	
 	// study of the 1st and last bin content
 	int p0FirstBin=0, p0LastBin=0, p1FirstBin=0, p1LastBin=0, p2FirstBin=0, p2LastBin=0;
 	p0FirstBin = hp0->GetBinContent(1);
@@ -65,15 +85,28 @@ void PosteriorCheck(int E0, int pol_degree, const char *root_file) {
 		p2LastBin = hp2->GetBinContent(hp2->GetNbinsX());
 	}
 	
-	int ck0=0, ck1=0, ck2=0;
+	int E0LastBin=0, E1LastBin=0, E2LastBin=0;
+	E0LastBin = hE0->GetBinContent(hE0->GetNbinsX());
+	if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+		E1LastBin = hE1->GetBinContent(hE1->GetNbinsX());
+	}
+	if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+		E1LastBin = hE1->GetBinContent(hE1->GetNbinsX());
+		E2LastBin = hE2->GetBinContent(hE2->GetNbinsX());
+	}
+	
+	int ck0=0, ck1=0, ck2=0, ckE0=0, ckE1=0, ckE2=0;
 	if ( p0FirstBin!=0 || p0LastBin!=0 ) { ck0 = 1; }
 	if ( p1FirstBin!=0 || p1LastBin!=0 ) { ck1 = 1; }
 	if ( p2FirstBin!=0 || p2LastBin!=0 ) { ck2 = 1; }
+	if ( E0LastBin!=0 ) { ckE0 = 1; }
+	if ( E1LastBin!=0 ) { ckE1 = 1; }
+	if ( E2LastBin!=0 ) { ckE2 = 1; }
 
 	
 	std::fstream file_out;
 	file_out.open("check_posterior.txt",std::ios::out);
-	file_out << ck0 << "\n" << ck1 << "\n" << ck2;
+	file_out << ck0 << "\n" << ck1 << "\n" << ck2 << "\n" << ckE0 << "\n" << ckE1 << "\n" << ck2;
 	file_out.close();
 }
 

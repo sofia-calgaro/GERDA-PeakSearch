@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     std::vector<std::string> args(argc);
     std::copy(argv, argv+argc, args.begin());
   
-    std::vector<int> inpval(10,0);
+    std::vector<int> inpval(13,0);
     bool found = fetch_arg(args, "--nums", inpval);
     
     if (found) {
@@ -34,20 +34,19 @@ int main(int argc, char *argv[])
     std::cout << "\n  xL = " << inpval[3] << "\n  xR = " << inpval[4] << "\n  k = " << inpval[5];
     std::cout << "\n  output[k] = " << inpval[6] << std::endl;
     std::cout << "\n  rng0 = " << inpval[7] << "\n  rng1 = " << inpval[8] << "\n  rng2 = " << inpval[9] << std::endl;
+    std::cout << "\n  rngE0 = " << inpval[10] << "\n  rngE1 = " << inpval[11] << "\n  rngE2 = " << inpval[12] << std::endl;
     std::cout << " *************************\n" << std::endl;
     }
       
     //---------------------------------------------------------------------------------------------------------------------- DATA LOADING   
-    TFile *file = new TFile("/home/sofia/gerda_data/53_114_PSD/PSD_20210615_IC.root","READ");
-    //TFile *file = new TFile("/home/sofia/gerda_data/20210528/IC_20210528_coax.root","READ");
-    TH1D *h = (TH1D*) file->Get("histo_energy_LAr");
+    TFile *file = new TFile("/home/sofia/gerda_data/53_114_PSD/BEGe_new/20210726_BEGe.root","READ");
+    TH1D *h = (TH1D*) file->Get("LAr");
     std::vector< int> bin_content;
     for ( int i=1; i<=5200; i++ ) { bin_content.push_back( h->GetBinContent(i) ); }
         		
     // create a new dataset
     BCDataSet data_set;
-    data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/53_114_PSD/bin_content_PSD_IC.txt", 1);
-    //data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/20210528/bin_content_coax.txt", 1);
+    data_set.ReadDataFromFileTxt("/home/sofia/gerda_data/53_114_PSD/BEGe_new/bin_content_BEGe.txt", 1);
     
     // create a new data point: E0 (5201)
     int E0 = inpval[1];
@@ -74,7 +73,7 @@ int main(int argc, char *argv[])
     int k = inpval[5];
     double E1 = 0;
     BCDataPoint* gammaEnergy = new BCDataPoint(1);
-    if ( k>=0 && k<numGamma ) { E1 = E_gamma[k]; } // when k=numGamma, we do not have gamma peaks ( we leave E1=0)
+    if ( k>=0 && k<numGamma ) { E1 = E_gamma[k]; } // when k=numGamma, we do not have gamma peaks ( we leave E1=0 )
     gammaEnergy->SetValue(0, E1); 
     data_set.AddDataPoint(*gammaEnergy);
        
@@ -94,7 +93,7 @@ int main(int argc, char *argv[])
     data_set.AddDataPoint(*gammaEnergy_2);
     
     // array of range-check parameters
-    int rng[3] = { inpval[7], inpval[8], inpval[9] };
+    int rng[6] = { inpval[7], inpval[8], inpval[9], inpval[10], inpval[11], inpval[12] };
         
     // open log file
     int pol_degree = inpval[2];
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
     BCLog::OpenLog(name_log, BCLog::detail, BCLog::detail);	
     
     // collection of some integer results
-    int IntResults[9] = { E0, xL, xR, k, outputK, pol_degree, rng[0], rng[1], rng[2]};
+    int IntResults[12] = { E0, xL, xR, k, outputK, pol_degree, rng[0], rng[1], rng[2], rng[3], rng[4], rng[5]};
     
     // set of the model name
     char name_model[100];

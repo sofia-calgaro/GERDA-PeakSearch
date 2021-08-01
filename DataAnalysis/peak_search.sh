@@ -5,17 +5,17 @@
 E_gamma=('238.6' '242' '295.2' '352' '478.3' '511' '514' '583.2' '609.3' '911.2' '969' '1460.8' '1524.6')
 numGamma=${#E_gamma[@]}
 
-#readonly a=0.551 # readonly = constant value
-#readonly b=0.0004294
-readonly a=0.28
-readonly b=0.000583
+readonly a=0.551 # readonly = constant value
+readonly b=0.0004294
+#readonly a=0.28
+#readonly b=0.000583
 
 #------------------------------------------------------------------------------------------------------------------------------------------ 
 
 E0=$1
 num_E0=$2
 
-thr=0
+thr=195
 
 printf " E0 = $E0;\n num_energies = $num_E0;\n thr = $thr\n\n"
 
@@ -449,10 +449,10 @@ do
 	printf " k = $k -> outputK = $outputK\n\n"
 
 	#------------------------------------------------------------------------------------------------------------------------------------------ POL-DEGREE
-	if [ "$E0" -lt 120 ]
+	if [ "$E0" -lt 195 ]
 	then
 		pol_degree=2
-	elif [ "$E0" -ge 120 ] && [ "$E0" -lt 1700 ]
+	elif [ "$E0" -ge 195 ] && [ "$E0" -lt 1700 ]
 	then
 		pol_degree=1
 	else
@@ -467,19 +467,25 @@ do
 	ck0=1 # check for p0 range
 	ck1=1 # check for p1 range
 	ck2=1 # check for p2 range
+	ckE0=0 # check for hE0 range
+	ckE1=0 # check for hE1 range
+	ckE2=0 # check for hE2 range
 	
 	rng0=0 # range for p0 range
 	rng1=0 # range for p1 range
 	rng2=0 # range for p2 range
+	rngE0=0 # range for hE0 range
+	rngE1=0 # range for hE1 range
+	rngE2=0 # range for hE2 range
 	# NOTA: the range is modified from x+-10*sigma up to x+-100*sigma
 	
-	while [[ "$ck0" != 0 || "$ck1" != 0 || "$ck2" != 0 ]] # && [[ "$rng0" < 12 && "$rng1" < 12 && "$rng2" < 12 ]]
+	while [[ "$ck0" != 0 || "$ck1" != 0 || "$ck2" != 0 || "$ckE0" != 0 || "$ckE1" != 0 || "$ckE2" != 0 ]] 
 	do
 		warnings=30000
 		while [ "$warnings" -gt 22000 ]
 		do
 			warnings=0
-			./runDataAnalysis --nums 9 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" "$rng0" "$rng1" "$rng2" &&
+			./runDataAnalysis --nums 12 "$E0" "$pol_degree" "$xL" "$xR" "$k" "$outputK" "$rng0" "$rng1" "$rng2" "$rngE0" "$rngE1" "$rngE2" &&
 			
 			#=======================================================
 			declare -a txt_array # array of the .txt content
@@ -513,7 +519,7 @@ do
 		# posterior analysis
 		root -l <<-EOF
 		.L PosteriorCheck.C
-		PosteriorCheck($E0, $pol_degree, $root_file);
+		PosteriorCheck($E0, $pol_degree, $outputK, $root_file);
 		EOF
 		
 		# read the output of the posterior analysis
@@ -541,6 +547,27 @@ do
 		else
 			ck2=0
 		fi
+		# E0 check (0=ok, 1=problems)
+		if [ "${txt_content[3]}" -eq 1 ]
+		then
+			ckE0=1
+		else
+			ckE0=0
+		fi
+		# E1 check (0=ok, 1=problems)
+		if [ "${txt_content[4]}" -eq 1 ]
+		then
+			ckE1=1
+		else
+			ckE1=0
+		fi
+		# E2 check (0=ok, 1=problems)
+		if [ "${txt_content[4]}" -eq 1 ]
+		then
+			ckE2=1
+		else
+			ckE2=0
+		fi
 			
 		rm check_posterior.txt
 		
@@ -559,12 +586,23 @@ do
 		then 
 			rng2=`echo "$(( rng2+1 ))" | bc`
 		fi
+		# chose another option of range for E0
+		if [ "$ckE0" -eq 1 ]
+		then 
+			rngE0=`echo "$(( rngE0+1 ))" | bc`
+		fi
+		# chose another option of range for E1
+		if [ "$ckE1" -eq 1 ]
+		then 
+			rngE1=`echo "$(( rngE1+1 ))" | bc`
+		fi
+		# chose another option of range for E2
+		if [ "$ckE2" -eq 1 ]
+		then 
+			rngE2=`echo "$(( rngE2+1 ))" | bc`
+		fi
 		
-		printf "\n\t ck0 = $ck0 \n"
-		printf "\t ck1 = $ck1 \n"
-		printf "\t ck2 = $ck2 \n"
-		
-		if [[ "$rng0" -gt 16 || "$rng1" -gt 16 || "$rng2" -gt 16 ]]
+		if [[ "$rng0" -gt 16 || "$rng1" -gt 16 || "$rng2" -gt 16 || "$rngE0" -gt 16 || "$rngE1" -gt 16 || "$rngE2" -gt 16 ]]
 		then
 			break
 		fi	

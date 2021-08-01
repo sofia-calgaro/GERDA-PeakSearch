@@ -23,12 +23,15 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 	int rng0 = IntResults[6];
 	int rng1 = IntResults[7];
 	int rng2 = IntResults[8];
+	int rngE0 = IntResults[9];
+	int rngE1 = IntResults[10];
+	int rngE2 = IntResults[11];
 	
 	double E1 = DblResults.at(54);
 	double E2 = DblResults.at(55);
 
 	char name_file[200];
-	sprintf(name_file, "/home/sofia/Analysis/DataAnalysis/JsonFiles/IC_PSD/JsonFile%i.json", E0);
+	sprintf(name_file, "/home/sofia/Analysis/DataAnalysis/JsonFiles/BEGe/JsonFile%i.json", E0);
 	std::fstream file;
 	file.open(name_file, std::ios::out);
 	/*
@@ -132,7 +135,8 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 			{ "windowWidth", bin_width},
 			{ "k_GammaArrayIndex", k},
 			{ "outputk_GammaPosition", outputK},
-			{ "rng_p0", rng0}
+			{ "rng_p0", rng0},
+			{ "rng_E0", rngE0}
 		};
 	}
 	// 1 gamma peak
@@ -145,7 +149,9 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 			{ "windowWidth", bin_width},
 			{ "k_GammaArrayIndex", k},
 			{ "outputk_GammaPosition", outputK},
-			{ "rng_p0", rng0}
+			{ "rng_p0", rng0},
+			{ "rng_E0", rngE0},
+			{ "rng_E1", rngE1}
 		};
 	}
 	// 2 gamma peaks
@@ -159,7 +165,10 @@ void JsonFile (const std::vector<double> params, const std::vector<double> param
 			{ "windowWidth", bin_width},
 			{ "k_GammaArrayIndex", k},
 			{ "outputk_GammaPosition", outputK},
-			{ "rng_p0", rng0}
+			{ "rng_p0", rng0},
+			{ "rng_E0", rngE0},
+			{ "rng_E1", rngE1},
+			{ "rng_E2", rngE2}
 		};
 	}
 	

@@ -48,11 +48,53 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 	    if ( rng[1]==15 ) { j=180; }
 	    if ( rng[1]==16 ) { j=200; }
 	    
+	    int xE0=0; // E0
+	    if ( rng[3]==0 ) { xE0=0; }
+	    if ( rng[3]==1 ) { xE0=25; }
+	    if ( rng[3]==2 ) { xE0=50; }
+	    if ( rng[3]==3 ) { xE0=75; }
+	    if ( rng[3]==4 ) { xE0=100; }
+	    if ( rng[3]==5 ) { xE0=125; }
+	    if ( rng[3]==6 ) { xE0=150; }
+	    if ( rng[3]==7 ) { xE0=175; }
+	    if ( rng[3]==8 ) { xE0=200; }
+	    if ( rng[3]==9 ) { xE0=225; }
+	    if ( rng[3]==10 ) { xE0=250; }
+	    if ( rng[3]==11 ) { xE0=275; }
+	    
+	    int xE1; // E1
+	    if ( rng[4]==0 ) { xE1=0; }
+	    if ( rng[4]==1 ) { xE1=25; }
+	    if ( rng[4]==2 ) { xE1=50; }
+	    if ( rng[4]==3 ) { xE1=75; }
+	    if ( rng[4]==4 ) { xE1=100; }
+	    if ( rng[4]==5 ) { xE1=125; }
+	    if ( rng[4]==6 ) { xE1=150; }
+	    if ( rng[4]==7 ) { xE1=175; }
+	    if ( rng[4]==8 ) { xE1=200; }
+	    if ( rng[4]==9 ) { xE1=225; }
+	    if ( rng[4]==10 ) { xE1=250; }
+	    if ( rng[4]==11 ) { xE1=275; }
+	    
+	    int xE2; // E2
+	    if ( rng[5]==0 ) { xE2=0; }
+	    if ( rng[5]==1 ) { xE2=25; }
+	    if ( rng[5]==2 ) { xE2=50; }
+	    if ( rng[5]==3 ) { xE2=75; }
+	    if ( rng[5]==4 ) { xE2=100; }
+	    if ( rng[5]==5 ) { xE2=125; }
+	    if ( rng[5]==6 ) { xE2=150; }
+	    if ( rng[5]==7 ) { xE2=175; }
+	    if ( rng[5]==8 ) { xE2=200; }
+	    if ( rng[5]==9 ) { xE2=225; }
+	    if ( rng[5]==10 ) { xE2=250; }
+	    if ( rng[5]==11 ) { xE2=275; }
+	    
 	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {
 		    double *output_pol1 = FindRange_Pol1( E0, bin_content, max_height);
 		    
 		    // 1) Signal yield (index 0)
-		    AddParameter("E0_height", 0, max_height[3], "", "[events]");
+		    AddParameter("E0_height", 0, max_height[3]+xE0, "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
@@ -73,7 +115,7 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 		    double *output_G_pol1 = FindRange_Gamma_Pol1( E0, bin_content, max_height, E1, max_gammaYield, xL, xR);
 		    
 		    // 1) Signal yield (index 0)
-		    AddParameter("E0_height", 0, max_height[3], "", "[events]");
+		    AddParameter("E0_height", 0, max_height[3]+xE0, "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
@@ -89,7 +131,7 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Gamma yield (index 3)  
-		    AddParameter("E1_height", 0, max_gammaYield[3], "", "[events]");
+		    AddParameter("E1_height", 0, max_gammaYield[3]+xE1, "", "[events]");
 		    GetParameters().Back().SetPriorConstant();        
             } 
             
@@ -99,7 +141,7 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 		    double *output_2G_pol1 = FindRange_TwoGamma_Pol1( E0, bin_content, max_height, E1, max_gammaYield1, E2, max_gammaYield2, xL, xR);
             	   
             	    // 1) Signal yield (index 0)
-		    AddParameter("E0_height", 0, max_height[3], "", "[events]");
+		    AddParameter("E0_height", 0, max_height[3]+xE0, "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 
 		    // 2) Constant (index 1)
@@ -116,11 +158,11 @@ GausPol1::GausPol1(const std::string& name, std::vector<int> bin_content, int E0
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 4) Gamma yield (1) (index 3)  
-		    AddParameter("E1_height", 0, max_gammaYield1[3], "", "[events]");
+		    AddParameter("E1_height", 0, max_gammaYield1[3]+xE1, "", "[events]");
 		    GetParameters().Back().SetPriorConstant();
 		    
 		    // 5) Gamma yield (2) (index 4)  
-		    AddParameter("E2_height", 0, max_gammaYield2[3], "", "[events]");
+		    AddParameter("E2_height", 0, max_gammaYield2[3]+xE2, "", "[events]");
 		    GetParameters().Back().SetPriorConstant();   
             }
 

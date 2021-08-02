@@ -14,11 +14,11 @@ double FindSigma(int energy, int det) {
    	a = 0.985;
    	b = 10.73e-4; 
    }
-   if ( det==0 ) { // BEGe
+   if ( det==1 ) { // BEGe
    	a = 0.551;
    	b = 4.294e-4; 
    }
-   if ( det==0 ) { // IC
+   if ( det==2 ) { // IC
    	a = 0.28;
    	b = 5.83e-4; 
    }

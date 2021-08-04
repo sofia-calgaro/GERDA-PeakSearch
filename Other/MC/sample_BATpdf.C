@@ -50,7 +50,7 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 	
 	// sample from pdf
 	char hName_p0[300], hName_p1[300], hName_p2[300], hName_E1[300], hName_E2[300];
-	double p0=0, p1=0, p2=0, hE1=0, hE2=0;
+	double p0=0, p1=0, p2=0, hE1=-1, hE2=-1;
 	const int xL = E0 - 20;
 	const int xR = E0 + 20;
 	const int bins = xR - xL;
@@ -125,12 +125,16 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				p0 = r_p0->Gaus(f_p0->GetParameter(1), f_p0->GetParameter(2));
 				TRandom3 *r_p1 = new TRandom3(0);
 				p1 = r_p1->Gaus(f_p1->GetParameter(1), f_p1->GetParameter(2));
-				TRandom3 *r_E1 = new TRandom3(0);
-				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
-				else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
-				TRandom3 *r_E2 = new TRandom3(0);
-				if ( (h_E2->GetBinContent(h_E2->GetMaximumBin()))/(bin_min_E2+0.0) > 1.05 ) { hE2 = r_E2->Gaus(f_E2->GetParameter(1), f_E2->GetParameter(2)); }
-				else { hE2 = r_E2->Gaus(GM_E2, sigma_E2); }
+				while ( hE1<0 ) {
+					TRandom3 *r_E1 = new TRandom3(0);
+					if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
+					else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
+				}
+				while ( hE2<0 ) {
+					TRandom3 *r_E2 = new TRandom3(0);
+					if ( (h_E2->GetBinContent(h_E2->GetMaximumBin()))/(bin_min_E2+0.0) > 1.05 ) { hE2 = r_E2->Gaus(f_E2->GetParameter(1), f_E2->GetParameter(2)); }
+					else { hE2 = r_E2->Gaus(GM_E2, sigma_E2); }
+				}
 				std::cout << " p0 = " << p0 << std::endl;
 				std::cout << " p1 = " << p1 << std::endl;
 				std::cout << " E1 = " << hE1 << std::endl;
@@ -166,31 +170,35 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				sprintf(hName_p1, "h1_%iGausPol1_1Gamma_parameter_p1", E0);
 				sprintf(hName_E1, "h1_%iGausPol1_1Gamma_parameter_E1_height", E0);
 				
-				TH1D *h_p0 = (TH1D*)file->Get(hName_p0);
+				TH1D *h_p0 = (TH1D*)file->Get(hName_p0); // get BAT pdfs (a partire dai fit già fatti sui dati reali)
 				TH1D *h_p1 = (TH1D*)file->Get(hName_p1);
 				TH1D *h_E1 = (TH1D*)file->Get(hName_E1);
 				
-				// p0
+				// modelling of p0 (constant) pdf with a Gaussian
 				int bin_min_p0 = h_p0->GetBinContent(1);
 				int bin_max_p0 = h_p0->GetBinContent(h_p0->GetNbinsX());
 				TF1 *f_p0 = new TF1("f_p0", "gaus(0)", bin_min_p0, bin_max_p0);
 				f_p0->SetParameter(0, h_p0->GetMaximumBin());
 				f_p0->SetParameter(1, h_p0->GetXaxis()->GetBinCenter(h_p0->GetMaximumBin()));
 				h_p0->Fit("f_p0", "RQNO");
-				// p1
+				// modelling of p1 (slope) pdf with a Gaussian
 				int bin_min_p1 = h_p1->GetBinContent(1);
 				int bin_max_p1 = h_p1->GetBinContent(h_p1->GetNbinsX());
 				TF1 *f_p1 = new TF1("f_p1", "gaus(0)", bin_min_p1, bin_max_p1);
 				f_p1->SetParameter(0, h_p1->GetMaximumBin());
 				f_p1->SetParameter(1, h_p1->GetXaxis()->GetBinCenter(h_p1->GetMaximumBin()));
 				h_p1->Fit("f_p1", "RQNO");
-				// E1
+				// modelling of E1 (gamma height) pdf with a Gaussian
 				int bin_min_E1 = h_E1->GetBinContent(1);
 				int bin_max_E1 = h_E1->GetBinContent(h_E1->GetNbinsX());
 				double GM_E1=0, sigma_E1=0;
 				TF1 *f_E1 = new TF1("f_E1", "gaus(0)", bin_min_E1, bin_max_E1);
 				f_E1->SetParameter(0, h_E1->GetBinContent(h_E1->GetMaximumBin()));
 				f_E1->SetParameter(1, h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin()));
+				/*
+					Attenzione: se la pdf dell'altezza del picco gamma è vicina a 0 counts, il fit gaussiano non 
+					viene eseguito. In tal caso, si prende la moda globale e sigma=quantile(34.15%).
+				*/
 				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { h_E1->Fit("f_E1", "RQNO"); }
 				else {
 					GM_E1 = h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin());
@@ -201,17 +209,27 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					sigma_E1 = q[1] - q[0]; // qt_34%
 				}
 				
+				// samplig random parameters from Gaussians that model BAT pdfs
 				TRandom3 *r_p0 = new TRandom3(0);
 				p0 = r_p0->Gaus(f_p0->GetParameter(1), f_p0->GetParameter(2));
 				TRandom3 *r_p1 = new TRandom3(0);
 				p1 = r_p1->Gaus(f_p1->GetParameter(1), f_p1->GetParameter(2));
-				TRandom3 *r_E1 = new TRandom3(0);
-				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
-				else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
+				/*
+					Attenzione: se la Gaussiana (che modella la pdf dell'altezza di un picco gamma) è centrata intorno a 
+					0 counts, può succedere che venga estratto un valore negativo per l'altezza del picco gamma.
+					Per evitarlo, si introduce un while che gira fintantoché non trova un valore positivo per l'altezza.
+				*/
+				while ( hE1<0 ) { 
+					TRandom3 *r_E1 = new TRandom3(0);
+					if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
+					else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
+				}
 				std::cout << " p0 = " << p0 << std::endl;
 				std::cout << " p1 = " << p1 << std::endl;
 				std::cout << " E1 = " << hE1 << std::endl;
 				
+				// histogram filling (xL=E0-20, xR=E0+20). For convenience, bins outside this region
+				// were left unfilled (0 counts)
 				for ( int i=1; i<=xL; i++) {
 					LAr_MC->SetBinContent(i, 0);
 					output << 0 << std::endl;
@@ -368,12 +386,16 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				p1 = r_p1->Gaus(f_p1->GetParameter(1), f_p1->GetParameter(2));
 				TRandom3 *r_p2 = new TRandom3(0);
 				p2 = r_p2->Gaus(f_p2->GetParameter(1), f_p2->GetParameter(2));
-				TRandom3 *r_E1 = new TRandom3(0);
-				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
-				else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
-				TRandom3 *r_E2 = new TRandom3(0);
-				if ( (h_E2->GetBinContent(h_E2->GetMaximumBin()))/(bin_min_E2+0.0) > 1.05 ) { hE2 = r_E2->Gaus(f_E2->GetParameter(1), f_E2->GetParameter(2)); }
-				else { hE2 = r_E2->Gaus(GM_E2, sigma_E2); }
+				while ( hE1<0 ) {
+					TRandom3 *r_E1 = new TRandom3(0);
+					if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
+					else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
+				}
+				while ( hE2<0 ) {
+					TRandom3 *r_E2 = new TRandom3(0);
+					if ( (h_E2->GetBinContent(h_E2->GetMaximumBin()))/(bin_min_E2+0.0) > 1.05 ) { hE2 = r_E2->Gaus(f_E2->GetParameter(1), f_E2->GetParameter(2)); }
+					else { hE2 = r_E2->Gaus(GM_E2, sigma_E2); }
+				}
 				std::cout << " p0 = " << p0 << std::endl;
 				std::cout << " p1 = " << p1 << std::endl;
 				std::cout << " p2 = " << p2 << std::endl;
@@ -460,9 +482,11 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				p1 = r_p1->Gaus(f_p1->GetParameter(1), f_p1->GetParameter(2));
 				TRandom3 *r_p2 = new TRandom3(0);
 				p2 = r_p2->Gaus(f_p2->GetParameter(1), f_p2->GetParameter(2));
-				TRandom3 *r_E1 = new TRandom3(0);
-				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
-				else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
+				while ( hE1<0 ) {
+					TRandom3 *r_E1 = new TRandom3(0);
+					if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
+					else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
+				}
 				std::cout << " p0 = " << p0 << std::endl;
 				std::cout << " p1 = " << p1 << std::endl;
 				std::cout << " p2 = " << p2 << std::endl;

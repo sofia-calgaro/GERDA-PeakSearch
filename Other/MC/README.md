@@ -13,5 +13,5 @@
   * creates a JSON file containing the "peak_search.sh" results together with the BAT results;
   * draws the experimental data together with the fit result.
 * **"PosteriorCheck.C"**: to analyze marginalized posteriors and see if they are cut or not.
-* **"sample_BATpdf.C"**: given the energy _E0_ and the detectory type, it takes the posterior distributions from the BAT fit, it fits the posterior with a gaussian (or it takes the global mode and the 34% quantile in case of signal/gamma height parameters that are compatible with 0 counts), it samples the parameters from the Gaussian function that models the pdfs, it generates a spectrum in E0+-20keV, it stores the spectrum in a ROOT file, which is then analyzed with "RunDataAnalysis.cxx". 
+* **"sample_BATpdf.C"**: given the energy _E0_ and the detectory type, it takes the posterior distributions from the BAT fit, it fits the posterior with a gaussian (or it takes the global mode and the 34% quantile in case of gamma height parameters that are compatible with 0 counts), it samples the parameters from the Gaussian function that models the pdfs, it generates a spectrum in E0+-20keV, it stores the spectrum in a ROOT file, which is then analyzed with "RunDataAnalysis.cxx". 
 * **"MC_output.C"**: to store the toy-MC fit output in files, then analyzed/plotted with **"plot_MC.C"**.

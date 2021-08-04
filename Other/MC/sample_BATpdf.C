@@ -148,8 +148,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true) + hE2*TMath::Gaus(i, E2, FindSigma(E2, det), true);
 					
-					TRandom3 *r = new TRandom3(0);
-					double a = r->Uniform(0,1);
 					if ( a<=0.5 ) {
 						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
 						output << y_sim_pol+y_sim_gaus << std::endl;
@@ -201,11 +199,11 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				*/
 				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { h_E1->Fit("f_E1", "RQNO"); }
 				else {
-					GM_E1 = h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin());
+					GM_E1 = h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin()); // global mode
 					for ( int k=1; k<=h_E1->GetNbinsX(); k++ ) { h_E1->SetBinContent(k, h_E1->GetBinContent(k+h_E1->FindBin(GM_E1)-1)); } // shift to left
 					double p[7] = {0, 0.3415, 0.46, 0.50, 0.84, 0.90, 0.95};
 					double q[7] = {0};
-					h_E1->GetQuantiles(7, q, p); // GetQuantiles(n_division, quantiles, probsum[%]);
+					h_E1->GetQuantiles(7, q, p); 
 					sigma_E1 = q[1] - q[0]; // qt_34%
 				}
 				
@@ -238,8 +236,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true);
 					
-					TRandom3 *r = new TRandom3(0);
-					double a = r->Uniform(0,1);
 					if ( a<=0.5 ) {
 						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
 						output << y_sim_pol+y_sim_gaus << std::endl;
@@ -292,8 +288,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 			for ( int i=xL+1; i<=xR; i++ ) {
 				double y_sim_pol = p0 + p1*(i-E0);
 				
-				TRandom3 *r = new TRandom3(0);
-				double a = r->Uniform(0,1);
 				if ( a<=0.5 ) {
 					LAr_MC->SetBinContent(i, y_sim_pol);
 					output << y_sim_pol << std::endl;
@@ -410,8 +404,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0) + p2*(i-E0)*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true) + hE2*TMath::Gaus(i, E2, FindSigma(E2, det), true);
 					
-					TRandom3 *r = new TRandom3(0);
-					double a = r->Uniform(0,1);
 					if ( a<=0.5 ) {
 						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
 						output << y_sim_pol+y_sim_gaus << std::endl;
@@ -500,8 +492,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0) + p2*(i-E0)*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true);
 					
-					TRandom3 *r = new TRandom3(0);
-					double a = r->Uniform(0,1);
 					if ( a<=0.5 ) {
 						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
 						output << y_sim_pol+y_sim_gaus << std::endl;
@@ -566,8 +556,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 			for ( int i=xL+1; i<=xR; i++ ) {
 				double y_sim_pol = p0 + p1*(i-E0) + p2*(i-E0)*(i-E0);
 				
-				TRandom3 *r = new TRandom3(0);
-				double a = r->Uniform(0,1);
 				if ( a<=0.5 ) {
 					LAr_MC->SetBinContent(i, y_sim_pol);
 					output << y_sim_pol << std::endl;
@@ -586,8 +574,7 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 	
 	
 	
-	// attenzione perchè lo spettro va creato in +-20 keV per poter fare il pre-fit con ROOT (andare a rivedere come 
-	// allargavo e ristringevo quest'intervallo in Operations.h)
+	// attenzione perchè lo spettro va creato in +-20 keV per poter fare il pre-fit con ROOT 
 	char namefile[200];
 	if ( det==0 ) sprintf(namefile, "MC_spectra/coax/MCspectrum_%i.root", E0);
 	if ( det==1 ) sprintf(namefile, "MC_spectra/BEGe/MCspectrum_%i.root", E0);

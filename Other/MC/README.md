@@ -1,5 +1,5 @@
 ### MonteCarlo Study
-* **"peak_search.sh"**: starting program for the analysis.
+* **"peakSearch_run.sh"**: starting program for the analysis (iterates over the number of MC simulations).
 * **"runDataAnalysis.cxx"**: main program for the analysis. It takes input values after the analysis performed in "peak_search.sh". In particular,
   * _pol_degree_ for the BKG is 0, 1, or 2;
   * _xL_ (_xR_) is the left (right) energy limit for the fit window centered in _E0_;

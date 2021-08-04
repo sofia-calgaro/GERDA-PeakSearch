@@ -148,14 +148,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true) + hE2*TMath::Gaus(i, E2, FindSigma(E2, det), true);
 					
-					if ( a<=0.5 ) {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
-					else {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
+					LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
+					output << y_sim_pol+y_sim_gaus << std::endl;
 				}
 				for ( int i=xR+1; i<=5200; i++) {
 					LAr_MC->SetBinContent(i, 0);
@@ -236,14 +230,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true);
 					
-					if ( a<=0.5 ) {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
-					else {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
+					LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
+					output << y_sim_pol+y_sim_gaus << std::endl;
 				}
 				for ( int i=xR+1; i<=5200; i++) {
 					LAr_MC->SetBinContent(i, 0);
@@ -288,14 +276,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 			for ( int i=xL+1; i<=xR; i++ ) {
 				double y_sim_pol = p0 + p1*(i-E0);
 				
-				if ( a<=0.5 ) {
-					LAr_MC->SetBinContent(i, y_sim_pol);
-					output << y_sim_pol << std::endl;
-				}
-				else {
-					LAr_MC->SetBinContent(i, y_sim_pol);
-					output << y_sim_pol << std::endl;
-				}
+				LAr_MC->SetBinContent(i, y_sim_pol);
+				output << y_sim_pol << std::endl;
 			}
 			for ( int i=xR+1; i<=5200; i++) {
 				LAr_MC->SetBinContent(i, 0);
@@ -404,14 +386,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0) + p2*(i-E0)*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true) + hE2*TMath::Gaus(i, E2, FindSigma(E2, det), true);
 					
-					if ( a<=0.5 ) {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
-					else {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
+					LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
+					output << y_sim_pol+y_sim_gaus << std::endl;
 				}
 				for ( int i=xR+1; i<=5200; i++) {
 					LAr_MC->SetBinContent(i, 0);
@@ -492,14 +468,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					double y_sim_pol = p0 + p1*(i-E0) + p2*(i-E0)*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true);
 					
-					if ( a<=0.5 ) {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
-					else {
-						LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
-						output << y_sim_pol+y_sim_gaus << std::endl;
-					}
+					LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
+					output << y_sim_pol+y_sim_gaus << std::endl;
 				}
 				for ( int i=xR+1; i<=5200; i++) {
 					LAr_MC->SetBinContent(i, 0);
@@ -556,14 +526,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 			for ( int i=xL+1; i<=xR; i++ ) {
 				double y_sim_pol = p0 + p1*(i-E0) + p2*(i-E0)*(i-E0);
 				
-				if ( a<=0.5 ) {
-					LAr_MC->SetBinContent(i, y_sim_pol);
-					output << y_sim_pol << std::endl;
-				}
-				else {
-					LAr_MC->SetBinContent(i, y_sim_pol);
-					output << y_sim_pol << std::endl;
-				}
+				LAr_MC->SetBinContent(i, y_sim_pol);
+				output << y_sim_pol << std::endl;
 			}
 			for ( int i=xR+1; i<=5200; i++) {
 				LAr_MC->SetBinContent(i, 0);

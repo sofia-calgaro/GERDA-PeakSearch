@@ -1,5 +1,5 @@
 // **********************************************************************************************************************
-// This file studies the marginalized posteriors for p0, p1, p2 parameters that enter into the BKG model.
+// This file studies the marginalized posteriors for p0, p1, p2, E0, E1, E2 parameters that enter into the BKG model.
 // The output is wrote into a file:
 // 	- 0 means everything was OK;
 //	- 1 means that the posterior is cut.
@@ -7,11 +7,15 @@
 // Values are written in column:
 // 	- the first line refers to p0;
 // 	- the second line refers to p1;
-// 	- the third line refers to p2.
+// 	- the third line refers to p2;
+//	- the 4th, 5th, 6th lines refer to E0, E1, E2.
 //
 // An example of problems with p1 is:
 //
 // 				=============== check_posterior.txt ===============
+//				   >  0
+//				   >  1
+//				   >  1
 //				   >  0
 //				   >  1
 //				   >  0
@@ -58,14 +62,15 @@ void PosteriorCheck(int E0, int pol_degree, int k, int outputK, const char *root
 	char histo_E1[200];
 	sprintf(histo_E1, "h1_%i%s_parameter_E1_height", E0, root_file);
 	TH1D *hE1 = new TH1D();
-	if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
-		hE1 = (TH1D*) file->Get(histo_E1);
-	}
 	// 2 peaks
 	char histo_E2[200];
 	sprintf(histo_E2, "h1_%i%s_parameter_E2_height", E0, root_file);
 	TH1D *hE2 = new TH1D();
-	if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+		hE1 = (TH1D*) file->Get(histo_E1);
+	}
+	else {
 		hE1 = (TH1D*) file->Get(histo_E1);
 		hE2 = (TH1D*) file->Get(histo_E2);
 	}
@@ -87,10 +92,11 @@ void PosteriorCheck(int E0, int pol_degree, int k, int outputK, const char *root
 	
 	int E0LastBin=0, E1LastBin=0, E2LastBin=0;
 	E0LastBin = hE0->GetBinContent(hE0->GetNbinsX());
-	if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 		E1LastBin = hE1->GetBinContent(hE1->GetNbinsX());
 	}
-	if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	else {
 		E1LastBin = hE1->GetBinContent(hE1->GetNbinsX());
 		E2LastBin = hE2->GetBinContent(hE2->GetNbinsX());
 	}

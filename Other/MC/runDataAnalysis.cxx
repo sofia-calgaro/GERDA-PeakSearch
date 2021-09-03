@@ -161,10 +161,11 @@ int main(int argc, char *argv[])
 	    const std::vector<double> params = m.GetBestFitParameters(); 
 	    const std::vector<double> params_err = m.GetBestFitParameterErrors();
 	    
-	    if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 	    	    h_E1 = m.GetMarginalizedHistogram(2);
 	    }
-	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	    else{
 		    h_E1 = m.GetMarginalizedHistogram(2);
 		    h_E2 = m.GetMarginalizedHistogram(3);
 	    }
@@ -181,11 +182,12 @@ int main(int argc, char *argv[])
 	    E0_UPR = m.GetParameter(0).GetUpperLimit();
 	    p0_LPR = m.GetParameter(1).GetLowerLimit();
 	    p0_UPR = m.GetParameter(1).GetUpperLimit();
-	    if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 	    	E1_LPR = m.GetParameter(2).GetLowerLimit();
 	    	E1_UPR = m.GetParameter(2).GetUpperLimit();
 	    }
-	    if ( (outputK>7 && outputK<20 ) && outputK!=13 && outputK!=14 && outputK!=15 && outputK!=18 ) {
+	    else {
 	    	E1_LPR = m.GetParameter(2).GetLowerLimit();
 	    	E1_UPR = m.GetParameter(2).GetUpperLimit();
 	    	E2_LPR = m.GetParameter(3).GetLowerLimit();
@@ -251,10 +253,11 @@ int main(int argc, char *argv[])
 	    const std::vector<double> params = m.GetBestFitParameters(); 
 	    const std::vector<double> params_err = m.GetBestFitParameterErrors();
 	    
-	    if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 	    	    h_E1 = m.GetMarginalizedHistogram(3);
 	    }
-	    if ( outputK==8 || outputK==9 || outputK==10 || outputK==11 || outputK==16 || outputK==17 || outputK==19 ) {
+	    else {
 		    h_E1 = m.GetMarginalizedHistogram(3);
 		    h_E2 = m.GetMarginalizedHistogram(4);
 	    }
@@ -273,11 +276,12 @@ int main(int argc, char *argv[])
 	    p0_UPR = m.GetParameter(1).GetUpperLimit();
 	    p1_LPR = m.GetParameter(2).GetLowerLimit();
 	    p1_UPR = m.GetParameter(2).GetUpperLimit();
-	    if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 	    	E1_LPR = m.GetParameter(3).GetLowerLimit();
 	    	E1_UPR = m.GetParameter(3).GetUpperLimit();
 	    }
-	    if ( outputK==8 || outputK==9 || outputK==10 || outputK==11 || outputK==16 || outputK==17 || outputK==19 ) {
+	    else {
 	    	E1_LPR = m.GetParameter(3).GetLowerLimit();
 	    	E1_UPR = m.GetParameter(3).GetUpperLimit();
 	    	E2_LPR = m.GetParameter(4).GetLowerLimit();
@@ -342,10 +346,11 @@ int main(int argc, char *argv[])
 	    const std::vector<double> params = m.GetBestFitParameters(); 
 	    const std::vector<double> params_err = m.GetBestFitParameterErrors();
 	    
-	    if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 	    	    h_E1 = m.GetMarginalizedHistogram(4);
 	    }
-	    if ( outputK==8 || outputK==9 || outputK==10 || outputK==11 || outputK==16 || outputK==17 || outputK==19 ) {
+	    else {
 		    h_E1 = m.GetMarginalizedHistogram(4);
 		    h_E2 = m.GetMarginalizedHistogram(5);
 	    }
@@ -366,11 +371,12 @@ int main(int argc, char *argv[])
 	    p1_UPR = m.GetParameter(2).GetUpperLimit();
 	    p2_LPR = m.GetParameter(3).GetLowerLimit();
 	    p2_UPR = m.GetParameter(3).GetUpperLimit();
-	    if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
+	    if ( outputK<=1 || outputK==4 || outputK==7 || outputK==13 || outputK==14 || outputK==15 || outputK==18 || outputK>=20 ) {}
+	    else if ( outputK==2 || outputK==3 || outputK==5 || outputK==6 || outputK==12 ) {
 	    	E1_LPR = m.GetParameter(4).GetLowerLimit();
 	    	E1_UPR = m.GetParameter(4).GetUpperLimit();
 	    }
-	    if ( outputK==8 || outputK==9 || outputK==10 || outputK==11 || outputK==16 || outputK==17 || outputK==19 ) {
+	    else {
 	    	E1_LPR = m.GetParameter(4).GetLowerLimit();
 	    	E1_UPR = m.GetParameter(4).GetUpperLimit();
 	    	E2_LPR = m.GetParameter(5).GetLowerLimit();

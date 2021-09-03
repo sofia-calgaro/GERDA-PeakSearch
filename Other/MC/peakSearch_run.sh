@@ -5,10 +5,10 @@
 E_gamma=('238.6' '242' '295.2' '352' '478.3' '511' '514' '583.2' '609.3' '911.2' '969' '1460.8' '1524.6')
 numGamma=${#E_gamma[@]}
 
-readonly a=0.985 # coax
-readonly b=0.0001073
-#readonly a=0.551 # BEGe
-#readonly b=0.0004294
+#readonly a=0.985 # coax
+#readonly b=0.0001073
+readonly a=0.551 # BEGe
+readonly b=0.0004294
 #readonly a=0.28 # IC
 #readonly b=0.000583
 
@@ -25,8 +25,7 @@ i_stop=$5
 
 printf " E0 = $E0;\n num_energies = $num_E0;\n thr = $thr;\n det = $det;\n i_start = $i_start;\n i_stop = $i_stop\n\n"
 
-make clean
-make -s
+
 
 #=============================================== WHILE LOOP over E0
 max_E0=`echo "$(( E0+num_E0 ))" | bc`
@@ -410,7 +409,7 @@ do
 	fi
 	
 	
-	if [ "$xL" -lt "$thr" ] && [ "$xR" -gt "$thr" ] 
+	if (( $(echo "$xL<$thr" | bc -l) )) && (( $(echo "$xR>$thr" | bc -l) ))
 	then
 		if [ "$E0" -lt "$thr" ]
 		then

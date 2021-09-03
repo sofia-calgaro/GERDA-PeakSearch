@@ -32,7 +32,7 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 
 	char name[200];
 	if ( det==0 ) sprintf(name,"/home/sofia/Analysis/Data2/MarginalizedROOT/coax/%i.root", E0);
-	if ( det==1 ) sprintf(name,"/home/sofia/Analysis/DataAnalysis/MarginalizedROOT/BEGe/%i.root", E0);
+	if ( det==1 ) sprintf(name,"/home/sofia/Analysis/DataAnalysis/MarginalizedROOT/53_114/BEGe/%i.root", E0);
 	if ( det==2 ) sprintf(name,"/home/sofia/Analysis/DataAnalysis/MarginalizedROOT/IC/%i.root", E0);
 	TFile *file = new TFile(name);
 	
@@ -44,8 +44,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 	if ( k>=0 && k<numGamma ) { E1 = E_gamma[k]; } // when k=numGamma, we do not have gamma peaks ( we leave E1=0 )
 	// 2 gamma peak
 	double E2 = 0;
-	if ( (outputK>7 && outputK<20 ) && (outputK!=15 && outputK!=18) ) {
-	    	if ( k>=0 && k<10 ) {  E2 = E_gamma[k+1]; }
+	if ( outputK==8 || outputK==9 || outputK==10 || outputK==11 || outputK==16 || outputK==17 || outputK==19 ) {
+		E2 = E_gamma[k+1];
 	}
 	
 	// sample from pdf
@@ -82,7 +82,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				f_p0->SetParameter(1, h_p0->GetXaxis()->GetBinCenter(h_p0->GetMaximumBin()));
 				h_p0->Fit("f_p0", "RQNO");
 				// p1
-				
 				int bin_min_p1 = h_p1->GetBinContent(1);
 				int bin_max_p1 = h_p1->GetBinContent(h_p1->GetNbinsX());
 				TF1 *f_p1 = new TF1("f_p1", "gaus(0)", bin_min_p1, bin_max_p1);
@@ -90,7 +89,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				f_p1->SetParameter(1, h_p1->GetXaxis()->GetBinCenter(h_p1->GetMaximumBin()));
 				h_p1->Fit("f_p1", "RQNO");
 				// E1
-				
 				int bin_min_E1 = h_E1->GetBinContent(1);
 				int bin_max_E1 = h_E1->GetBinContent(h_E1->GetNbinsX());
 				double GM_E1=0, sigma_E1=0;
@@ -106,7 +104,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					h_E1->GetQuantiles(7, q, p); // GetQuantiles(n_division, quantiles, probsum[%]);
 					sigma_E1 = q[1] - q[0]; // qt_34%
 				}
-				
 				// E2
 				int bin_min_E2 = h_E2->GetBinContent(1);
 				int bin_max_E2 = h_E2->GetBinContent(h_E2->GetNbinsX());
@@ -126,10 +123,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 				
 				TRandom3 *r_p0 = new TRandom3(0);
 				p0 = r_p0->Gaus(f_p0->GetParameter(1), f_p0->GetParameter(2));
-				
 				TRandom3 *r_p1 = new TRandom3(0);
 				p1 = r_p1->Gaus(f_p1->GetParameter(1), f_p1->GetParameter(2));
-				
 				while ( hE1<0 ) {
 					TRandom3 *r_E1 = new TRandom3(0);
 					if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
@@ -140,7 +135,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					if ( (h_E2->GetBinContent(h_E2->GetMaximumBin()))/(bin_min_E2+0.0) > 1.05 ) { hE2 = r_E2->Gaus(f_E2->GetParameter(1), f_E2->GetParameter(2)); }
 					else { hE2 = r_E2->Gaus(GM_E2, sigma_E2); }
 				}
-				
 				std::cout << " p0 = " << p0 << std::endl;
 				std::cout << " p1 = " << p1 << std::endl;
 				std::cout << " E1 = " << hE1 << std::endl;
@@ -150,7 +144,6 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					LAr_MC->SetBinContent(i, 0);
 					output << 0 << std::endl;
 				}
-				
 				for ( int i=xL+1; i<=xR; i++ ) {
 					double y_sim_pol = p0 + p1*(i-E0);
 					double y_sim_gaus = hE1*TMath::Gaus(i, E1, FindSigma(E1, det), true) + hE2*TMath::Gaus(i, E2, FindSigma(E2, det), true);
@@ -158,81 +151,65 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 					LAr_MC->SetBinContent(i, y_sim_pol+y_sim_gaus);
 					output << y_sim_pol+y_sim_gaus << std::endl;
 				}
-				
 				for ( int i=xR+1; i<=5200; i++) {
 					LAr_MC->SetBinContent(i, 0);
 					output << 0 << std::endl;
 				}
 			}
-			
 			// 1 gamma peak
 			else {
 				sprintf(hName_p0, "h1_%iGausPol1_1Gamma_parameter_p0", E0);
 				sprintf(hName_p1, "h1_%iGausPol1_1Gamma_parameter_p1", E0);
 				sprintf(hName_E1, "h1_%iGausPol1_1Gamma_parameter_E1_height", E0);
 				
-				TH1D *h_p0 = (TH1D*)file->Get(hName_p0); // get BAT pdfs (a partire dai fit già fatti sui dati reali)
+				TH1D *h_p0 = (TH1D*)file->Get(hName_p0);
 				TH1D *h_p1 = (TH1D*)file->Get(hName_p1);
 				TH1D *h_E1 = (TH1D*)file->Get(hName_E1);
 				
-				// modelling of p0 (constant) pdf with a Gaussian
+				// p0
 				int bin_min_p0 = h_p0->GetBinContent(1);
 				int bin_max_p0 = h_p0->GetBinContent(h_p0->GetNbinsX());
 				TF1 *f_p0 = new TF1("f_p0", "gaus(0)", bin_min_p0, bin_max_p0);
 				f_p0->SetParameter(0, h_p0->GetMaximumBin());
 				f_p0->SetParameter(1, h_p0->GetXaxis()->GetBinCenter(h_p0->GetMaximumBin()));
 				h_p0->Fit("f_p0", "RQNO");
-				// modelling of p1 (slope) pdf with a Gaussian
+				// p1
 				int bin_min_p1 = h_p1->GetBinContent(1);
 				int bin_max_p1 = h_p1->GetBinContent(h_p1->GetNbinsX());
 				TF1 *f_p1 = new TF1("f_p1", "gaus(0)", bin_min_p1, bin_max_p1);
 				f_p1->SetParameter(0, h_p1->GetMaximumBin());
 				f_p1->SetParameter(1, h_p1->GetXaxis()->GetBinCenter(h_p1->GetMaximumBin()));
 				h_p1->Fit("f_p1", "RQNO");
-				// modelling of E1 (gamma height) pdf with a Gaussian
+				// E1
 				int bin_min_E1 = h_E1->GetBinContent(1);
 				int bin_max_E1 = h_E1->GetBinContent(h_E1->GetNbinsX());
 				double GM_E1=0, sigma_E1=0;
 				TF1 *f_E1 = new TF1("f_E1", "gaus(0)", bin_min_E1, bin_max_E1);
 				f_E1->SetParameter(0, h_E1->GetBinContent(h_E1->GetMaximumBin()));
 				f_E1->SetParameter(1, h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin()));
-				/*
-					Attenzione: se la pdf dell'altezza del picco gamma è vicina a 0 counts, il fit gaussiano non 
-					viene eseguito. In tal caso, si prende la moda globale e sigma=quantile(34.15%).
-				*/
 				if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { h_E1->Fit("f_E1", "RQNO"); }
 				else {
-					GM_E1 = h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin()); // global mode
+					GM_E1 = h_E1->GetXaxis()->GetBinCenter(h_E1->GetMaximumBin());
 					for ( int k=1; k<=h_E1->GetNbinsX(); k++ ) { h_E1->SetBinContent(k, h_E1->GetBinContent(k+h_E1->FindBin(GM_E1)-1)); } // shift to left
 					double p[7] = {0, 0.3415, 0.46, 0.50, 0.84, 0.90, 0.95};
 					double q[7] = {0};
-					h_E1->GetQuantiles(7, q, p); 
+					h_E1->GetQuantiles(7, q, p); // GetQuantiles(n_division, quantiles, probsum[%]);
 					sigma_E1 = q[1] - q[0]; // qt_34%
 				}
 				
-				
-				// samplig random parameters from Gaussians that model BAT pdfs
 				TRandom3 *r_p0 = new TRandom3(0);
 				p0 = r_p0->Gaus(f_p0->GetParameter(1), f_p0->GetParameter(2));
 				TRandom3 *r_p1 = new TRandom3(0);
 				p1 = r_p1->Gaus(f_p1->GetParameter(1), f_p1->GetParameter(2));
-				/*
-					Attenzione: se la Gaussiana (che modella la pdf dell'altezza di un picco gamma) è centrata intorno a 
-					0 counts, può succedere che venga estratto un valore negativo per l'altezza del picco gamma.
-					Per evitarlo, si introduce un while che gira fintantoché non trova un valore positivo per l'altezza.
-				*/
-				while ( hE1<0 ) { 
+				while ( hE1<0 ) {
 					TRandom3 *r_E1 = new TRandom3(0);
 					if ( (h_E1->GetBinContent(h_E1->GetMaximumBin()))/(bin_min_E1+0.0) > 1.05 ) { hE1 = r_E1->Gaus(f_E1->GetParameter(1), f_E1->GetParameter(2)); }
 					else { hE1 = r_E1->Gaus(GM_E1, sigma_E1); }
 				}
-				
 				std::cout << " p0 = " << p0 << std::endl;
 				std::cout << " p1 = " << p1 << std::endl;
 				std::cout << " E1 = " << hE1 << std::endl;
 				
-				// histogram filling (xL=E0-20, xR=E0+20). For convenience, bins outside this region
-				// were left unfilled (0 counts)
 				for ( int i=1; i<=xL; i++) {
 					LAr_MC->SetBinContent(i, 0);
 					output << 0 << std::endl;
@@ -549,7 +526,8 @@ void sample_BATpdf(int E0, int pol_degree, int k, int outputK, const char *root_
 	
 	
 	
-	// attenzione perchè lo spettro va creato in +-20 keV per poter fare il pre-fit con ROOT 
+	// attenzione perchè lo spettro va creato in +-20 keV per poter fare il pre-fit con ROOT (andare a rivedere come 
+	// allargavo e ristringevo quest'intervallo in Operations.h)
 	char namefile[200];
 	if ( det==0 ) sprintf(namefile, "MC_spectra/coax/MCspectrum_%i.root", E0);
 	if ( det==1 ) sprintf(namefile, "MC_spectra/BEGe/MCspectrum_%i.root", E0);

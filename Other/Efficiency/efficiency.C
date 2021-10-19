@@ -1,6 +1,5 @@
 //   Available functions:
 //	- efficiency_fep(): to calculate e- absorption efficiencies (raw, LAr, PSD, LAr+PSD); N_tot = # primaries; eff -> starting from histogram entries
-//	- efficiency_tot(): to calculate total efficiencies (raw, LAr, PSD, LAr+PSD); N_tot = # primaries; eff -> starting from histogram entries
 //	- plot(): to plot the spectrum for a given type of detector, energy and cut
 //	- neighbour_raw_plot(): to plot two energies for a given detector (only LAr cut)
 //	- common(): to plot the same energy from super-wimps-phIIplus/ and super-wimps-phIIplus-lowthr/
@@ -160,7 +159,7 @@ int efficiency_fep() {
 					if ( det==2 ) { }
 				}
 				
-				if ( det==0 && energy>=200 ) { delta=1.8; }
+				//if ( det==0 && energy>=200 ) { delta=1.8; }
 				
 				for ( int state=0; state<=3; state++ ) {
 				
@@ -208,21 +207,18 @@ int efficiency_fep() {
 					
 					
 					TH1D *histo = (TH1D*) file->Get(dir_histo);
-					/*if ( energy==200 && det==0 && state==1 && phase==1 ) {
-						int cont = 0;
-						int z = 0;
-						while ( cont==0 ) {
-							z++;
-							cont = histo->GetBinContent(z);
-						}
-						cout << " x (first bin non null - Phase II) = " << z-1 << endl;
-					}*/
-					
 					
 					double sigma = 0;
-					if ( det==0 ) { sigma = sqrt (0.985 + 0.0001073*energy); }
-					if ( det==1 ) { sigma = sqrt (0.551 + 0.0004294*energy); }
-					if ( det==2 ) { sigma = sqrt (0.28 + 0.000583*energy); }
+					if ( phase==0 ) { // Phase II+ (post-upgrade)
+						if ( det==0 ) { sigma = sqrt (0.898 + 0.002*energy); }
+						if ( det==1 ) { sigma = sqrt (0.363 + 0.000432*energy); }
+						if ( det==2 ) { sigma = sqrt (0.28 + 0.000583*energy); }
+					}
+					if ( phase==1 ) { // Phase II (pre-upgrade)
+						if ( det==0 ) { sigma = sqrt (1.025 + 0.000647*energy); }
+						if ( det==1 ) { sigma = sqrt (0.681 + 0.000427*energy); }
+						if ( det==2 ) { sigma = sqrt (0.28 + 0.000583*energy); }
+					}
 					int bin_max = histo->GetMaximumBin();
 					int peak_mode = histo->GetBinContent(bin_max);
 					double FWHM = sqrt (8*log(2))*sigma;
@@ -241,7 +237,7 @@ int efficiency_fep() {
 					int nPeak = HistoIntegral(histo, xmin_sig, xmax_sig);
 					int nBkg = HistoIntegral(histo, xmin_L_bkg, xmin_R_bkg) + HistoIntegral(histo, xmax_L_bkg, xmax_R_bkg);
 					
-					double ratio = ( nPeak - nBkg ) / ( 1e7 + 0.0 );
+					double ratio = ( nPeak ) / ( 1e7 + 0.0 );
 					
 					if ( state==0 ) { eff_raw = ratio; }
 					if ( state==1 ) { eff_LAr = ratio; }
@@ -405,379 +401,6 @@ int efficiency_fep() {
 	
 	output1.close();
 	output2.close();
-	
-	return 0;
-}
-//=====================================================================================================================================
-//=====================================================================================================================================
-//=====================================================================================================================================
-int efficiency_tot() {
-	
-	// Phase II+
-	fstream write1;
-	write1.open("TotEff_phaseIIp_enrCoax.txt", ios::out);
-	fstream write2;
-	write2.open("TotEff_phaseIIp_enrBEGe.txt", ios::out);
-	fstream write3;
-	write3.open("TotEff_phaseIIp_invCoax.txt", ios::out);
-	// Phase II
-	fstream write4;
-	write4.open("TotEff_phaseII_enrCoax.txt", ios::out);
-	fstream write5;
-	write5.open("TotEff_phaseII_enrBEGe.txt", ios::out);
-	
-	fstream fileDetData;
-	fileDetData.open("detector-data/phase2I-detectorData.json", ios::in);
-	json j_DetData;
-	fileDetData >> j_DetData;
-	fileDetData.close();
-	
-	// Phase II
-	int enrCoax_energies_II[97] = { 60, 70, 80, 90, 						// 4
-					100, 110, 120, 130, 140, 150, 160, 165, 170, 180, 190, 195, 	// 12 -> ! Non esiste il file per E=165 keV !
-					200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 		// 10
-					300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 		// 10
-					400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 		// 10
-					500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 		// 10
-					600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 		// 10
-					700, 710, 720, 730, 740, 750, 760, 770, 780, 790, 		// 10
-					800, 810, 820, 830, 840, 850, 860, 870, 880, 890, 		// 10
-					900, 910, 920, 930, 940, 950, 960, 970, 980, 990, 1000};  	// 11
-	int enrBEGe_energies_II[97] = { 60, 70, 80, 90, 						// 4
-					100, 110, 120, 130, 140, 150, 160, 165, 170, 180, 190, 195, 	// 12
-					200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 		// 10
-					300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 		// 10
-					400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 		// 10
-					500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 		// 10
-					600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 		// 10
-					700, 710, 720, 730, 740, 750, 760, 770, 780, 790, 		// 10
-					800, 810, 820, 830, 840, 850, 860, 870, 880, 890, 		// 10
-					900, 910, 920, 930, 940, 950, 960, 970, 980, 990, 1000}; 	// 11
-		
-	// Phase II+			   
-	int enrCoax_energies_IIP[97] = { 60, 70, 80, 90, 						// 4
-					100, 110, 120, 130, 140, 150, 160, 165, 170, 180, 190, 195, 	// 12 -> ! Non esiste il file per E=165 keV !
-					200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 		// 10
-					300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 		// 10
-					400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 		// 10
-					500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 		// 10
-					600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 		// 10
-					700, 710, 720, 730, 740, 750, 760, 770, 780, 790, 		// 10
-					800, 810, 820, 830, 840, 850, 860, 870, 880, 890, 		// 10
-					900, 910, 920, 930, 940, 950, 960, 970, 980, 990, 1000};	// 11
-	int enrBEGe_energies_IIP[97] = { 60, 70, 80, 90, 						// 4
-					100, 110, 120, 130, 140, 150, 160, 165, 170, 180, 190, 195, 	// 12
-					200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 		// 10
-					300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 		// 10
-					400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 		// 10
-					500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 		// 10
-					600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 		// 10
-					700, 710, 720, 730, 740, 750, 760, 770, 780, 790, 		// 10
-					800, 810, 820, 830, 840, 850, 860, 870, 880, 890, 		// 10
-					900, 910, 920, 930, 940, 950, 960, 970, 980, 990, 1000};	// 11
-	int invCoax_energies_IIP[97] = { 60, 70, 80, 90, 						// 4
-					100, 110, 120, 130, 140, 150, 160, 165, 170, 180, 190, 195, 	// 12
-					200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 		// 10
-					300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 		// 10
-					400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 		// 10
-					500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 		// 10
-					600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 		// 10
-					700, 710, 720, 730, 740, 750, 760, 770, 780, 790, 		// 10
-					800, 810, 820, 830, 840, 850, 860, 870, 880, 890, 		// 10
-					900, 910, 920, 930, 940, 950, 960, 970, 980, 990, 1000};  	// 11
-				   
-	for ( int det=0; det<=2; det++ ) {
-		for ( int j=0; j<97; j++ ) {
-			for ( int phase=0; phase<=1; phase++ ) {
-		
-				if ( phase==0 ) { // Phase II+
-					if ( det==0 && j==11 ) { continue; }
-				}
-				if ( phase==1 ) { // Phase II
-					if ( det==0 && j==11 ) { continue; }
-				}
-			
-				double eff_raw=0, eff_LAr=0, eff_PSD=0, eff_LAr_PSD=0;
-				double eff_raw_tot=0, eff_LAr_tot=0, eff_PSD_tot=0, eff_LAr_PSD_tot=0;
-				double delta = 0;
-				
-				if ( det==0 ) { delta=2; }
-				if ( det==1 ) { delta=2.27; }
-				if ( det==2 ) { delta=2.63; }
-				
-				int energy = 0;
-                                if ( phase==0 ) { // Phase II+
-                                        if ( det==0 ) { energy = enrCoax_energies_IIP[j]; }
-                                        if ( det==1 ) { energy = enrBEGe_energies_IIP[j]; }
-                                        if ( det==2 ) { energy = invCoax_energies_IIP[j]; }
-                                }
-                                if ( phase==1 ) { // Phase II
-                                        if ( det==0 ) { energy = enrCoax_energies_II[j]; }
-                                        if ( det==1 ) { energy = enrBEGe_energies_II[j]; }
-                                        if ( det==2 ) { }
-                                }
-
-				
-				for ( int state=0; state<=3; state++ ) {
-				
-					char file_name[200];
-					if ( phase==0 ) { // Phase II+
-                                                if ( det==0 ) sprintf(file_name, "super-wimps-phIIplus/pdf-gedet-intrinsic_semicoax-electron_%ikeV.root", energy);
-                                                if ( det==1 ) sprintf(file_name, "super-wimps-phIIplus/pdf-gedet-intrinsic_bege-electron_%ikeV.root", energy);
-                                                if ( det==2 ) sprintf(file_name, "super-wimps-phIIplus/pdf-gedet-intrinsic_invcoax-electron_%ikeV.root", energy);
-                                        }
-                                        if ( phase==1 ) { // Phase II
-                                                if ( energy<=195 ) {
-                                                        if ( det==0 ) sprintf(file_name, "super-wimps-phII-lowthr/pdf-gedet-intrinsic_semicoax-electron_%ikeV.root", energy);
-                                                        if ( det==1 ) sprintf(file_name, "super-wimps-phII-lowthr/pdf-gedet-intrinsic_bege-electron_%ikeV.root", energy);
-                                                        if ( det==2 ) continue;
-                                                }
-                                                if ( energy>195 ) {
-                                                        if ( det==0 ) sprintf(file_name, "super-wimps-phII/pdf-gedet-intrinsic_semicoax-electron_%ikeV.root", energy);
-                                                        if ( det==1 ) sprintf(file_name, "super-wimps-phII/pdf-gedet-intrinsic_bege-electron_%ikeV.root", energy);
-                                                        if ( det==2 ) continue;
-                                                }
-                                        }
-
-					TFile *file = new TFile(file_name);
-					
-					char dir_histo[200];
-					if ( state==0 ) {
-						if ( det==0 ) sprintf(dir_histo, "raw/M1_enrCoax");
-						if ( det==1 ) sprintf(dir_histo, "raw/M1_enrBEGe");
-						if ( det==2 ) sprintf(dir_histo, "raw/M1_invCoax");
-					}
-					if ( state==1 ) {
-						if ( det==0 ) sprintf(dir_histo, "lar/M1_enrCoax");
-						if ( det==1 ) sprintf(dir_histo, "lar/M1_enrBEGe");
-						if ( det==2 ) sprintf(dir_histo, "lar/M1_invCoax");
-					}
-					if ( state==2 ) {
-						if ( det==0 ) sprintf(dir_histo, "psd/M1_enrCoax");
-						if ( det==1 ) sprintf(dir_histo, "psd/M1_enrBEGe");
-						if ( det==2 ) sprintf(dir_histo, "psd/M1_invCoax");
-					}
-					if ( state==3 ) {
-						if ( det==0 ) sprintf(dir_histo, "lar_psd/M1_enrCoax");
-						if ( det==1 ) sprintf(dir_histo, "lar_psd/M1_enrBEGe");
-						if ( det==2 ) sprintf(dir_histo, "lar_psd/M1_invCoax");
-					}
-					
-					
-					TH1D *histo = (TH1D*) file->Get(dir_histo);
-					
-					double sigma = 0;
-					if ( det==0 ) { sigma = sqrt (0.985 + 0.0001073*energy); }
-					if ( det==1 ) { sigma = sqrt (0.551 + 0.0004294*energy); }
-					if ( det==2 ) { sigma = sqrt (0.28 + 0.000583*energy); }
-					int bin_max = histo->GetMaximumBin();
-					int peak_mode = histo->GetBinContent(bin_max);
-					double FWHM = sqrt (8*log(2))*sigma;
-					
-					// signal window
-					double xmin_sig = energy-delta*FWHM;
-					double xmax_sig = energy+delta*FWHM;
-					
-					// bkg window (L and R of signal)
-					double xmin_L_bkg = energy-2*delta*FWHM;
-					double xmin_R_bkg = xmin_sig;
-					double xmax_L_bkg = xmax_sig;
-					double xmax_R_bkg = energy+2*delta*FWHM;
-					
-					// signal events
-					int nPeak = HistoIntegral(histo, xmin_sig, xmax_sig);
-					int nBkg = HistoIntegral(histo, xmin_L_bkg, xmin_R_bkg) + HistoIntegral(histo, xmax_L_bkg, xmax_R_bkg);
-					
-					double ratio = ( nPeak - nBkg ) / ( 1e7 + 0.0 );
-					
-					if ( state==0 ) { eff_raw = ratio; }
-					if ( state==1 ) { eff_LAr = ratio; }
-					if ( state==2 ) { eff_PSD = ratio; }
-					if ( state==3 ) { eff_LAr_PSD = ratio; }
-					
-					double M_av=0, M_tot=0;
-					const int detTOT = 41;
-					
-					// TOTAL EFFICIENCY
-					if ( det==0 ) { 
-						for ( int i=0; i<detTOT; i++ ) {
-							if ( (i>=0 && i<=35) && i!=8 && i!=9 && i!=10 && i!=27 && i!=28 && i!=29 ) {
-								char channel[10];
-								sprintf(channel, "%i", i);
-								M_av += j_DetData["detData"][channel]["activemass"].get<double>();
-								M_tot += j_DetData["detData"][channel]["mass"].get<double>();
-							}
-						}
-					}
-					if ( det==1 ) { 
-						for ( int i=0; i<detTOT; i++ ) {
-							if ( (i>=8 && i<=10) || (i>=27 && i<=29) ) { // nella phII c'è anche i==36
-								char channel[10];
-								sprintf(channel, "%i", i);
-								M_av += j_DetData["detData"][channel]["activemass"].get<double>();
-								M_tot += j_DetData["detData"][channel]["mass"].get<double>();
-							}
-						}
-					}
-					if ( det==2 ) { 
-						for ( int i=0; i<detTOT; i++ ) {
-							if ( i>=36 ) {
-								char channel[10];
-								sprintf(channel, "%i", i);
-								M_av += j_DetData["detData"][channel]["activemass"].get<double>();
-								M_tot += j_DetData["detData"][channel]["mass"].get<double>();
-							}
-						}
-					}
-					
-					if ( state==0 ) { eff_raw_tot = eff_raw*(M_av/M_tot); }
-					if ( state==1 ) { eff_LAr_tot = eff_LAr*(M_av/M_tot); }
-					if ( state==2 ) { eff_PSD_tot = eff_PSD*(M_av/M_tot); }
-					if ( state==3 ) { eff_LAr_PSD_tot = eff_LAr_PSD*(M_av/M_tot); }
-					
-					file->Close();
-				}
-			
-				if ( phase==0 ) { // Phase II+
-                                        if ( det==0 ) { write1 << energy << "\t\t" << eff_raw_tot << "\t\t" << eff_LAr_tot << "\t\t" << eff_PSD_tot << "\t\t" << eff_LAr_PSD_tot << endl; }
-                                        if ( det==1 ) { write2 << energy << "\t\t" << eff_raw_tot << "\t\t" << eff_LAr_tot << "\t\t" << eff_PSD_tot << "\t\t" << eff_LAr_PSD_tot << endl; }
-                                        if ( det==2 ) { write3 << energy << "\t\t" << eff_raw_tot << "\t\t" << eff_LAr_tot << "\t\t" << eff_PSD_tot << "\t\t" << eff_LAr_PSD_tot << endl; }
-                                }
-                                if ( phase==1 ) { // Phase II
-                                        if ( det==0 ) { write4 << energy << "\t\t" << eff_raw_tot << "\t\t" << eff_LAr_tot << "\t\t" << eff_PSD_tot << "\t\t" << eff_LAr_PSD_tot << endl; }
-                                        if ( det==1 ) { write5 << energy << "\t\t" << eff_raw_tot << "\t\t" << eff_LAr_tot << "\t\t" << eff_PSD_tot << "\t\t" << eff_LAr_PSD_tot << endl; }
-                                        if ( det==2 ) { }
-                                }	
-			}
-		}
-	}
-
-	write1.close();
-	write2.close();
-	write3.close();
-	write4.close();
-	write5.close();
-	
-	// efficiency plot
-	int a = plot_efficiency(1, 1); // 1 = to plot total efficiencies
-	
-	// write JSON files
-	fstream output1; // Phase II
-	output1.open("TotEff_phII.json", ios::out);
-	fstream output2; // Phase II+
-	output2.open("TotEff_phIIplus.json", ios::out);
-	
-	char name1[200], name2[200], name3[200], name4[200], name5[200];
-	sprintf(name1, "TotEff_phaseII_enrCoax.txt");
-	sprintf(name2, "TotEff_phaseII_enrBEGe.txt");
-	sprintf(name3, "TotEff_phaseIIp_enrCoax.txt");
-	sprintf(name4, "TotEff_phaseIIp_enrBEGe.txt");
-	sprintf(name5, "TotEff_phaseIIp_invCoax.txt");
-	ifstream input1(name1);
-	ifstream input2(name2);
-	ifstream input3(name3);
-	ifstream input4(name4);
-	ifstream input5(name5);
-	
-	Int_t rows_coax_II = NumberOfRows(name1);
-        Int_t rows_BEGe_II = NumberOfRows(name2);
-        double data_coax_II[rows_coax_II][5], data_BEGe_II[rows_BEGe_II][5];
-        Int_t rows_coax_IIP = NumberOfRows(name3);
-        Int_t rows_BEGe_IIP = NumberOfRows(name4);
-        Int_t rows_IC_IIP = NumberOfRows(name5);
-        double data_coax_IIP[rows_coax_IIP][5], data_BEGe_IIP[rows_BEGe_IIP][5], data_IC_IIP[rows_IC_IIP][5];
-	
-	for ( int i=0; i<rows_coax_II; i++ ) { for ( int j=0; j<5; j++ ) { input1 >> data_coax_II[i][j]; } }
-        for ( int i=0; i<rows_BEGe_II; i++ ) { for ( int j=0; j<5; j++ ) { input2 >> data_BEGe_II[i][j]; } }
-        for ( int i=0; i<rows_coax_IIP; i++ ) { for ( int j=0; j<5; j++ ) { input3 >> data_coax_IIP[i][j]; } }
-        for ( int i=0; i<rows_BEGe_IIP; i++ ) { for ( int j=0; j<5; j++ ) { input4 >> data_BEGe_IIP[i][j]; } }
-        for ( int i=0; i<rows_IC_IIP; i++ ) { for ( int j=0; j<5; j++ ) { input5 >> data_IC_IIP[i][j]; } }
-
-        input1.close();
-        input2.close();
-        input3.close();
-        input4.close();
-        input5.close();
-
-        json jfinal1, jfinal2;
-        // Phase II
-        for ( int i=0; i<rows_coax_II; i++ ) {
-
-                json jtot = json::object({ {"eff_raw", data_coax_II[i][1]},
-                                           {"eff_LAr", data_coax_II[i][2]},
-                                           {"eff_PSD", data_coax_II[i][3]},
-                                           {"eff_LAr_PSD", data_coax_II[i][4]} });
-
-                char energy[200];
-                sprintf(energy, "%g", data_coax_II[i][0]);
-                json jen = json::object({ {energy, jtot} });
-
-                if ( i==0 ) jfinal1["enrCoax"] = {jen};
-                else { jfinal1["enrCoax"].push_back({energy, jtot}); }
-        }
-        for ( int i=0; i<rows_BEGe_II; i++ ) {
-
-                json jtot = json::object({ {"eff_raw", data_BEGe_II[i][1]},
-                                           {"eff_LAr", data_BEGe_II[i][2]},
-                                           {"eff_PSD", data_BEGe_II[i][3]},
-                                           {"eff_LAr_PSD", data_BEGe_II[i][4]} });
-
-                char energy[200];
-                sprintf(energy, "%g", data_BEGe_II[i][0]);
-                json jen = json::object({ {energy, jtot} });
-
-                if ( i==0 ) jfinal1["enrBEGe"] = {jen};
-                else { jfinal1["enrBEGe"].push_back({energy, jtot}); }
-        }
-        // Phase II+
-	for ( int i=0; i<rows_coax_IIP; i++ ) {
-
-                json jtot = json::object({ {"eff_raw", data_coax_IIP[i][1]},
-                                           {"eff_LAr", data_coax_IIP[i][2]},
-                                           {"eff_PSD", data_coax_IIP[i][3]},
-                                           {"eff_LAr_PSD", data_coax_IIP[i][4]} });
-
-                char energy[200];
-                sprintf(energy, "%g", data_coax_IIP[i][0]);
-                json jen = json::object({ {energy, jtot} });
-
-                if ( i==0 ) jfinal2["enrCoax"] = {jen};
-                else { jfinal2["enrCoax"].push_back({energy, jtot}); }
-        }
-	for ( int i=0; i<rows_BEGe_IIP; i++ ) {
-
-                json jtot = json::object({ {"eff_raw", data_BEGe_IIP[i][1]},
-                                           {"eff_LAr", data_BEGe_IIP[i][2]},
-                                           {"eff_PSD", data_BEGe_IIP[i][3]},
-                                           {"eff_LAr_PSD", data_BEGe_IIP[i][4]} });
-
-                char energy[200];
-                sprintf(energy, "%g", data_BEGe_IIP[i][0]);
-                json jen = json::object({ {energy, jtot} });
-
-                if ( i==0 ) jfinal2["enrBEGe"] = {jen};
-                else { jfinal2["enrBEGe"].push_back({energy, jtot}); }
-        }
-        for ( int i=0; i<rows_IC_IIP; i++ ) {
-
-                json jtot = json::object({ {"eff_raw", data_IC_IIP[i][1]},
-                                           {"eff_LAr", data_IC_IIP[i][2]},
-                                           {"eff_PSD", data_IC_IIP[i][3]},
-                                           {"eff_LAr_PSD", data_IC_IIP[i][4]} });
-
-                char energy[200];
-                sprintf(energy, "%g", data_IC_IIP[i][0]);
-                json jen = json::object({ {energy, jtot} });
-
-                if ( i==0 ) jfinal2["invCoax"] = {jen};
-                else { jfinal2["invCoax"].push_back({energy, jtot}); }
-        }
-
-	output1 << jfinal1.dump(4) << std::endl; // Phase II    
-        output2 << jfinal2.dump(4) << std::endl; // Phase II+
-
-        output1.close();
-        output2.close();
 	
 	return 0;
 }
@@ -978,9 +601,16 @@ int neighbour_raw_plot() {
 	if ( det==2 ) delta=2.63;
 					
 	double sigma1=0.0, sigma2=0.0;
-	if ( det==0 ) { sigma1 = sqrt (0.985 + 0.0001073*En); sigma2 = sqrt (0.985 + 0.0001073*En2); }
-	if ( det==1 ) { sigma1 = sqrt (0.551 + 0.0004294*En); sigma2 = sqrt (0.551 + 0.0004294*En2); }
-	if ( det==2 ) { sigma1 = sqrt (0.28 + 0.000583*En); sigma2 = sqrt (0.28 + 0.000583*En2); }
+	if ( phase==0 ) { // Phase II+
+		if ( det==0 ) { sigma1 = sqrt (0.898 + 0.002*En); sigma2 = sqrt (0.898 + 0.002*En2); }
+		if ( det==1 ) { sigma1 = sqrt (0.363 + 0.000432*En); sigma2 = sqrt (0.363 + 0.000432*En2); }
+		if ( det==2 ) { sigma1 = sqrt (0.28 + 0.000583*En); sigma2 = sqrt (0.28 + 0.000583*En2); }
+	}
+	if ( phase==1 ) { // Phase II
+		if ( det==0 ) { sigma1 = sqrt (1.025 + 0.000647*En); sigma2 = sqrt (1.025 + 0.000647*En2); }
+		if ( det==1 ) { sigma1 = sqrt (0.681 + 0.000427*En); sigma2 = sqrt (0.681 + 0.000427*En2); }
+		if ( det==2 ) { sigma1 = sqrt (0.28 + 0.000583*En); sigma2 = sqrt (0.28 + 0.000583*En2); }
+	}
 	int bin_max1 = histo1->GetMaximumBin();
 	int bin_max2 = histo2->GetMaximumBin();
 	int peak_mode1 = histo1->GetBinContent(bin_max1);
@@ -1011,8 +641,8 @@ int neighbour_raw_plot() {
 	int nBkg1 = HistoIntegral(histo1, xmin_L_bkg1, xmin_R_bkg1) + HistoIntegral(histo1, xmax_L_bkg1, xmax_R_bkg1);
 	int nBkg2 = HistoIntegral(histo2, xmin_L_bkg2, xmin_R_bkg2) + HistoIntegral(histo2, xmax_L_bkg2, xmax_R_bkg2);
 	// efficiencies	
-	double ratio1 = ( nPeak1 - nBkg1 ) / ( 1e7 + 0.0 );
-	double ratio2 = ( nPeak2 - nBkg2 ) / ( 1e7 + 0.0 );
+	double ratio1 = ( nPeak1 ) / ( 1e7 + 0.0 );
+	double ratio2 = ( nPeak2 ) / ( 1e7 + 0.0 );
 	
 	cout << "\n\n 1)\n xmin_sig1 = " << xmin_sig1 << "\t xmax_sig1 = " << xmax_sig1 << endl;
 	cout << " xmin_L_bkg1 = " << xmin_L_bkg1 << "\t xmin_R_bkg1 = " << xmin_R_bkg1 << endl;
@@ -1134,14 +764,21 @@ int common() {
 	histo2->SetStats(kFALSE);
 	
 	double delta=0.0, delta2=0.0;
-	if ( det==0 ) delta=2; delta2=1.8;
+	if ( det==0 ) delta=2; delta2=2;
 	if ( det==1 ) delta=2.27;
 	if ( det==2 ) delta=2.63;
 					
 	double sigma1=0.0, sigma2=0.0;
-	if ( det==0 ) { sigma1 = sqrt (0.985 + 0.0001073*En); sigma2 = sqrt (0.985 + 0.0001073*En2); }
-	if ( det==1 ) { sigma1 = sqrt (0.551 + 0.0004294*En); sigma2 = sqrt (0.551 + 0.0004294*En2); }
-	if ( det==2 ) { sigma1 = sqrt (0.28 + 0.000583*En); sigma2 = sqrt (0.28 + 0.000583*En2); }
+	if ( phase==0 ) { // Phase II+
+		if ( det==0 ) { sigma1 = sqrt (0.898 + 0.002*En); sigma2 = sqrt (0.898 + 0.002*En2); }
+		if ( det==1 ) { sigma1 = sqrt (0.363 + 0.000432*En); sigma2 = sqrt (0.363 + 0.000432*En2); }
+		if ( det==2 ) { sigma1 = sqrt (0.28 + 0.000583*En); sigma2 = sqrt (0.28 + 0.000583*En2); }
+	}
+	if ( phase==1 ) { // Phase II
+		if ( det==0 ) { sigma1 = sqrt (1.025 + 0.000647*En); sigma2 = sqrt (1.025 + 0.000647*En2); }
+		if ( det==1 ) { sigma1 = sqrt (0.681 + 0.000427*En); sigma2 = sqrt (0.681 + 0.000427*En2); }
+		if ( det==2 ) { sigma1 = sqrt (0.28 + 0.000583*En); sigma2 = sqrt (0.28 + 0.000583*En2); }
+	}
 	int bin_max1 = histo1->GetMaximumBin();
 	int bin_max2 = histo2->GetMaximumBin();
 	int peak_mode1 = histo1->GetBinContent(bin_max1);
@@ -1172,8 +809,8 @@ int common() {
 	int nBkg1 = HistoIntegral(histo1, xmin_L_bkg1, xmin_R_bkg1) + HistoIntegral(histo1, xmax_L_bkg1, xmax_R_bkg1);
 	int nBkg2 = HistoIntegral(histo2, xmin_L_bkg2, xmin_R_bkg2) + HistoIntegral(histo2, xmax_L_bkg2, xmax_R_bkg2);
 	// efficiencies	
-	double ratio1 = ( nPeak1 - nBkg1 ) / ( 1e7 + 0.0 );
-	double ratio2 = ( nPeak2 - nBkg2 ) / ( 1e7 + 0.0 );
+	double ratio1 = ( nPeak1 ) / ( 1e7 + 0.0 );
+	double ratio2 = ( nPeak2 ) / ( 1e7 + 0.0 );
 	
 	cout << "\n\n 1)\n xmin_sig1 = " << xmin_sig1 << "\t xmax_sig1 = " << xmax_sig1 << endl;
 	cout << " xmin_L_bkg1 = " << xmin_L_bkg1 << "\t xmin_R_bkg1 = " << xmin_R_bkg1 << endl;

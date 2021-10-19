@@ -1,4 +1,4 @@
-In this file, you can see the meaning of the value of output[k] (or outputK).There are two cases:
+In this file, you can see the meaning of the value of output[k] (or outputK). There are two cases:
   1) peaks that differ more than 24 keV;
   2) peaks that differ less than 24 keV.
 The peak search starts from a fit window of 24 keV in width having x1 as the lower limit and x2 as

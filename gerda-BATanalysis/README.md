@@ -2,6 +2,18 @@
 ```json
 In DataAnalysis you will find:
 ```
+```html
+In DataAnalysis you will find:
+```
+```js
+In DataAnalysis you will find:
+```
+```css
+In DataAnalysis you will find:
+```
+```c++
+In DataAnalysis you will find:
+```
 * **"peak_search.sh"**: starting program for the analysis. It requires as input parameters the central energy (_E0_) of the fit window and the number of fit you want to perform. Detector resultions must be changed by hand. Pay attention to the re-definition of _xL_ and _xR_ when you use spectrum normalized by exposure.
 * **"runDataAnalysis.cxx"**: main program for the analysis. It takes input values (_E0, pol_degree, xL, xR, k, output(k)_) from "peak_search.sh":
   * _pol_degree_ for the BKG is 0 (>1700 keV), 1, or 2 (<195 keV);

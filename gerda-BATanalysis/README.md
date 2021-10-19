@@ -1,5 +1,5 @@
 ## gerda-BATanalysis
-In DataAnalysis you'll find:
+In DataAnalysis you will find:
 * **"peak_search.sh"**: starting program for the analysis. It requires as input parameters the central energy (_E0_) of the fit window and the number of fit you want to perform. Detector resultions must be changed by hand. Pay attention to the re-definition of _xL_ and _xR_ when you use spectrum normalized by exposure.
 * **"runDataAnalysis.cxx"**: main program for the analysis. It takes input values (_E0, pol_degree, xL, xR, k, output(k)_) from "peak_search.sh":
   * _pol_degree_ for the BKG is 0 (>1700 keV), 1, or 2 (<195 keV);
@@ -16,3 +16,5 @@ In DataAnalysis you'll find:
 * **"read_JSON.cpp"**: file that print JSON files and create .txt files containing fit results.
 * **"PosteriorCheck.C"**: to analyze marginalized posteriors and see if they are well contained in the previusly well-defined range.
 * **"par_VS_E0.C"**: to plot fit results as a function of the energy.
+* **"DistributionCheck.C"**: to study the shape of marginalized posteriors. Posteriors are fit with a pol0 function; if chi2 is too high, posteriors are unlikely constant (-> gaussian). Problems arise if constant posteriors are detected.
+* **"content_eff_correction.C"**: to calculate .txt and .root files for normalized spectra corrected by the efficiencies.

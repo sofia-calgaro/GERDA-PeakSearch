@@ -1,3 +1,4 @@
+# GERDA-PeakSearch
 ## gerda-BATanalysis
 * **"peak_search.sh"**: starting program for the analysis. It requires as input parameters the central energy (_E0_) of the fit window.
 * **"runDataAnalysis.cxx"**: main program for the analysis. It takes six input values (_E0, pol_degree, xL, xR, k, output(k)_) directly from the analysis performed in "peak_search.sh":

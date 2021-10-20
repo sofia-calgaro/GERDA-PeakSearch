@@ -4,6 +4,6 @@
 * **Livetimes**: 
 * **MC**: to perform a MC study after the BAT analysis (sampling from BKG fit parameters -> fit using the signal+BKG models).
 * **PSD**: to analyze data/results of spectra made up with only PSD data.
-* **SuperWIMPs_couplings**: to extract limits on SuperWIMP couplings (startinf grom U90 limits on R_s).
+* **SuperWIMPs_couplings**: to extract limits on SuperWIMP couplings (startinf grom U90 limits on the signal count rate).
 * **run_config**: to study when detectors are ON/OFF/AC.
-* **sigma**: to study the significance for R_s.
+* **sigma**: to study the significance for the signal count rate.

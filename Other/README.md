@@ -1,5 +1,6 @@
 * **Codes**: codes for different types of analysis.
-* **Efficiency**: to calculate/plot detection efficiencies for SuperWIMP interactions within Ge detectors; Rizalina and Katharina efficiencies are available.
+* **Compton_gamma**: to calculate/plot gamma detection efficiencies within Ge detectors.
+* **Efficiency**: to calculate/plot electron detection efficiencies within Ge detectors; Rizalina and Katharina efficiencies are available.
 * **FWHM**: to calculate FWHM for each dataset at different energies.
 * **Livetimes**: 
 * **MC**: to perform a MC study after the BAT analysis (sampling from BKG fit parameters -> fit using the signal+BKG models).

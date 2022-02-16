@@ -266,8 +266,8 @@ int main(int argc, char *argv[])
                                  inpval[10], inpval[11], inpval[12]};   // gaussian height ranges
     
     //---------------------------------------------------------------------------------------------------------------------- ANALYSIS      (....aggiungere i due modelli....)
-    //VectorModel m(name_model, bin_content_0, FitVariables, peak);
-    PseudoscalarModel m(name_model, bin_content_0, FitVariables, peak);
+    VectorModel m(name_model, bin_content_0, FitVariables, peak);
+    //PseudoscalarModel m(name_model, bin_content_0, FitVariables, peak);
     m.SetDataSet(&data_set);
     m.SetPrecision(BCEngineMCMC::kHigh); // kHigh   kVeryHigh
     

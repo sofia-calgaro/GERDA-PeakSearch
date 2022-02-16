@@ -138,30 +138,19 @@ double *FindMaximumSignalHeight(int E0) {
 	double *results = new double[2]; // alpha | g_ae
 	
 	int i = 0;
-	int par = 0;
-	while (i<1000) {
+	while (i<941+22) {
 	
 		int row_eff = i+20;		
 		int energy = i+60;
 		int data_line = i;
+		int last_line = row-1;
 		
 		// missing energies		
-		if ( energy>89 ) par = 1;
-		if ( energy>97 ) par = 2;
-		if ( energy>98 ) par = 3;
+		if ( energy!=data[i][0] ) {
+			data_line++;
+			last_line++;
+		} 
 		
-		if ( par==1 ) {
-			energy = energy+1; 
-			row_eff = row_eff+1;
-		}
-		if ( par==2 ) {
-			energy = energy+2; 
-			row_eff = row_eff+2;
-		}
-		if ( par==3 ) {
-			energy = energy+3; 
-			row_eff = row_eff+3;
-		}
 		
 		double exposure_0=0.0, exposure_1=0.0;
 		if ( energy<195 ) { exposure_0 = 6.7*365.25; exposure_1 = 7.7*365.25; }
@@ -170,7 +159,9 @@ double *FindMaximumSignalHeight(int E0) {
 		double eff_bege = eff_BEGe_II_riz[row_eff][1];
 		double eff_coax = eff_coax_II_riz[row_eff][1];
 	
-		double R90 = data[data_line][1] / 365.25;  // [counts/kg*days]
+		double R90 = 0.0;
+		if ( E0>1000 ) { R90 = data[last_line][1] / 365.25; }  // [counts/kg*days]
+		else           { R90 = data[data_line][1] / 365.25; }  // [counts/kg*days]
 		const double A = 75.921402725*0.88;
 		
 		// vector superWIMPs

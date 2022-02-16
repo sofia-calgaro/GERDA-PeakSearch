@@ -23,7 +23,9 @@ VectorModel::VectorModel(const std::string& name, std::vector<double> bin_conten
 	    int rng_E2 = FitVariables[14];
 	    int k = 0;
 	    
-	    char inupt_name[300]; sprintf(inupt_name, "/home/sofia/Analysis/PRL_analysis/JsonFiles/53_93_coax_PSD_ConstantP/JsonFile%i.json", E0);
+	    char inupt_name[300]; 
+	    if ( E0>1000 ) { sprintf(inupt_name, "/home/sofia/Analysis/PRL_analysis/JsonFiles/53_93_coax_PSD_ConstantP/JsonFile1000.json"); }
+	    else           { sprintf(inupt_name, "/home/sofia/Analysis/PRL_analysis/JsonFiles/53_93_coax_PSD_ConstantP/JsonFile%i.json", E0); }
 	    std::ifstream input_json(inupt_name);
 	    json j_read; input_json >> j_read; input_json.close();
 	    
@@ -133,6 +135,10 @@ VectorModel::VectorModel(const std::string& name, std::vector<double> bin_conten
 			    // Quadratic term
 			    AddParameter("p2", min_p2, max_p2, "p2", "[cts/keV^2]");
 			    GetParameters().Back().SetPriorConstant();
+			    
+			    std::cout << " p0 - min : " << min_p0 << "    - max : " << max_p0 << std::endl;
+			    std::cout << " p1 - min : " << min_p1 << "    - max : " << max_p1 << std::endl;
+			    std::cout << " p2 - min : " << min_p2 << "    - max : " << max_p2 << std::endl;
 		    }
 		    
 		    else if ( peak[1]==true ) {

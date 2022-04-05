@@ -32,6 +32,7 @@ xR (upper).
   outputK = 20  ->   Two gamma peaks are present, the left one OUTSIDE, the right one in x1
   outputK = 21  ->   Two gamma peaks are present, the left one OUTSIDE-NEAR, the right one OUTSIDE
   outputK = 22  ->   Two gamma peaks are present, the left one OUTSIDE, the right one OUTSIDE-NEAR
+NOTE: new peaks are added (23, 24)
 
 
 The fit function contains:
